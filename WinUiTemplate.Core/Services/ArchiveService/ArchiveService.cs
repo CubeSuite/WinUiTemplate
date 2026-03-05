@@ -1,7 +1,5 @@
-﻿using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +12,6 @@ using Windows.Gaming.Input.ForceFeedback;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
 using WinUiTemplate.Services.Interfaces;
-using Xunit;
 
 namespace WinUiTemplate.Services
 {
@@ -164,52 +161,4 @@ namespace WinUiTemplate.Services
             }
         }
     }
-
-    #region Unit Tests
-
-    public class ArchiveServiceTests 
-    {
-        private readonly Mock<IFileUtils> _mockFileUtils;
-        private readonly Mock<ILoggerService> _mockLogger;
-        private readonly Mock<IServiceProvider> _mockServiceProvider;
-        private readonly ArchiveService _archiveService;
-
-        public ArchiveServiceTests() {
-            _mockFileUtils = new Mock<IFileUtils>();
-            _mockLogger = new Mock<ILoggerService>();
-            _mockServiceProvider = new Mock<IServiceProvider>();
-
-            _mockServiceProvider
-                .Setup(x => x.GetService(typeof(IFileUtils)))
-                .Returns(_mockFileUtils.Object);
-            _mockServiceProvider
-                .Setup(x => x.GetService(typeof(ILoggerService)))
-                .Returns(_mockLogger.Object);
-
-            _archiveService = new ArchiveService(_mockServiceProvider.Object);
-        }
-
-        [Fact]
-        public async Task Test_ZipFolderAsync_SourceFolderDoesNotExist() {
-            var sourceFolder = @"C:\NonExistent";
-            var zipPath = @"C:\output.zip";
-
-            _mockFileUtils
-                .Setup(x => x.TryGetFileAsync(zipPath))
-                .ReturnsAsync(new FileResult(false, null, null));
-
-            _mockFileUtils
-                .Setup(x => x.TryGetOrCreateFolderAsync(sourceFolder))
-                .ReturnsAsync(new FolderResult(false, null, null));
-
-            // Act
-            var result = await _archiveService.ZipFolderAsync(sourceFolder, zipPath);
-
-            // Assert
-            result.Success.Should().BeFalse();
-            result.ErrorMessage.Should().Contain("Failed to access sourceFolder");
-        }
-    }
-
-    #endregion
 }

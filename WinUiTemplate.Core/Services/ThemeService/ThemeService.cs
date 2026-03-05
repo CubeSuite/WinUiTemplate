@@ -31,6 +31,7 @@ namespace WinUiTemplate.Services
         };
 
         // Constructors
+
         public ThemeService(IServiceProvider serviceProvider) {
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
             userSettings.SettingChanged += OnSettingChanged;
