@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.MVVM.Pages;
 using WinUiTemplate.Services.Interfaces;
 
 namespace WinUiTemplate.Services

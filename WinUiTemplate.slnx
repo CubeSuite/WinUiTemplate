@@ -6,6 +6,8 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="WinUiTemplate.Core/WinUiTemplate.Core.csproj" Id="6da608f0-6cad-44c0-aa45-f3dca47d8544" />
+  <Project Path="WinUiTemplate.Tests/WinUiTemplate.Tests.csproj" Id="dceb18d0-723b-470e-91ae-63c7c4c8c652" />
   <Project Path="WinUiTemplate/WinUiTemplate.csproj">
     <Platform Solution="*|Any CPU" Project="x64" />
     <Platform Solution="*|ARM" Project="x64" />
