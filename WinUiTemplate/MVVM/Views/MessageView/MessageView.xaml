@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl x:Class="WinUiTemplate.MVVM.Views.MessageView.MessageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:WinUiTemplate.MVVM.Views.MessageView"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+
+    <StackPanel Spacing="12">
+        <Grid Padding="12"
+              Background="{Binding HeaderBackground}"
+              CornerRadius="4">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8">
+                <FontIcon FontSize="20"
+                          Foreground="{Binding IconForeground}"
+                          Glyph="{Binding Icon}" />
+                <TextBlock Text="{Binding Title}"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold" />
+            </StackPanel>
+        </Grid>
+
+        <TextBlock Text="{Binding Message}"
+                   Margin="4,0,4,0"
+                   TextWrapping="Wrap" />
+    </StackPanel>
+
+</UserControl>

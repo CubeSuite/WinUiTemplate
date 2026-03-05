@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page x:Class="WinUiTemplate.MVVM.Pages.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:community="using:CommunityToolkit.WinUI.Controls"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:local="using:WinUiTemplate.MVVM.Pages"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:vms="using:WinUiTemplate.MVVM.Models.ViewModels.Settings"
+      mc:Ignorable="d">
+    <Grid>
+        <ScrollViewer>
+            <ItemsRepeater x:Name="expandersContainer"
+                           ItemsSource="{Binding SettingsCategories}"
+                           Margin="16">
+                <ItemsRepeater.Layout>
+                    <StackLayout Orientation="Vertical"
+                                 Spacing="16" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate>
+                        <community:SettingsExpander Header="{Binding Category}"
+                                                    ItemsSource="{Binding Settings}">
+                            <community:SettingsExpander.ItemTemplate>
+                                <DataTemplate>
+                                    <community:SettingsCard Header="{Binding Name}"
+                                                            Description="{Binding Description}">
+                                        <community:SettingsCard.HeaderIcon>
+                                            <FontIcon Glyph="{Binding Icon}" />
+                                        </community:SettingsCard.HeaderIcon>
+                                        <community:SwitchPresenter Value="{Binding Type}">
+
+                                            <community:Case Value="System.Boolean">
+                                                <ToggleSwitch IsOn="{Binding Value, Mode=TwoWay}" />
+                                            </community:Case>
+
+                                            <community:Case Value="System.String">
+                                                <TextBox Text="{Binding Value, Mode=TwoWay}" />
+                                            </community:Case>
+
+                                            <community:Case Value="Windows.UI.Color">
+                                                <community:ColorPickerButton SelectedColor="{Binding Value, Mode=TwoWay}" />
+                                            </community:Case>
+
+                                            <community:Case Value="Enum">
+                                                <ComboBox ItemsSource="{Binding Options}"
+                                                          SelectedItem="{Binding Value, Mode=TwoWay}" />
+                                            </community:Case>
+
+                                            <community:Case Value="Comparable">
+                                                <NumberBox Value="{Binding Value, Mode=TwoWay}"
+                                                           Minimum="{Binding Min}"
+                                                           Maximum="{Binding Max}"
+                                                           LargeChange="1"
+                                                           SmallChange="1"
+                                                           SpinButtonPlacementMode="Inline" />
+                                            </community:Case>
+
+                                            <community:Case Value="Button">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                    <ProgressRing IsActive="True"
+                                                                  Visibility="{Binding LoaderVisibility}" />
+                                                    <Button Content="{Binding ButtonText}"
+                                                            Command="{Binding ExecuteButtonActionCommand}" />
+                                                </StackPanel>
+                                            </community:Case>
+
+                                            <community:Case Value="FilePath">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                    <TextBox Text="{Binding Value, Mode=TwoWay}"
+                                                             PlaceholderText="Path..." />
+                                                    <Button Content="Browse"
+                                                            Command="{Binding ExecuteButtonActionCommand}" />
+                                                </StackPanel>
+                                            </community:Case>
+
+                                        </community:SwitchPresenter>
+                                    </community:SettingsCard>
+                                </DataTemplate>
+                            </community:SettingsExpander.ItemTemplate>
+                        </community:SettingsExpander>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+        </ScrollViewer>
+    </Grid>
+</Page>
