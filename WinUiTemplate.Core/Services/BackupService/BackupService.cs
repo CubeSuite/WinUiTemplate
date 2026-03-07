@@ -53,24 +53,49 @@ namespace WinUiTemplate.Services
         // Public Functions
 
         public async Task<OperationResult> CreateBackupAsync(CancellationToken cancellationToken = default) {
+            if (cancellationToken.IsCancellationRequested) {
+                return new OperationResult(false, "Backup cancelled", false);
+            }
+            
             if (!programData.EnableBackups) return new OperationResult(false, "Backups are disabled", false);
+            if (!userSettings.AutomaticBackups) return new OperationResult(false, "Backups are disabled", false);
             if (string.IsNullOrWhiteSpace(userSettings.BackupsFolder)) return new OperationResult(false, "Backups folder not configured", false);
 
-            OperationResult validateResult = await ValidateBackupFolderAsync();
-            if (!validateResult.Success) return validateResult;
+            try {
+                OperationResult validateResult = await ValidateBackupFolderAsync();
+                if (!validateResult.Success) return validateResult;
 
-            string fileName = fileUtils.GetFileSafeTimestamp() + ".zip";
-            string zipPath = Path.Combine(userSettings.BackupsFolder, fileName);
+                string fileName = fileUtils.GetFileSafeTimestamp() + ".zip";
+                string zipPath = Path.Combine(userSettings.BackupsFolder, fileName);
 
-            await WriteBackupMetadata(zipPath, cancellationToken);
-            OperationResult zipResult = await archiveService.ZipFolderAsync(programData.FilePaths.RootFolder, zipPath, cancellationToken);
-            if (zipResult.Success) {
-                await CheckMaxBackups();
-                BackupCreated?.Invoke();
-                notificationService.Notify(InfoBarSeverity.Success, "Successfully backed up data");
+                cancellationToken.ThrowIfCancellationRequested();
+
+                OperationResult metadataResult = await WriteBackupMetadata(zipPath, cancellationToken);
+                if (!metadataResult.Success) return new OperationResult(false, "Failed to create backup metadata file", true);
+
+                cancellationToken.ThrowIfCancellationRequested();
+                OperationResult zipResult = await archiveService.ZipFolderAsync(programData.FilePaths.RootFolder, zipPath, cancellationToken);
+                if (zipResult.Success) {
+                    await CheckMaxBackups();
+                    BackupCreated?.Invoke();
+                    notificationService.Notify(InfoBarSeverity.Success, "Successfully backed up data");
+                }
+                else if (!zipResult.ErrorMessage.Contains("cancel")) {
+                    string error = $"Failed to create backup: {zipResult.ErrorMessage}";
+                    logger.LogError(error);
+                    notificationService.Notify(InfoBarSeverity.Error, error);
+                }
+
+                return zipResult;
             }
-
-            return zipResult;
+            catch (OperationCanceledException e) {
+                return new OperationResult(false, "Backup cancelled", false);
+            }
+            catch (Exception e) {
+                string error = $"Backup creation failed: {e.Message}";
+                logger.LogError(error);
+                return new OperationResult(false, error, true);
+            }
         }
 
         public async Task<OperationResult> RestoreBackupAsync(string zipPath, CancellationToken cancellationToken = default) {
@@ -113,17 +138,14 @@ namespace WinUiTemplate.Services
             if (!result.Success) return new OperationResult(false, result.ErrorMessage, true);
 
             FileResult metadataFileResult = await fileUtils.TryGetFileAsync(programData.FilePaths.TempMetadataFile);
-            if (!metadataFileResult.Success || metadataFileResult.File == null) {
-                return new OperationResult(true, "Couldn't access metadata.json", false);
-            }
-
-            try {
-                await metadataFileResult.File.DeleteAsync();
-            }
-            catch (Exception e) {
-                string error = $"Couldn't delete metadata.json: '{e.Message}'";
-                Debug.Assert(false, error);
-                return new OperationResult(true, error, false);
+            if (metadataFileResult.Success) {
+                try {
+                    await metadataFileResult.File.DeleteAsync();
+                }
+                catch (Exception e) {
+                    string error = $"Couldn't delete metadata.json: '{e.Message}'";
+                    Debug.Assert(false, error);
+                }
             }
 
             await dialogService.ShowMessage(

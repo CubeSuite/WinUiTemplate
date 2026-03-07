@@ -152,7 +152,7 @@ namespace WinUiTemplate.Services
                 return new OperationResult(true, "", false);
             }
             catch (OperationCanceledException) {
-                return new OperationResult(false, "Restore cancelled", false);
+                return new OperationResult(false, "Extract cancelled", false);
             }
             catch (Exception e) {
                 string error = $"Unzip failed: {e.Message}";
