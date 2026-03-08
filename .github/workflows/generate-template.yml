@@ -1,0 +1,85 @@
+name: Generate Template
+on:
+  workflow_dispatch:
+  
+
+jobs:
+  generate-template:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Copy project files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path "./template-output" -Force
+          New-Item -ItemType Directory -Path "./template-output/.github" -Force
+          New-Item -ItemType Directory -Path "./template-output/.github/workflows" -Force
+      
+          Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/.github/workflows/run-unit-tests.yml" -Recurse -Force
+          Copy-Item -Path "*.sln*" -Destination "./template-output" -Force
+          Copy-Item -Path ".gitignore" -Destination "./template-output/.gitignore" -Force
+          Copy-Item -Path "LICENSE.txt" -Destination "./template-output/LICENSE.txt" -Force
+          Copy-Item -Path "README.md" -Destination "./template-output/README.md" -Force
+
+          Copy-Item -Path "WinUiTemplate/*" -Destination "./template-output/WinUiTemplate" -Recurse -Exclude @("bin", "obj", ".vs", "*.user")
+          Copy-Item -Path "WinUiTemplate.Core/*" -Destination "./template-output/WinUiTemplate.Core" -Recurse -Exclude @("bin", "obj")
+          Copy-Item -Path "WinUiTemplate.Tests/*" -Destination "./template-output/WinUiTemplate.Tests" -Recurse -Exclude @("bin", "obj")
+
+      - name: Replace project name
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "./template-output" -Recurse -File | ForEach-Object {
+            if ($_.Extension -match '\.(cs|csproj|xml|xaml|json|sln|slnx|txt|md)$') {
+              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$safeprojectname$' | Set-Content $_.FullName -NoNewLine
+            }
+          }
+
+          Get-ChildItem -Path "./template-output" -Recurse -Depth 5 |
+            Where-Object { $_.Name -like '*WinUiTemplate*' } |
+            Sort-Object -Property FullName -Descending |
+            ForEach-Object {
+              $newName = $_.Name -replace 'WinUiTemplate', '$safeprojectname$'
+              Rename-Item -Path $_.FullName -NewName $newName
+            }
+
+      - name: Create vstemplate file
+        run: |
+          $vstemplateContent = @"
+          <VSTemplate Version="3.0.0" Type="ProjectGroup" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+            <TemplateData>
+              <Name>WinUI 3 MVVM Template</Name>
+              <Description>A WinUI 3 project template with MVVM & DI architecture</Description>
+              <ProjectType>CSharp</ProjectType>
+              <DefaultName>WinUi3App</DefaultName>
+              <ProvideDefaultName>true</ProvideDefaultName>
+            </TemplateData>
+            <TemplateContent>
+              <ProjectCollection>
+                <ProjectTemplateLink ProjectName="`$safeprojectname`$">
+                  `$safeprojectname`$\`$safeprojectname`$.csproj
+                </ProjectTemplateLink>
+                <ProjectTemplateLink ProjectName="`$safeprojectname`$.Core">
+                  `$safeprojectname`$.Core\`$safeprojectname`$.Core.csproj
+                </ProjectTemplateLink>
+                <ProjectTemplateLink ProjectName="`$safeprojectname`$.Tests">
+                  `$safeprojectname`$.Tests\`$safeprojectname`$.Tests.csproj
+                </ProjectTemplateLink>
+                <SolutionFolder Name="`$safeprojectname`$">
+                </SolutionFolder>
+              </ProjectCollection>
+            </TemplateContent>
+          </VSTemplate>
+          "@
+          Set-Content -Path "./template-output/MyTemplate.vstemplate" -Value $vstemplateContent
+
+      - name: Create template zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "./template-output/*" -DestinationPath "./WinUiTemplate.zip" -Force
+
+      - name: Upload template artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-studio-template
+          path: ./WinUiTemplate.zip
