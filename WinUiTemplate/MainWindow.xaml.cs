@@ -46,6 +46,7 @@ namespace WinUiTemplate
         private readonly IBackupService backupService;
         private readonly IDialogService dialogService;
         private readonly IThemeService themeService;
+        private readonly INavigationService navigationService;
 
         // Constructors
 
@@ -56,6 +57,7 @@ namespace WinUiTemplate
             backupService = serviceProvider.GetRequiredService<IBackupService>();
             dialogService = serviceProvider.GetRequiredService<IDialogService>();
             themeService = serviceProvider.GetRequiredService<IThemeService>();
+            navigationService = serviceProvider.GetRequiredService<INavigationService>();
 
             userSettings.SettingsLoaded += OnSettingsLoaded;
             themeService.ThemeChangeRequested += OnThemeChangeRequested;
@@ -137,6 +139,9 @@ namespace WinUiTemplate
         private void InitialiseMainPage() {
             MainPage mainPage = new MainPage(serviceProvider);
             mainPage.DataContext = new MainPageViewModel(serviceProvider);
+
+            navigationService.Navigate(new HomePageViewModel(serviceProvider));
+
             mainPage.SetValue(Grid.RowProperty, 1);
             rootGrid.Children.Add(mainPage);
         }
