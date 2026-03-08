@@ -20,8 +20,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Navigate_InvokesNavigationRequestedEvent_WhenAllowNavigationIsTrue() {
-            var navigationService = new NavigationService();
-            var viewModel = new TestViewModel { Name = "TestPage" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
             ObservableObject? capturedViewModel = null;
 
             navigationService.NavigationRequested += (vm) => capturedViewModel = vm;
@@ -34,8 +34,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Navigate_DoesNotInvokeNavigationRequestedEvent_WhenAllowNavigationIsFalse() {
-            var navigationService = new NavigationService();
-            var viewModel = new TestViewModel { Name = "TestPage" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
             bool eventInvoked = false;
 
             navigationService.AllowNavigation = false;
@@ -48,9 +48,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Navigate_PassesCorrectViewModel_ToEvent() {
-            var navigationService = new NavigationService();
-            var viewModel1 = new TestViewModel { Name = "Page1" };
-            var viewModel2 = new TestViewModel { Name = "Page2" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel1 = new TestViewModel { Name = "Page1" };
+            TestViewModel viewModel2 = new TestViewModel { Name = "Page2" };
             ObservableObject? lastNavigatedViewModel = null;
 
             navigationService.NavigationRequested += (vm) => lastNavigatedViewModel = vm;
@@ -64,10 +64,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Navigate_CanBeCalledMultipleTimes() {
-            var navigationService = new NavigationService();
-            var viewModel1 = new TestViewModel { Name = "Page1" };
-            var viewModel2 = new TestViewModel { Name = "Page2" };
-            var viewModel3 = new TestViewModel { Name = "Page3" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel1 = new TestViewModel { Name = "Page1" };
+            TestViewModel viewModel2 = new TestViewModel { Name = "Page2" };
+            TestViewModel viewModel3 = new TestViewModel { Name = "Page3" };
             int navigationCount = 0;
 
             navigationService.NavigationRequested += (vm) => navigationCount++;
@@ -81,8 +81,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Navigate_DoesNotThrow_WhenNoSubscribers() {
-            var navigationService = new NavigationService();
-            var viewModel = new TestViewModel { Name = "TestPage" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
 
             Action act = () => navigationService.Navigate(viewModel);
 
@@ -91,8 +91,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Navigate_InvokesMultipleSubscribers() {
-            var navigationService = new NavigationService();
-            var viewModel = new TestViewModel { Name = "TestPage" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
             int subscriber1Count = 0;
             int subscriber2Count = 0;
             int subscriber3Count = 0;
@@ -114,14 +114,14 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void AllowNavigation_DefaultsToTrue() {
-            var navigationService = new NavigationService();
+            NavigationService navigationService = new NavigationService();
 
             navigationService.AllowNavigation.Should().BeTrue();
         }
 
         [Fact]
         public void AllowNavigation_CanBeSetToFalse() {
-            var navigationService = new NavigationService();
+            NavigationService navigationService = new NavigationService();
 
             navigationService.AllowNavigation = false;
 
@@ -130,7 +130,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void AllowNavigation_CanBeSetToTrue() {
-            var navigationService = new NavigationService();
+            NavigationService navigationService = new NavigationService();
             navigationService.AllowNavigation = false;
 
             navigationService.AllowNavigation = true;
@@ -140,7 +140,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void AllowNavigation_CanBeToggledMultipleTimes() {
-            var navigationService = new NavigationService();
+            NavigationService navigationService = new NavigationService();
 
             navigationService.AllowNavigation = false;
             navigationService.AllowNavigation.Should().BeFalse();
@@ -154,8 +154,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void AllowNavigation_WhenSetToFalse_BlocksNavigation() {
-            var navigationService = new NavigationService();
-            var viewModel = new TestViewModel { Name = "TestPage" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
             int navigationCount = 0;
 
             navigationService.NavigationRequested += (vm) => navigationCount++;
@@ -170,8 +170,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void AllowNavigation_WhenSetBackToTrue_AllowsNavigationAgain() {
-            var navigationService = new NavigationService();
-            var viewModel = new TestViewModel { Name = "TestPage" };
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
             int navigationCount = 0;
 
             navigationService.NavigationRequested += (vm) => navigationCount++;
@@ -194,7 +194,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NavigationRequested_CanBeSubscribedTo() {
-            var navigationService = new NavigationService();
+            NavigationService navigationService = new NavigationService();
             bool eventSubscribed = false;
 
             Action<ObservableObject> handler = (vm) => eventSubscribed = true;
@@ -207,7 +207,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NavigationRequested_CanBeUnsubscribedFrom() {
-            var navigationService = new NavigationService();
+            NavigationService navigationService = new NavigationService();
             int eventCount = 0;
 
             Action<ObservableObject> handler = (vm) => eventCount++;
@@ -222,7 +222,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NavigationRequested_SupportsMultipleSubscribersIndependently() {
-            var navigationService = new NavigationService();
+            NavigationService navigationService = new NavigationService();
             int handler1Count = 0;
             int handler2Count = 0;
 
@@ -248,10 +248,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NavigationService_SupportsCompleteWorkflow() {
-            var navigationService = new NavigationService();
-            var page1 = new TestViewModel { Name = "Page1" };
-            var page2 = new TestViewModel { Name = "Page2" };
-            var navigationHistory = new System.Collections.Generic.List<string>();
+            NavigationService navigationService = new NavigationService();
+            TestViewModel page1 = new TestViewModel { Name = "Page1" };
+            TestViewModel page2 = new TestViewModel { Name = "Page2" };
+            System.Collections.Generic.List<string> navigationHistory = new System.Collections.Generic.List<string>();
 
             navigationService.NavigationRequested += (vm) => {
                 if (vm is TestViewModel testVm) {

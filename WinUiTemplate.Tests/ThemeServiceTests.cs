@@ -13,7 +13,7 @@ namespace WinUiTemplate.Tests
         // Helper Methods
 
         private Mock<IServiceProvider> CreateMockServiceProvider(Mock<IUserSettings> mockUserSettings) {
-            var mockServiceProvider = new Mock<IServiceProvider>();
+            Mock<IServiceProvider> mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(IUserSettings)))
                 .Returns(mockUserSettings.Object);
@@ -26,7 +26,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeService_RequiresUserSettings() {
-            var mockServiceProvider = new Mock<IServiceProvider>();
+            Mock<IServiceProvider> mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(IUserSettings)))
                 .Returns(null);
@@ -38,10 +38,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeService_SubscribesToSettingChangedEvent() {
-            var mockUserSettings = new Mock<IUserSettings>();
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
 
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             // Verify subscription by checking that the event can be raised with an unrelated setting
             // Using "MaxLogs" won't trigger ApplyTheme, so no exception
@@ -52,9 +52,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeService_CanBeCreatedWithValidServiceProvider() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
 
             Action act = () => new ThemeService(mockServiceProvider.Object);
 
@@ -67,11 +67,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ToggleTheme_TogglesDarkModeFromFalseToTrue() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             themeService.ToggleTheme();
 
@@ -80,11 +80,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ToggleTheme_TogglesDarkModeFromTrueToFalse() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, true);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             themeService.ToggleTheme();
 
@@ -93,11 +93,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ToggleTheme_InvokesThemeChangeRequestedEvent() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
             bool eventInvoked = false;
 
             themeService.ThemeChangeRequested += () => eventInvoked = true;
@@ -109,11 +109,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ToggleTheme_CanBeCalledMultipleTimes() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             themeService.ToggleTheme();
             mockUserSettings.Object.DarkMode.Should().BeTrue();
@@ -127,11 +127,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ToggleTheme_DoesNotThrow_WhenNoSubscribers() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             Action act = () => themeService.ToggleTheme();
 
@@ -144,10 +144,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ResetAccentColour_SetsAccentColourProperty() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             themeService.ResetAccentColour();
 
@@ -159,10 +159,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ResetAccentColour_CanBeCalledMultipleTimes() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             Action act = () => {
                 themeService.ResetAccentColour();
@@ -184,10 +184,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ApplyTheme_ThrowsException_WithoutApplicationContext() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             // ApplyTheme requires Application.Current which is not available in unit tests
             Action act = () => themeService.ApplyTheme();
@@ -205,10 +205,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void OnSettingChanged_WithAccentColour_TriggersApplyTheme() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             // Simulate the AccentColour setting change - should trigger ApplyTheme which throws
             Action act = () => mockUserSettings.Raise(x => x.SettingChanged += null, "AccentColour");
@@ -218,10 +218,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void OnSettingChanged_WithBackdrop_TriggersApplyTheme() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             // Simulate the Backdrop setting change - should trigger ApplyTheme which throws
             Action act = () => mockUserSettings.Raise(x => x.SettingChanged += null, "Backdrop");
@@ -231,10 +231,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void OnSettingChanged_WithUnrelatedSetting_DoesNotTriggerApplyTheme() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             // Simulate an unrelated setting change - should NOT trigger ApplyTheme
             Action act = () => mockUserSettings.Raise(x => x.SettingChanged += null, "MaxLogs");
@@ -248,11 +248,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeChangeRequested_CanBeSubscribedTo() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
             bool eventInvoked = false;
 
             Action handler = () => eventInvoked = true;
@@ -265,11 +265,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeChangeRequested_CanBeUnsubscribedFrom() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
             int eventCount = 0;
 
             Action handler = () => eventCount++;
@@ -284,11 +284,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeChangeRequested_SupportsMultipleSubscribers() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
             int handler1Count = 0;
             int handler2Count = 0;
             int handler3Count = 0;
@@ -310,11 +310,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeService_SupportsCompleteThemeToggleWorkflow() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
             int themeChangeCount = 0;
 
             themeService.ThemeChangeRequested += () => themeChangeCount++;
@@ -341,10 +341,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ThemeService_RespondsToUserSettingsChanges() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             // Simulate AccentColour change - should trigger ApplyTheme and throw
             Action actAccent = () => mockUserSettings.Raise(x => x.SettingChanged += null, "AccentColour");
@@ -365,11 +365,11 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ToggleTheme_WorksWithNullSubscribers() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.DarkMode, false);
             mockUserSettings.SetupProperty(x => x.AccentColour, "#FF0000");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             Action act = () => themeService.ToggleTheme();
 
@@ -379,10 +379,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void ResetAccentColour_SetsValidHexColor() {
-            var mockUserSettings = new Mock<IUserSettings>();
+            Mock<IUserSettings> mockUserSettings = new Mock<IUserSettings>();
             mockUserSettings.SetupProperty(x => x.AccentColour, "");
-            var mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
-            var themeService = new ThemeService(mockServiceProvider.Object);
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockUserSettings);
+            ThemeService themeService = new ThemeService(mockServiceProvider.Object);
 
             themeService.ResetAccentColour();
 

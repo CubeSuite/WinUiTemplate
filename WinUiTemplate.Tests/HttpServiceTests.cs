@@ -46,13 +46,13 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task GetAsync_ReturnsDeserializedObject_OnSuccess() {
-            var testData = new TestModel { Id = 1, Name = "Test" };
+            TestModel testData = new TestModel { Id = 1, Name = "Test" };
             string json = JsonConvert.SerializeObject(testData);
 
-            var mockHandler = CreateMockHandler(HttpStatusCode.OK, json);
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.OK, json);
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.GetAsync<TestModel>("/api/test");
+            TestModel? result = await httpService.GetAsync<TestModel>("/api/test");
 
             result.Should().NotBeNull();
             result.Id.Should().Be(1);
@@ -61,8 +61,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task GetAsync_ThrowsApiException_OnNonSuccessStatusCode() {
-            var mockHandler = CreateMockHandler(HttpStatusCode.NotFound, "Not found");
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.NotFound, "Not found");
+            HttpService httpService = CreateHttpService(mockHandler);
 
             Func<Task> act = async () => await httpService.GetAsync<TestModel>("/api/test");
 
@@ -75,7 +75,7 @@ namespace WinUiTemplate.Tests
             mockUserSettings.Setup(x => x.ApiTimeout).Returns(1);
             mockUserSettings.Setup(x => x.ApiMaxRetries).Returns(0);
 
-            var mockHandler = new Mock<HttpMessageHandler>();
+            Mock<HttpMessageHandler> mockHandler = new Mock<HttpMessageHandler>();
             mockHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -90,9 +90,9 @@ namespace WinUiTemplate.Tests
                     };
                 });
 
-            var httpService = CreateHttpService(mockHandler);
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.GetAsync<TestModel>("/api/test");
+            TestModel? result = await httpService.GetAsync<TestModel>("/api/test");
 
             result.Should().BeNull();
             mockLogger.Verify(x => x.LogWarning(It.Is<string>(s => s.Contains("timed out"))), Times.AtLeastOnce);
@@ -100,9 +100,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task GetAsync_RespectsCancellationToken() {
-            var cts = new CancellationTokenSource();
+            CancellationTokenSource cts = new CancellationTokenSource();
 
-            var mockHandler = new Mock<HttpMessageHandler>();
+            Mock<HttpMessageHandler> mockHandler = new Mock<HttpMessageHandler>();
             mockHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -118,9 +118,9 @@ namespace WinUiTemplate.Tests
                     });
                 });
 
-            var httpService = CreateHttpService(mockHandler);
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.GetAsync<TestModel>("/api/test", cts.Token);
+            TestModel? result = await httpService.GetAsync<TestModel>("/api/test", cts.Token);
 
             result.Should().BeNull();
         }
@@ -131,14 +131,14 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task PostAsync_SendsJsonBody_ReturnsDeserializedObject() {
-            var requestData = new TestModel { Id = 1, Name = "Request" };
-            var responseData = new TestModel { Id = 2, Name = "Response" };
+            TestModel requestData = new TestModel { Id = 1, Name = "Request" };
+            TestModel responseData = new TestModel { Id = 2, Name = "Response" };
             string responseJson = JsonConvert.SerializeObject(responseData);
 
-            var mockHandler = CreateMockHandler(HttpStatusCode.OK, responseJson);
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.OK, responseJson);
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.PostAsync<TestModel>("/api/test", requestData);
+            TestModel? result = await httpService.PostAsync<TestModel>("/api/test", requestData);
 
             result.Should().NotBeNull();
             result.Id.Should().Be(2);
@@ -156,9 +156,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task PostAsync_ThrowsApiException_OnServerError() {
-            var requestData = new TestModel { Id = 1, Name = "Test" };
-            var mockHandler = CreateMockHandler(HttpStatusCode.InternalServerError, "Server error");
-            var httpService = CreateHttpService(mockHandler);
+            TestModel requestData = new TestModel { Id = 1, Name = "Test" };
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.InternalServerError, "Server error");
+            HttpService httpService = CreateHttpService(mockHandler);
 
             Func<Task> act = async () => await httpService.PostAsync<TestModel>("/api/test", requestData);
 
@@ -172,14 +172,14 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task PutAsync_SendsJsonBody_ReturnsDeserializedObject() {
-            var requestData = new TestModel { Id = 1, Name = "Updated" };
-            var responseData = new TestModel { Id = 1, Name = "Updated" };
+            TestModel requestData = new TestModel { Id = 1, Name = "Updated" };
+            TestModel responseData = new TestModel { Id = 1, Name = "Updated" };
             string responseJson = JsonConvert.SerializeObject(responseData);
 
-            var mockHandler = CreateMockHandler(HttpStatusCode.OK, responseJson);
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.OK, responseJson);
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.PutAsync<TestModel>("/api/test", requestData);
+            TestModel? result = await httpService.PutAsync<TestModel>("/api/test", requestData);
 
             result.Should().NotBeNull();
             result.Name.Should().Be("Updated");
@@ -200,8 +200,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task DeleteAsync_SendsDeleteRequest() {
-            var mockHandler = CreateMockHandler(HttpStatusCode.NoContent, "");
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.NoContent, "");
+            HttpService httpService = CreateHttpService(mockHandler);
 
             await httpService.DeleteAsync("/api/test/1");
 
@@ -215,8 +215,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task DeleteAsync_DoesNotThrow_OnSuccessStatusCode() {
-            var mockHandler = CreateMockHandler(HttpStatusCode.OK, "");
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.OK, "");
+            HttpService httpService = CreateHttpService(mockHandler);
 
             Func<Task> act = async () => await httpService.DeleteAsync("/api/test/1");
 
@@ -236,8 +236,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task SendAsync_LogsApiErrors() {
-            var mockHandler = CreateMockHandler(HttpStatusCode.BadRequest, "Invalid request");
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.BadRequest, "Invalid request");
+            HttpService httpService = CreateHttpService(mockHandler);
 
             try {
                 await httpService.GetAsync<TestModel>("/api/test");
@@ -256,23 +256,23 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task GetAsync_HandlesEmptyResponse() {
-            var mockHandler = CreateMockHandler(HttpStatusCode.OK, "{}");
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.OK, "{}");
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.GetAsync<TestModel>("/api/test");
+            TestModel? result = await httpService.GetAsync<TestModel>("/api/test");
 
             result.Should().NotBeNull();
         }
 
         [Fact]
         public async Task PostAsync_WithNullBody_DoesNotIncludeContent() {
-            var responseData = new TestModel { Id = 1, Name = "Test" };
+            TestModel responseData = new TestModel { Id = 1, Name = "Test" };
             string responseJson = JsonConvert.SerializeObject(responseData);
 
-            var mockHandler = CreateMockHandler(HttpStatusCode.OK, responseJson);
-            var httpService = CreateHttpService(mockHandler);
+            Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.OK, responseJson);
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.PostAsync<TestModel>("/api/test", null);
+            TestModel? result = await httpService.PostAsync<TestModel>("/api/test", null);
 
             result.Should().NotBeNull();
         }
@@ -282,7 +282,7 @@ namespace WinUiTemplate.Tests
             mockUserSettings.Setup(x => x.ApiTimeout).Returns(1);
             mockUserSettings.Setup(x => x.ApiMaxRetries).Returns(0);
 
-            var mockHandler = new Mock<HttpMessageHandler>();
+            Mock<HttpMessageHandler> mockHandler = new Mock<HttpMessageHandler>();
             mockHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -295,9 +295,9 @@ namespace WinUiTemplate.Tests
                     return new HttpResponseMessage(HttpStatusCode.OK);
                 });
 
-            var httpService = CreateHttpService(mockHandler);
+            HttpService httpService = CreateHttpService(mockHandler);
 
-            var result = await httpService.GetAsync<TestModel>("/api/test");
+            TestModel? result = await httpService.GetAsync<TestModel>("/api/test");
 
             result.Should().BeNull();
             mockLogger.Verify(x => x.LogWarning(It.Is<string>(s => s.Contains("timed out"))), Times.AtLeastOnce);
@@ -308,7 +308,7 @@ namespace WinUiTemplate.Tests
         // Private Helper Methods
 
         private Mock<HttpMessageHandler> CreateMockHandler(HttpStatusCode statusCode, string content) {
-            var mockHandler = new Mock<HttpMessageHandler>();
+            Mock<HttpMessageHandler> mockHandler = new Mock<HttpMessageHandler>();
             mockHandler
                 .Protected()
                 .Setup<Task<HttpResponseMessage>>(
@@ -324,13 +324,13 @@ namespace WinUiTemplate.Tests
         }
 
         private HttpService CreateHttpService(Mock<HttpMessageHandler> mockHandler) {
-            var httpService = new HttpService(mockServiceProvider.Object);
+            HttpService httpService = new HttpService(mockServiceProvider.Object);
 
             // Replace the HttpClient with one using our mock handler
-            var clientField = typeof(HttpService).GetField("client", 
+            System.Reflection.FieldInfo? clientField = typeof(HttpService).GetField("client", 
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
-            var mockClient = new HttpClient(mockHandler.Object) {
+            HttpClient mockClient = new HttpClient(mockHandler.Object) {
                 BaseAddress = new Uri("https://api.example.com")
             };
             clientField?.SetValue(httpService, mockClient);

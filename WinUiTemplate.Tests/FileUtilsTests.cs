@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
@@ -147,7 +148,7 @@ namespace WinUiTemplate.Tests
         public void TryWriteFileAsync_MethodExists() {
             // FileUtils TryWriteFileAsync uses Windows Storage APIs that require
             // full UWP app context. This test verifies the method signature exists.
-            var method = typeof(FileUtils).GetMethod("TryWriteFileAsync", 
+            MethodInfo? method = typeof(FileUtils).GetMethod("TryWriteFileAsync", 
                 new[] { typeof(string), typeof(string), typeof(bool?) });
 
             method.Should().NotBeNull();
