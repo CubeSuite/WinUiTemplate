@@ -1,0 +1,36 @@
+name: Run unit tests
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  run-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release /p:PublishReadyToRun=false
+
+      - name: Run tests
+        run: dotnet test --no-build --configuration Release --verbosity normal --logger "trx" --results-directory ./TestResults
+
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
+        if: always()
+        with:
+          files: |
+            ./TestResults/**/*.trx
