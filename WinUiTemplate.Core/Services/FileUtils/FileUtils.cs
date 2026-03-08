@@ -12,8 +12,6 @@ using WinUiTemplate.Services.Interfaces;
 using WinUiTemplate.Stores;
 using WinUiTemplate.Stores.Interfaces;
 
-// ToDo: Auto encrypt
-
 namespace WinUiTemplate.Services
 {
     public class FileUtils : IFileUtils

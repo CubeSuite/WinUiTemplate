@@ -13,7 +13,7 @@ namespace WinUiTemplate.Services.Interfaces
     /// <summary>
     /// Provides functionality for displaying dialogs and file pickers.
     /// </summary>
-    internal interface IDialogService
+    public interface IDialogService
     {
         // Public Functions
         /// <summary>
