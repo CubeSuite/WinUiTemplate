@@ -1,9 +1,10 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Microsoft.UI.Xaml.Controls;
 using Moq;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -99,7 +100,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task CreateBackupAsync_CreatesZipAndMetadata() {
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 BackupsFolder = await TestUtils.GetTempFolder(),
                 DataFolder = await TestUtils.GetTempFolder()
@@ -232,7 +233,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task CreateBackupAsync_ValidateBackupsFolder_Pass() {
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -253,7 +254,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task CreateBackupAsync_WritesMetadataFile_AbortOnFail() {
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -405,7 +406,7 @@ namespace WinUiTemplate.Tests
             SetupRestoreConfirmation();
             await SetupSuccessfulCreateBackupAsync();
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -427,7 +428,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("1.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -453,7 +454,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("2.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -480,7 +481,7 @@ namespace WinUiTemplate.Tests
             SetupBasicRestoreConfiguration(new Version("2.0.0"), "Test App", "C:\\InvalidRootFolder", "C:\\InvalidRootFolder\\metadata.json");
             SetupRootFolderAccess("C:\\InvalidRootFolder", null, false, "Cannot access root folder");
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -503,7 +504,7 @@ namespace WinUiTemplate.Tests
             SetupBasicRestoreConfiguration(new Version("1.0.0"), "Test App", "C:\\InvalidRootFolder", "C:\\InvalidRootFolder\\metadata.json");
             SetupRootFolderAccess("C:\\InvalidRootFolder", null, false, "Cannot access root folder");
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -525,7 +526,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("1.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 RootFolder = await TestUtils.GetTempFolder(),
                 TempFolder = await TestUtils.GetTempFolder()
@@ -550,7 +551,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("1.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 RootFolder = await TestUtils.GetTempFolder(),
                 TempFolder = await TestUtils.GetTempFolder()
@@ -580,7 +581,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("1.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 RootFolder = await TestUtils.GetTempFolder(),
                 TempFolder = await TestUtils.GetTempFolder()
@@ -614,7 +615,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("1.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 RootFolder = await TestUtils.GetTempFolder(),
                 TempFolder = await TestUtils.GetTempFolder()
@@ -650,7 +651,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("1.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 RootFolder = await TestUtils.GetTempFolder(),
                 TempFolder = await TestUtils.GetTempFolder()
@@ -684,7 +685,7 @@ namespace WinUiTemplate.Tests
             await SetupSuccessfulCreateBackupAsync();
             SetupBasicRestoreConfiguration(new Version("1.0.0"));
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 RootFolder = await TestUtils.GetTempFolder(),
                 TempFolder = await TestUtils.GetTempFolder()
@@ -697,15 +698,15 @@ namespace WinUiTemplate.Tests
 
             string zipPath = Path.Combine(resources.TempFolder.Path, "backup.zip");
 
-            using (var zipArchive = System.IO.Compression.ZipFile.Open(zipPath, System.IO.Compression.ZipArchiveMode.Create)) {
-                var entry = zipArchive.CreateEntry("metadata.json");
-                using (var writer = new StreamWriter(entry.Open())) {
+            using (ZipArchive zipArchive = System.IO.Compression.ZipFile.Open(zipPath, System.IO.Compression.ZipArchiveMode.Create)) {
+                ZipArchiveEntry entry = zipArchive.CreateEntry("metadata.json");
+                using (StreamWriter writer = new StreamWriter(entry.Open())) {
                     BackupInfo backupInfo = new BackupInfo(zipPath, DateTime.Now, new Version("1.0.0"), 1024);
                     string json = JsonConvert.SerializeObject(backupInfo);
                     await writer.WriteAsync(json);
                 }
-                var dataEntry = zipArchive.CreateEntry("data.txt");
-                using (var dataWriter = new StreamWriter(dataEntry.Open())) {
+                ZipArchiveEntry dataEntry = zipArchive.CreateEntry("data.txt");
+                using (StreamWriter dataWriter = new StreamWriter(dataEntry.Open())) {
                     await dataWriter.WriteAsync("test data");
                 }
             }
@@ -752,9 +753,9 @@ namespace WinUiTemplate.Tests
         private async Task<string> CreateZipWithMetadata(StorageFolder folder, Version version, string zipFileName = "backup.zip", long size = 1024) {
             string zipPath = Path.Combine(folder.Path, zipFileName);
 
-            using (var zipArchive = System.IO.Compression.ZipFile.Open(zipPath, System.IO.Compression.ZipArchiveMode.Create)) {
-                var entry = zipArchive.CreateEntry("metadata.json");
-                using (var writer = new StreamWriter(entry.Open())) {
+            using (ZipArchive zipArchive = System.IO.Compression.ZipFile.Open(zipPath, System.IO.Compression.ZipArchiveMode.Create)) {
+                ZipArchiveEntry entry = zipArchive.CreateEntry("metadata.json");
+                using (StreamWriter writer = new StreamWriter(entry.Open())) {
                     BackupInfo backupInfo = new BackupInfo(zipPath, DateTime.Now, version, size);
                     string json = JsonConvert.SerializeObject(backupInfo);
                     await writer.WriteAsync(json);
@@ -767,9 +768,9 @@ namespace WinUiTemplate.Tests
         private async Task<string> CreateZipWithCustomContent(StorageFolder folder, string fileName, string content, string zipFileName = "backup.zip") {
             string zipPath = Path.Combine(folder.Path, zipFileName);
 
-            using (var zipArchive = System.IO.Compression.ZipFile.Open(zipPath, System.IO.Compression.ZipArchiveMode.Create)) {
-                var entry = zipArchive.CreateEntry(fileName);
-                using (var writer = new StreamWriter(entry.Open())) {
+            using (ZipArchive zipArchive = System.IO.Compression.ZipFile.Open(zipPath, System.IO.Compression.ZipArchiveMode.Create)) {
+                ZipArchiveEntry entry = zipArchive.CreateEntry(fileName);
+                using (StreamWriter writer = new StreamWriter(entry.Open())) {
                     await writer.WriteAsync(content);
                 }
             }
@@ -858,7 +859,7 @@ namespace WinUiTemplate.Tests
         public async Task DeleteBackupAsync_SuccessfullyDeletesBackup() {
             SetupDeleteConfirmation();
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -882,7 +883,7 @@ namespace WinUiTemplate.Tests
         public async Task DeleteBackupAsync_FailsOnException() {
             SetupDeleteConfirmation();
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -953,7 +954,7 @@ namespace WinUiTemplate.Tests
         public async Task GetBackupsAsync_FiltersNonZipFiles() {
             mockUserSettings.Setup(x => x.BackupsFolder).Returns("C:\\BackupsFolder");
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -976,7 +977,7 @@ namespace WinUiTemplate.Tests
         public async Task GetBackupsAsync_SkipsBackupsWithInvalidMetadata() {
             mockUserSettings.Setup(x => x.BackupsFolder).Returns("C:\\BackupsFolder");
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -998,7 +999,7 @@ namespace WinUiTemplate.Tests
         public async Task GetBackupsAsync_HandlesExceptionsDuringMetadataRead() {
             mockUserSettings.Setup(x => x.BackupsFolder).Returns("C:\\BackupsFolder");
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -1019,7 +1020,7 @@ namespace WinUiTemplate.Tests
         public async Task GetBackupsAsync_ReturnsMultipleValidBackups() {
             mockUserSettings.Setup(x => x.BackupsFolder).Returns("C:\\BackupsFolder");
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };
@@ -1044,7 +1045,7 @@ namespace WinUiTemplate.Tests
         public async Task GetBackupsAsync_RespectsCancellation() {
             mockUserSettings.Setup(x => x.BackupsFolder).Returns("C:\\BackupsFolder");
 
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 TempFolder = await TestUtils.GetTempFolder()
             };

@@ -14,7 +14,7 @@ namespace WinUiTemplate.Tests
         // Helper Methods
 
         private Mock<IServiceProvider> CreateMockServiceProvider(Mock<ILoggerService> mockLogger) {
-            var mockServiceProvider = new Mock<IServiceProvider>();
+            Mock<IServiceProvider> mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(ILoggerService)))
                 .Returns(mockLogger.Object);
@@ -27,9 +27,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_InvokesNotificationRequestedEvent() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             NotificationViewModel? capturedNotification = null;
 
             notificationService.NotificationRequested += (notification) => capturedNotification = notification;
@@ -47,9 +47,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithButtonText_SetsButtonTextOnViewModel() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             NotificationViewModel? capturedNotification = null;
 
             notificationService.NotificationRequested += (notification) => capturedNotification = notification;
@@ -62,9 +62,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithOnClickAction_SetsOnButtonClickedOnViewModel() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             NotificationViewModel? capturedNotification = null;
             bool actionCalled = false;
             Action testAction = () => actionCalled = true;
@@ -81,9 +81,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithEmptyMessage_CreatesNotificationWithEmptyMessage() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             NotificationViewModel? capturedNotification = null;
 
             notificationService.NotificationRequested += (notification) => capturedNotification = notification;
@@ -96,9 +96,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_DoesNotThrow_WhenNoSubscribers() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
 
             Action act = () => notificationService.Notify(InfoBarSeverity.Informational, "Title", "Message");
 
@@ -107,9 +107,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_InvokesMultipleSubscribers() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             int subscriber1Count = 0;
             int subscriber2Count = 0;
             int subscriber3Count = 0;
@@ -127,9 +127,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_CanBeCalledMultipleTimes() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             int notificationCount = 0;
 
             notificationService.NotificationRequested += (notification) => notificationCount++;
@@ -147,9 +147,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithInformationalSeverity_LogsToInfo() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
 
             notificationService.Notify(InfoBarSeverity.Informational, "Info Title", "Info Message");
 
@@ -162,9 +162,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithSuccessSeverity_LogsToInfo() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
 
             notificationService.Notify(InfoBarSeverity.Success, "Success Title", "Success Message");
 
@@ -177,9 +177,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithWarningSeverity_LogsToWarning() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
 
             notificationService.Notify(InfoBarSeverity.Warning, "Warning Title", "Warning Message");
 
@@ -192,9 +192,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithErrorSeverity_LogsToError() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
 
             notificationService.Notify(InfoBarSeverity.Error, "Error Title", "Error Message");
 
@@ -207,9 +207,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_LogsBeforeInvokingEvent() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             bool loggedBeforeEvent = false;
 
             mockLogger.Setup(x => x.LogInfo(It.IsAny<string>(), null, true))
@@ -234,9 +234,9 @@ namespace WinUiTemplate.Tests
         [InlineData(InfoBarSeverity.Warning)]
         [InlineData(InfoBarSeverity.Error)]
         public void Notify_WithDifferentSeverities_CreateNotificationWithCorrectSeverity(InfoBarSeverity severity) {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             NotificationViewModel? capturedNotification = null;
 
             notificationService.NotificationRequested += (notification) => capturedNotification = notification;
@@ -253,9 +253,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NotificationRequested_CanBeSubscribedTo() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             bool eventSubscribed = false;
 
             Action<NotificationViewModel> handler = (notification) => eventSubscribed = true;
@@ -268,9 +268,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NotificationRequested_CanBeUnsubscribedFrom() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             int eventCount = 0;
 
             Action<NotificationViewModel> handler = (notification) => eventCount++;
@@ -285,9 +285,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NotificationRequested_SupportsMultipleSubscribersIndependently() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             int handler1Count = 0;
             int handler2Count = 0;
 
@@ -313,10 +313,10 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NotificationService_SupportsCompleteWorkflow() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
-            var notifications = new System.Collections.Generic.List<NotificationViewModel>();
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
+            System.Collections.Generic.List<NotificationViewModel> notifications = new System.Collections.Generic.List<NotificationViewModel>();
             bool actionExecuted = false;
 
             notificationService.NotificationRequested += (notification) => notifications.Add(notification);
@@ -353,7 +353,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NotificationService_RequiresLoggerService() {
-            var mockServiceProvider = new Mock<IServiceProvider>();
+            Mock<IServiceProvider> mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(ILoggerService)))
                 .Returns(null);
@@ -365,8 +365,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void NotificationService_CanBeCreatedWithValidServiceProvider() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
 
             Action act = () => new NotificationService(mockServiceProvider.Object);
 
@@ -379,9 +379,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithEmptyTitle_InvokesEvent() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             NotificationViewModel? capturedNotification = null;
 
             notificationService.NotificationRequested += (notification) => capturedNotification = notification;
@@ -394,9 +394,9 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Notify_WithAllParameters_CreatesCompleteNotification() {
-            var mockLogger = new Mock<ILoggerService>();
-            var mockServiceProvider = CreateMockServiceProvider(mockLogger);
-            var notificationService = new NotificationService(mockServiceProvider.Object);
+            Mock<ILoggerService> mockLogger = new Mock<ILoggerService>();
+            Mock<IServiceProvider> mockServiceProvider = CreateMockServiceProvider(mockLogger);
+            NotificationService notificationService = new NotificationService(mockServiceProvider.Object);
             NotificationViewModel? capturedNotification = null;
             bool actionCalled = false;
 

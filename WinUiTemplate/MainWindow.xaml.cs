@@ -21,6 +21,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Graphics;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using WinRT;
@@ -90,6 +91,15 @@ namespace WinUiTemplate
             if (args.Cancel) return;
             args.Cancel = true;
 
+            if (userSettings.RememberLayout) {
+                userSettings.DefaultWidth = sender.Size.Width;
+                userSettings.DefaultHeight = sender.Size.Height;
+
+                if (sender.Presenter is OverlappedPresenter presenter) {
+                    userSettings.OpenMaximised = presenter.State == OverlappedPresenterState.Maximized;
+                }
+            }
+
             userSettings.IsFirstLaunch = false;
             OperationResult result = await backupService.CreateBackupAsync();
             if (!result.Success && result.Notify) {
@@ -121,7 +131,10 @@ namespace WinUiTemplate
         }
 
         private void ConfigureAppearance() {
-            AppWindow.Resize(new Windows.Graphics.SizeInt32(1600, 900));
+            int width = userSettings.DefaultWidth != 0 ? userSettings.DefaultWidth : 1600;
+            int height = userSettings.DefaultHeight != 0 ? userSettings.DefaultHeight : 900;
+            AppWindow.Resize(new SizeInt32(width, height));
+
             ExtendsContentIntoTitleBar = true;
             titleBar.DataContext = new CustomTitleBarViewModel(serviceProvider);
             SetTitleBar(titleBar);

@@ -18,7 +18,10 @@ namespace WinUiTemplate.Stores.Interfaces
         int MaxLogs { get; set; }
         
         bool DarkMode { get; set; }
+        bool RememberLayout { get; set; }
         bool OpenMaximised { get; set; }
+        int DefaultWidth { get; set; }
+        int DefaultHeight { get; set; }
         IThemeService.Backdrop Backdrop { get; set; }
         string AccentColour { get; set; }
 

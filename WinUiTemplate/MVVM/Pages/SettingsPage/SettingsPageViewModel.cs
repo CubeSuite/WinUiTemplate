@@ -95,11 +95,38 @@ namespace WinUiTemplate.MVVM.Pages
 
                 new SettingsCategoryList("Appearance", [
                     new GenericSetting<bool>(
+                        name: "Remember Layout",
+                        description: $"If enabled, when you open {programData.ProgramName} it will restore your last size / maximised state",
+                        icon: "\uE9A6",
+                        getValueFunc: () => userSettings.RememberLayout,
+                        setValueFunc: (value) => userSettings.RememberLayout = value
+                    ),
+                    new GenericSetting<bool>(
                         name: "Open Maximised",
                         description: $"Whether {programData.ProgramName} should open in a maximised state",
                         icon: "\uE922",
                         getValueFunc: () => userSettings.OpenMaximised,
                         setValueFunc: (value) => userSettings.OpenMaximised = value
+                    ),
+                    new ComparableSetting<int>(
+                        name: "Default Width",
+                        description: $"The width to set {programData.ProgramName} on launch",
+                        icon: "\uE72A",
+                        getValueFunc: () => userSettings.DefaultWidth,
+                        setValueFunc: (value) => userSettings.DefaultWidth = value,
+                        min: 100,
+                        max: 10000,
+                        serviceProvider
+                    ),
+                    new ComparableSetting<int>(
+                        name: "Default Height",
+                        description: $"The height to set {programData.ProgramName} on launch",
+                        icon: "\uE74B",
+                        getValueFunc: () => userSettings.DefaultHeight,
+                        setValueFunc: (value) => userSettings.DefaultHeight = value,
+                        min: 100,
+                        max: 10000,
+                        serviceProvider
                     ),
                     new EnumSetting<IThemeService.Backdrop>(
                         name: "Backdrop",

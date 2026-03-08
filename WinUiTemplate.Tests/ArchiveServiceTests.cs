@@ -56,7 +56,7 @@ namespace WinUiTemplate.Tests
         // Helper Methods - Resource Creation
 
         private async Task<TempTestResources> CreateZipTestResourcesAsync(bool createTextFile = false) {
-            var resources = new TempTestResources
+            TempTestResources resources = new TempTestResources
             {
                 SourceFolder = await TestUtils.GetTempFolder(),
                 ParentFolder = await TestUtils.GetTempFolder()
@@ -74,7 +74,7 @@ namespace WinUiTemplate.Tests
         }
 
         private async Task<TempTestResources> CreateExtractTestResourcesAsync() {
-            var resources = new TempTestResources
+            TempTestResources resources = new TempTestResources
             {
                 ParentFolder = await TestUtils.GetTempFolder(),
                 DestinationFolder = await TestUtils.GetTempFolder()
@@ -173,7 +173,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ZipFolderAsync_SuccessfulZipCreation_ReturnsSuccess() {
-            await using var resources = await CreateZipTestResourcesAsync(createTextFile: true);
+            await using TempTestResources resources = await CreateZipTestResourcesAsync(createTextFile: true);
 
             SetupSuccessfulZipScenario(resources);
 
@@ -204,7 +204,7 @@ namespace WinUiTemplate.Tests
         public async Task ZipFolderAsync_ParentDirectoryCreationFails_ReturnsFailure() {
             string zipPath = @"C:\Output\output.zip";
             string sourceFolder = @"C:\Source";
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 SourceFolder = await TestUtils.GetTempFolder()
             };
@@ -221,7 +221,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ZipFolderAsync_ZipFileCreationFails_ReturnsFailure() {
-            await using var resources = new TempTestResources
+            await using TempTestResources resources = new TempTestResources
             {
                 SourceFolder = await TestUtils.GetTempFolder()
             };
@@ -296,7 +296,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ZipFolderAsync_DeletesExistingZipFile_WhenZipAlreadyExists() {
-            await using var resources = await CreateZipTestResourcesAsync();
+            await using TempTestResources resources = await CreateZipTestResourcesAsync();
 
             SetupSuccessfulFileAccess(resources.ZipFile!.Path, resources.ZipFile);
             SetupFailedFolderAccess(resources.SourceFolder!.Path);
@@ -308,7 +308,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ZipFolderAsync_ExceptionThrown_LogsErrorAndReturnsFailure() {
-            await using var resources = await CreateZipTestResourcesAsync();
+            await using TempTestResources resources = await CreateZipTestResourcesAsync();
 
             SetupSuccessfulFileAccess(resources.ZipFile!.Path, resources.ZipFile);
             SetupSuccessfulFolderAccess(resources.SourceFolder!.Path, resources.SourceFolder);
@@ -335,7 +335,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ExtractZip_SuccessfulZipExtraction_ReturnsSuccess() {
-            await using var resources = await CreateExtractTestResourcesAsync();
+            await using TempTestResources resources = await CreateExtractTestResourcesAsync();
 
             SetupSuccessfulExtractScenario(resources);
 
@@ -372,7 +372,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ExtractZip_CouldNotCreateDestinationFolder_ReturnsFailure() {
-            await using var resources = await CreateExtractTestResourcesAsync();
+            await using TempTestResources resources = await CreateExtractTestResourcesAsync();
             string destination = @"C:\Extract";
 
             SetupSuccessfulFileAccess(resources.ZipFile!.Path, resources.ZipFile);
@@ -386,7 +386,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ExtractZip_CancellationRequested_ReturnsCancelledResult() {
-            await using var resources = await CreateExtractTestResourcesAsync();
+            await using TempTestResources resources = await CreateExtractTestResourcesAsync();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             tokenSource.Cancel();
 
@@ -405,7 +405,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task ExtractZip_ExceptionThrown_LogsErrorAndReturnsFailure() {
-            await using var resources = await CreateExtractTestResourcesAsync();
+            await using TempTestResources resources = await CreateExtractTestResourcesAsync();
 
             SetupSuccessfulFileAccess(resources.ZipFile!.Path, resources.ZipFile);
             SetupSuccessfulFolderAccess(resources.DestinationFolder!.Path, resources.DestinationFolder);

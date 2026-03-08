@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.MVVM.Models.ViewModels.Settings;
 using WinUiTemplate.Services;
 using WinUiTemplate.Services.Interfaces;
 using WinUiTemplate.Stores.Interfaces;
@@ -45,7 +46,10 @@ namespace WinUiTemplate.Stores
         private int _maxLogs = 5;
 
         private bool _darkMode = true;
+        private bool _rememberLayout = true;
         private bool _openMaximised = false;
+        private int _defaultWidth = 1600;
+        private int _defaultHeight = 900;
         private IThemeService.Backdrop _backdrop = IThemeService.Backdrop.Acrylic;
         private string _accentColour = "";
 
@@ -66,7 +70,10 @@ namespace WinUiTemplate.Stores
             bool LogDebugMessages,
             int MaxLogs,
             bool DarkMode,
+            bool RememberLayout,
             bool OpenMaximised,
+            int DefaultWidth,
+            int DefaultHeight,
             IThemeService.Backdrop Backdrop,
             string AccentColour,
             string BackupsFolder,
@@ -127,6 +134,16 @@ namespace WinUiTemplate.Stores
             }
         }
 
+        public bool RememberLayout {
+            get => _rememberLayout;
+            set {
+                if (_rememberLayout == value) return;
+                _rememberLayout = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(RememberLayout));
+            }
+        }
+
         public bool OpenMaximised {
             get => _openMaximised;
             set {
@@ -134,6 +151,26 @@ namespace WinUiTemplate.Stores
                 _openMaximised = value;
                 if (Loaded) DebounceSave();
                 SettingChanged?.Invoke(nameof(OpenMaximised));
+            }
+        }
+
+        public int DefaultWidth {
+            get => _defaultWidth;
+            set {
+                if (_defaultWidth == value) return;
+                _defaultWidth = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DefaultWidth));
+            }
+        }
+
+        public int DefaultHeight {
+            get => _defaultHeight;
+            set {
+                if (_defaultHeight == value) return;
+                _defaultHeight = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DefaultHeight));
             }
         }
 
@@ -313,7 +350,10 @@ namespace WinUiTemplate.Stores
             _logDebugMessages,
             _maxLogs,
             _darkMode,
+            _rememberLayout,
             _openMaximised,
+            _defaultWidth,
+            _defaultHeight,
             _backdrop,
             _accentColour,
             _backupsFolder,
@@ -328,7 +368,10 @@ namespace WinUiTemplate.Stores
             _logDebugMessages = dto.LogDebugMessages;
             _maxLogs = dto.MaxLogs;
             _darkMode = dto.DarkMode;
+            _rememberLayout = dto.RememberLayout;
             _openMaximised = dto.OpenMaximised;
+            _defaultWidth = dto.DefaultWidth;
+            _defaultHeight = dto.DefaultHeight;
             _backdrop = dto.Backdrop;
             _accentColour = dto.AccentColour;
             _backupsFolder = dto.BackupsFolder;

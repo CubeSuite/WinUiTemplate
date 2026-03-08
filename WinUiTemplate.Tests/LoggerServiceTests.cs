@@ -65,7 +65,7 @@ namespace WinUiTemplate.Tests
         }
 
         public void Dispose() {
-            foreach (var logger in loggerInstances) {
+            foreach (LoggerService logger in loggerInstances) {
                 try {
                     logger.Pause();
                 }
@@ -79,7 +79,7 @@ namespace WinUiTemplate.Tests
         // Helper Methods
 
         private LoggerService CreateLogger() {
-            var logger = new LoggerService(mockServiceProvider.Object);
+            LoggerService logger = new LoggerService(mockServiceProvider.Object);
             loggerInstances.Add(logger);
             return logger;
         }
@@ -90,7 +90,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogDebug_AddsEntryToLogEntries() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogDebug("Debug message");
 
@@ -101,7 +101,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogInfo_AddsEntryToLogEntries() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogInfo("Info message");
 
@@ -112,7 +112,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogWarning_AddsEntryToLogEntries() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogWarning("Warning message");
 
@@ -123,7 +123,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogError_AddsEntryToLogEntries() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogError("Error message");
 
@@ -134,7 +134,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogFatal_AddsEntryToLogEntries() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogFatal("Fatal message");
 
@@ -145,7 +145,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogFatal_InvokesOnFatalEvent() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             bool eventInvoked = false;
             logger.OnFatal += () => eventInvoked = true;
 
@@ -156,7 +156,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogMessage_WithTags_IncludesTagsInEntry() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             string[] tags = { "Tag1", "Tag2" };
 
             logger.LogInfo("Tagged message", tags);
@@ -167,7 +167,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogMessage_WithMultipleLevels_CreatesMultipleEntries() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogDebug("Debug");
             logger.LogInfo("Info");
@@ -187,7 +187,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogMessage_ShortensRootFolderPath_WhenShortenPathsIsTrue() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             string messageWithPath = $"File at {tempFolder.Path}\\test.txt";
 
             logger.LogInfo(messageWithPath, shortenPaths: true);
@@ -197,7 +197,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogMessage_DoesNotShortenPaths_WhenShortenPathsIsFalse() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             string messageWithPath = $"File at {tempFolder.Path}\\test.txt";
 
             logger.LogInfo(messageWithPath, shortenPaths: false);
@@ -211,14 +211,14 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogDebugToFile_ReturnsFalse_WhenNotDebugBuildAndNotSet() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogDebugToFile.Should().BeFalse();
         }
 
         [Fact]
         public void LogDebugToFile_ReturnsTrue_WhenSet() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogDebugToFile = true;
 
@@ -228,7 +228,7 @@ namespace WinUiTemplate.Tests
         [Fact]
         public void LogDebugToFile_ReturnsTrue_WhenIsDebugBuild() {
             mockProgramData.Setup(x => x.IsDebugBuild).Returns(true);
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogDebugToFile.Should().BeTrue();
         }
@@ -239,7 +239,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Pause_CanBeCalledWithoutException() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             logger.LogInfo("Before pause");
 
             Action act = () => logger.Pause();
@@ -249,7 +249,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void Resume_CanBeCalledWithoutException() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             logger.LogInfo("Before pause");
             logger.Pause();
 
@@ -260,7 +260,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void PauseThenResume_CanBeCalledMultipleTimes() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogInfo("Message 1");
             logger.Pause();
@@ -278,7 +278,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task LogMessage_CreatesLogFile_OnFirstLog() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogInfo("First message");
 
@@ -291,7 +291,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task LogMessage_WritesToLogFile() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogInfo("Test message");
 
@@ -305,7 +305,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task LogDebug_WritesToFile_WhenLogDebugToFileIsTrue() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             logger.LogDebugToFile = true;
 
             logger.LogDebug("Debug message");
@@ -321,7 +321,7 @@ namespace WinUiTemplate.Tests
         [Fact]
         public async Task LogDebug_DoesNotWriteToFile_WhenLogDebugToFileIsFalse() {
             mockProgramData.Setup(x => x.IsDebugBuild).Returns(false);
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
             logger.LogDebugToFile = false;
 
             logger.LogDebug("Debug message");
@@ -338,7 +338,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task LogMessage_WritesMultipleMessagesToFile() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogInfo("Message 1");
             logger.LogWarning("Message 2");
@@ -361,7 +361,7 @@ namespace WinUiTemplate.Tests
         [Fact]
         public void LogMessage_ThrowsException_WhenLogsFolderMissing() {
             Directory.Delete(logsFolder);
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             Action act = () => logger.LogInfo("Test");
 
@@ -382,14 +382,14 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void LogEntries_IsInitiallyEmpty() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogEntries.Should().BeEmpty();
         }
 
         [Fact]
         public void LogEntries_PreservesOrder() {
-            var logger = CreateLogger();
+            LoggerService logger = CreateLogger();
 
             logger.LogInfo("First");
             logger.LogWarning("Second");
