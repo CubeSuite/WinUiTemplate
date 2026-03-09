@@ -19,6 +19,7 @@ jobs:
           Copy-Item -Path ".gitignore" -Destination "./template-output/.gitignore" -Force
           Copy-Item -Path "LICENSE.txt" -Destination "./template-output/LICENSE.txt" -Force
           Copy-Item -Path "README.md" -Destination "./template-output/README.md" -Force
+          Copy-Item -Path "WinUI3 Template.vstemplate" "./template-output/WinUI3 Template.vstemplate" -Force
 
           Copy-Item -Path "WinUiTemplate" -Destination "./template-output/WinUiTemplate" -Recurse -Exclude @("bin", "obj", ".vs", "*.user")
           Copy-Item -Path "WinUiTemplate.Core" -Destination "./template-output/WinUiTemplate.Core" -Recurse -Exclude @("bin", "obj")
@@ -51,7 +52,7 @@ jobs:
           <VSTemplate Version="3.0.0" Type="ProjectGroup" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
             <TemplateData>
               <Name>WinUI 3 MVVM Template</Name>
-              <Description>A WinUI 3 project template with MVVM & DI architecture</Description>
+              <Description></Description>
               <ProjectType>CSharp</ProjectType>
               <DefaultName>WinUi3App</DefaultName>
               <ProvideDefaultName>true</ProvideDefaultName>
