@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\$ext_safeprojectname$.Core\$ext_safeprojectname$.Core.csproj" />
+    <ProjectReference Include="..\WinUiTemplate.Core\WinUiTemplate.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
