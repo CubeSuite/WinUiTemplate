@@ -1,0 +1,12 @@
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>WinUI 3 Tests</Name>
+    <Description>Unit tests project with xUnit</Description>
+    <ProjectType>CSharp</ProjectType>
+    <Hidden>true</Hidden>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="$safeprojectname$.Tests.csproj" ReplaceParameters="true">
+    </Project>
+  </TemplateContent>
+</VSTemplate>

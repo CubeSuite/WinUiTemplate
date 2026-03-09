@@ -1,0 +1,14 @@
+<VSTemplate Version="3.0.0"
+            Type="Project"
+            xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+    <TemplateData>
+        <Name>WinUI3 Template core class library</Name>
+        <Description>Core services and logic</Description>
+        <ProjectType>CSharp</ProjectType>
+        <Hidden>true</Hidden>
+    </TemplateData>
+    <TemplateContent>
+        <Project File="$safeprojectname$.Core.csproj"
+                 ReplaceParameters="true"/>
+    </TemplateContent>
+</VSTemplate>

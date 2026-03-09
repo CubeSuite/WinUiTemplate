@@ -1,0 +1,23 @@
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+  <TemplateData>
+    <Name>WinUI 3 MVVM Template</Name>
+    <Description>A WinUI 3 project template with MVVM &amp; DI architecture</Description>
+    <ProjectType>CSharp</ProjectType>
+  </TemplateData>
+  <TemplateContent>
+      <ProjectCollection>
+          <ProjectTemplateLink ProjectName="$safeprojectname$"
+                               CopyParameters="true">
+            $safeprojectname$\WinUI3 Template.vstemplate
+          </ProjectTemplateLink>
+          <ProjectTemplateLink ProjectName="$safeprojectname$.Core"
+                               CopyParameters="true">
+              $safeprojectname$.Core\WinUI3 Template.vstemplate
+          </ProjectTemplateLink>
+          <ProjectTemplateLink ProjectName="$safeprojectname$.Tests"
+                               CopyParameters="true">
+              $safeprojectname$.Tests\WinUI3 Template.vstemplate
+          </ProjectTemplateLink>
+      </ProjectCollection>
+  </TemplateContent>
+</VSTemplate>
