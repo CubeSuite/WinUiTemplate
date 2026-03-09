@@ -94,7 +94,7 @@
     <Folder Include="MVVM\Pages\SettingsPage\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WinUiTemplate.Core\WinUiTemplate.Core.csproj" />
+    <ProjectReference Include="..\$ext_safeprojectname$.Core\$ext_safeprojectname$.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="MVVM\Views\CustomTitleBar\CustomTitleBar.xaml">
