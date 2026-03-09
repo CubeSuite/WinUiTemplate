@@ -224,19 +224,6 @@ jobs:
             }
             elseif ($_.Name -eq "WinUiTemplate.Tests.csproj") {
               $content = $content -replace '<RootNamespace>WinUiTemplate\.Tests</RootNamespace>', '<RootNamespace>$$safeprojectname$$</RootNamespace>'
-
-              # For Tests project, explicitly include all .cs files so they're copied by the template
-              if ($content -notmatch '<Compile Include=') {
-                # Get all .cs files in the Tests directory
-                $testFiles = Get-ChildItem -Path "./template-output/WinUiTemplate.Tests" -Filter "*.cs" -File | ForEach-Object { $_.Name }
-                $compileItems = ""
-                foreach ($file in $testFiles) {
-                  $compileItems += "    <Compile Include=`"$file`" />`n"
-                }
-
-                # Insert before </Project>
-                $content = $content -replace '(</Project>)', "  <ItemGroup>`n$compileItems  </ItemGroup>`n`$1"
-              }
             }
 
             Set-Content $_.FullName -Value $content -NoNewline
