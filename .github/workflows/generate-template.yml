@@ -18,7 +18,6 @@ jobs:
           Copy-Item -Path "*.sln*" -Destination "./template-output" -Force
           Copy-Item -Path ".gitignore" -Destination "./template-output/.gitignore" -Force
           Copy-Item -Path "LICENSE.txt" -Destination "./template-output/LICENSE.txt" -Force
-          Copy-Item -Path "README.md" -Destination "./template-output/README.md" -Force
 
           # Copy projects excluding build artifacts but not based on extension
           Copy-Item -Path "WinUiTemplate" -Destination "./template-output/WinUiTemplate" -Recurse -Force
