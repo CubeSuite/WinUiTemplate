@@ -12,74 +12,266 @@ jobs:
       - name: Copy project files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path "./template-output" -Force
-          New-Item -ItemType Directory -Path "./template-output/.github" -Force
           New-Item -ItemType Directory -Path "./template-output/.github/workflows" -Force
-      
+
           Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/.github/workflows/run-unit-tests.yml" -Recurse -Force
           Copy-Item -Path "*.sln*" -Destination "./template-output" -Force
           Copy-Item -Path ".gitignore" -Destination "./template-output/.gitignore" -Force
           Copy-Item -Path "LICENSE.txt" -Destination "./template-output/LICENSE.txt" -Force
-          Copy-Item -Path "README.md" -Destination "./template-output/README.md" -Force
 
-          Copy-Item -Path "WinUiTemplate/*" -Destination "./template-output/WinUiTemplate" -Recurse -Exclude @("bin", "obj", ".vs", "*.user")
-          Copy-Item -Path "WinUiTemplate.Core/*" -Destination "./template-output/WinUiTemplate.Core" -Recurse -Exclude @("bin", "obj")
-          Copy-Item -Path "WinUiTemplate.Tests/*" -Destination "./template-output/WinUiTemplate.Tests" -Recurse -Exclude @("bin", "obj")
+          # Copy projects excluding build artifacts but not based on extension
+          Copy-Item -Path "WinUiTemplate" -Destination "./template-output/WinUiTemplate" -Recurse -Force
+          Copy-Item -Path "WinUiTemplate.Core" -Destination "./template-output/WinUiTemplate.Core" -Recurse -Force
+          Copy-Item -Path "WinUiTemplate.Tests" -Destination "./template-output/WinUiTemplate.Tests" -Recurse -Force
 
-      - name: Replace project name
+          # Remove build artifacts
+          Remove-Item -Path "./template-output/*/bin" -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path "./template-output/*/obj" -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item -Path "./template-output/*/.vs" -Recurse -Force -ErrorAction SilentlyContinue
+          Get-ChildItem -Path "./template-output" -Recurse -Filter "*.user" | Remove-Item -Force
+
+      - name: Generate vstemplate files
         shell: pwsh
         run: |
-          Get-ChildItem -Path "./template-output" -Recurse -File | ForEach-Object {
-            if ($_.Extension -match '\.(cs|csproj|xml|xaml|json|sln|slnx|txt|md)$') {
-              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$safeprojectname$' | Set-Content $_.FullName -NoNewLine
-            }
+          function Generate-ProjectItemsXml {
+              param(
+                  [string]$Path,
+                  [string]$Indent = "            "
+              )
+
+              $items = Get-ChildItem -Path $Path -File
+              $folders = Get-ChildItem -Path $Path -Directory
+
+              $xml = ""
+
+              foreach ($folder in $folders) {
+                  $folderName = $folder.Name
+                  $xml += "$Indent<Folder Name=`"$folderName`"`n"
+                  $xml += "$Indent        TargetFolderName=`"$folderName`">`n"
+                  $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent ($Indent + "    ")
+                  $xml += "$Indent</Folder>`n"
+              }
+
+              foreach ($file in $items) {
+                  if ($file.Extension -eq ".csproj") { continue }
+                  $fileName = $file.Name
+                  # Include .appxmanifest and .manifest for template parameter replacement
+                  $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest)$') { "true" } else { "false" }
+                  $xml += "$Indent<ProjectItem ReplaceParameters=`"$replaceParams`"`n"
+                  $xml += "$Indent             TargetFileName=`"$fileName`">$fileName</ProjectItem>`n"
+              }
+
+              return $xml
           }
 
-          Get-ChildItem -Path "./template-output" -Recurse -Depth 5 |
-            Where-Object { $_.Name -like '*WinUiTemplate*' } |
-            Sort-Object -Property FullName -Descending |
-            ForEach-Object {
-              $newName = $_.Name -replace 'WinUiTemplate', '$safeprojectname$'
-              Rename-Item -Path $_.FullName -NewName $newName
-            }
+          # Generate WinUiTemplate\MyTemplate.vstemplate
+          $mainCsproj = "WinUiTemplate.csproj"
+          $mainProjectXml = Generate-ProjectItemsXml -Path "./template-output/WinUiTemplate"
 
-      - name: Create vstemplate file
-        run: |
-          $vstemplateContent = @"
-          <VSTemplate Version="3.0.0" Type="ProjectGroup" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+          $mainTemplate = @"
+          <VSTemplate Version="3.0.0"
+                      Type="Project"
+                      xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+              <TemplateData>
+                  <Name>WinUI3 MVVM Main Template</Name>
+                  <Description>The main UI project of WinUI3 MVVM Template</Description>
+                  <ProjectType>CSharp</ProjectType>
+                  <ProjectSubType></ProjectSubType>
+                  <SortOrder>1000</SortOrder>
+                  <CreateNewFolder>true</CreateNewFolder>
+                  <DefaultName>WinUI3 MVVM Main Template</DefaultName>
+                  <ProvideDefaultName>true</ProvideDefaultName>
+                  <LocationField>Enabled</LocationField>
+                  <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+                  <CreateInPlace>true</CreateInPlace>
+                  <Icon>__TemplateIcon.ico</Icon>
+                  <Hidden>true</Hidden>
+              </TemplateData>
+              <TemplateContent>
+                  <Project TargetFileName="`$safeprojectname`$.csproj"
+                           File="$mainCsproj"
+                           ReplaceParameters="true">
+          $mainProjectXml        </Project>
+              </TemplateContent>
+          </VSTemplate>
+          "@
+
+          Set-Content -Path "./template-output/WinUiTemplate/MyTemplate.vstemplate" -Value $mainTemplate
+
+          # Generate WinUiTemplate.Core\MyTemplate.vstemplate
+          $coreCsproj = "WinUiTemplate.Core.csproj"
+          $coreProjectXml = Generate-ProjectItemsXml -Path "./template-output/WinUiTemplate.Core"
+
+          $coreTemplate = @"
+          <VSTemplate Version="3.0.0"
+                      Type="Project"
+                      xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+              <TemplateData>
+                  <Name>WinUI3 MVVM Core Template</Name>
+                  <Description>The core services and business logic of WinUI3 MVVM Template</Description>
+                  <ProjectType>CSharp</ProjectType>
+                  <ProjectSubType></ProjectSubType>
+                  <SortOrder>1000</SortOrder>
+                  <CreateNewFolder>true</CreateNewFolder>
+                  <DefaultName>WinUI3 MVVM Core Template</DefaultName>
+                  <ProvideDefaultName>true</ProvideDefaultName>
+                  <LocationField>Enabled</LocationField>
+                  <EnableLocationBrowseButton>true</EnableLocationBrowseButton>
+                  <CreateInPlace>true</CreateInPlace>
+                  <Icon>__TemplateIcon.ico</Icon>
+                  <Hidden>true</Hidden>
+              </TemplateData>
+              <TemplateContent>
+                  <Project TargetFileName="`$safeprojectname`$.Core.csproj"
+                           File="$coreCsproj"
+                           ReplaceParameters="true">
+          $coreProjectXml        </Project>
+              </TemplateContent>
+          </VSTemplate>
+          "@
+
+          Set-Content -Path "./template-output/WinUiTemplate.Core/MyTemplate.vstemplate" -Value $coreTemplate
+
+          # Generate WinUiTemplate.Tests\MyTemplate.vstemplate
+          $testsCsproj = "WinUiTemplate.Tests.csproj"
+          $testsProjectXml = Generate-ProjectItemsXml -Path "./template-output/WinUiTemplate.Tests"
+
+          $testsTemplate = @"
+          <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
             <TemplateData>
-              <Name>WinUI 3 MVVM Template</Name>
-              <Description>A WinUI 3 project template with MVVM & DI architecture</Description>
+              <Name>WinUI 3 Tests</Name>
+              <Description>Unit tests project with xUnit</Description>
               <ProjectType>CSharp</ProjectType>
-              <DefaultName>WinUi3App</DefaultName>
-              <ProvideDefaultName>true</ProvideDefaultName>
+              <Hidden>true</Hidden>
             </TemplateData>
             <TemplateContent>
-              <ProjectCollection>
-                <ProjectTemplateLink ProjectName="`$safeprojectname`$">
-                  `$safeprojectname`$\`$safeprojectname`$.csproj
-                </ProjectTemplateLink>
-                <ProjectTemplateLink ProjectName="`$safeprojectname`$.Core">
-                  `$safeprojectname`$.Core\`$safeprojectname`$.Core.csproj
-                </ProjectTemplateLink>
-                <ProjectTemplateLink ProjectName="`$safeprojectname`$.Tests">
-                  `$safeprojectname`$.Tests\`$safeprojectname`$.Tests.csproj
-                </ProjectTemplateLink>
-                <SolutionFolder Name="`$safeprojectname`$">
-                </SolutionFolder>
-              </ProjectCollection>
+                <Project TargetFileName="`$safeprojectname`$.Tests.csproj"
+                         File="$testsCsproj"
+                         ReplaceParameters="true">
+          $testsProjectXml        </Project>
             </TemplateContent>
           </VSTemplate>
           "@
-          Set-Content -Path "./template-output/MyTemplate.vstemplate" -Value $vstemplateContent
 
-      - name: Create template zip
+          Set-Content -Path "./template-output/WinUiTemplate.Tests/MyTemplate.vstemplate" -Value $testsTemplate
+
+          # Generate root MyTemplate.vstemplate
+          $rootTemplate = @"
+          <VSTemplate Version="3.0.0" Type="ProjectGroup" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
+            <TemplateData>
+              <Name>WinUI 3 MVVM Template</Name>
+              <Description>A WinUI 3 project template with MVVM &amp; DI architecture</Description>
+              <ProjectType>CSharp</ProjectType>
+            </TemplateData>
+            <TemplateContent>
+                <ProjectCollection>
+                    <ProjectTemplateLink ProjectName="`$safeprojectname`$"
+                                         CopyParameters="true">
+                      WinUiTemplate\MyTemplate.vstemplate
+                    </ProjectTemplateLink>
+                    <ProjectTemplateLink ProjectName="`$safeprojectname`$.Core"
+                                         CopyParameters="true">
+                        WinUiTemplate.Core\MyTemplate.vstemplate
+                    </ProjectTemplateLink>
+                    <ProjectTemplateLink ProjectName="`$safeprojectname`$.Tests"
+                                         CopyParameters="true">
+                        WinUiTemplate.Tests\MyTemplate.vstemplate
+                    </ProjectTemplateLink>
+                </ProjectCollection>
+            </TemplateContent>
+          </VSTemplate>
+          "@
+
+          Set-Content -Path "./template-output/MyTemplate.vstemplate" -Value $rootTemplate
+
+      - name: Replace project name in source files
         shell: pwsh
         run: |
-          Compress-Archive -Path "./template-output/*" -DestinationPath "./WinUiTemplate.zip" -Force
+          # Replace in main WinUiTemplate project
+          Get-ChildItem -Path "./template-output/WinUiTemplate" -Recurse -File | ForEach-Object {
+            if ($_.Extension -match '\.(cs|xaml|json|manifest)$') {
+              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
+            }
+          }
 
+          # Replace in Package.appxmanifest - critical for unique app identity
+          $manifestPath = "./template-output/WinUiTemplate/Package.appxmanifest"
+          if (Test-Path $manifestPath) {
+            $manifest = Get-Content $manifestPath -Raw
+            # Replace Identity Name with a GUID placeholder that VS will regenerate
+            $manifest = $manifest -replace 'Name="[0-9a-f-]+"', 'Name="$$guid1$$"'
+            # Replace PhoneProductId with another GUID placeholder
+            $manifest = $manifest -replace 'PhoneProductId="[0-9a-f-]+"', 'PhoneProductId="$$guid2$$"'
+            # Replace DisplayName and Description
+            $manifest = $manifest -replace '<DisplayName>WinUiTemplate</DisplayName>', '<DisplayName>$$safeprojectname$$</DisplayName>'
+            $manifest = $manifest -replace 'DisplayName="WinUiTemplate"', 'DisplayName="$$safeprojectname$$"'
+            $manifest = $manifest -replace '<Description>WinUiTemplate</Description>', '<Description>$$safeprojectname$$</Description>'
+            $manifest = $manifest -replace 'Description="WinUiTemplate"', 'Description="$$safeprojectname$$"'
+            # Replace Publisher (optional - keep generic for template)
+            $manifest = $manifest -replace '<PublisherDisplayName>.*?</PublisherDisplayName>', '<PublisherDisplayName>$$username$$</PublisherDisplayName>'
+            $manifest = $manifest -replace 'Publisher="CN=.*?"', 'Publisher="CN=$$username$$"'
+            Set-Content $manifestPath -Value $manifest -NoNewline
+          }
+
+          # Replace in WinUiTemplate.Core project - use $ext_safeprojectname$ for namespaces
+          Get-ChildItem -Path "./template-output/WinUiTemplate.Core" -Recurse -File | ForEach-Object {
+            if ($_.Extension -match '\.(cs|json)$') {
+              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$ext_safeprojectname$$' | Set-Content $_.FullName -NoNewline
+            }
+          }
+
+          # Replace in WinUiTemplate.Tests project - use $ext_safeprojectname$ for namespaces and references
+          Get-ChildItem -Path "./template-output/WinUiTemplate.Tests" -Recurse -File | ForEach-Object {
+            if ($_.Extension -match '\.(cs|json)$') {
+              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$ext_safeprojectname$$' | Set-Content $_.FullName -NoNewline
+            }
+          }
+
+          # Replace in .csproj files - these need both patterns
+          Get-ChildItem -Path "./template-output" -Recurse -Filter "*.csproj" | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+
+            # For project references, use $ext_safeprojectname$
+            $content = $content -replace '\\WinUiTemplate\.Core\\', '\$$ext_safeprojectname$$.Core\'
+
+            # For assembly names and root namespaces in the project's own file
+            if ($_.Name -eq "WinUiTemplate.csproj") {
+              $content = $content -replace '<RootNamespace>WinUiTemplate</RootNamespace>', '<RootNamespace>$$safeprojectname$$</RootNamespace>'
+            }
+            elseif ($_.Name -eq "WinUiTemplate.Core.csproj") {
+              $content = $content -replace '<RootNamespace>WinUiTemplate\.Core</RootNamespace>', '<RootNamespace>$$safeprojectname$$</RootNamespace>'
+            }
+            elseif ($_.Name -eq "WinUiTemplate.Tests.csproj") {
+              $content = $content -replace '<RootNamespace>WinUiTemplate\.Tests</RootNamespace>', '<RootNamespace>$$safeprojectname$$</RootNamespace>'
+
+              # For Tests project, disable implicit includes and explicitly add all .cs files
+              # This ensures template files are copied properly
+              if ($content -notmatch '<EnableDefaultCompileItems>') {
+                # Add EnableDefaultCompileItems=false to PropertyGroup
+                $content = $content -replace '(<IsTestProject>true</IsTestProject>)', "`$1`n    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>"
+
+                # Get all .cs files in the Tests directory and add them explicitly
+                $testFiles = Get-ChildItem -Path "./template-output/WinUiTemplate.Tests" -Filter "*.cs" -File | ForEach-Object { $_.Name }
+                $compileItems = ""
+                foreach ($file in $testFiles) {
+                  $compileItems += "    <Compile Include=`"$file`" />`n"
+                }
+
+                # Insert ItemGroup with Compile items before </Project>
+                $content = $content -replace '(</Project>)', "  <ItemGroup>`n$compileItems  </ItemGroup>`n`$1"
+              }
+            }
+
+            Set-Content $_.FullName -Value $content -NoNewline
+          }
+
+          # Replace in solution files
+          Get-ChildItem -Path "./template-output" -Filter "*.sln*" | ForEach-Object {
+            (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
+          }
+          
       - name: Upload template artifact
         uses: actions/upload-artifact@v4
         with:
-          name: visual-studio-template
-          path: ./WinUiTemplate.zip
+          name: WinUi3 MVVM Template
+          path: ./template-output/
