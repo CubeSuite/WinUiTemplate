@@ -189,9 +189,28 @@ jobs:
         run: |
           # Replace in main WinUiTemplate project
           Get-ChildItem -Path "./template-output/WinUiTemplate" -Recurse -File | ForEach-Object {
-            if ($_.Extension -match '\.(cs|xaml|json)$') {
+            if ($_.Extension -match '\.(cs|xaml|json|manifest)$') {
               (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
             }
+          }
+
+          # Replace in Package.appxmanifest - critical for unique app identity
+          $manifestPath = "./template-output/WinUiTemplate/Package.appxmanifest"
+          if (Test-Path $manifestPath) {
+            $manifest = Get-Content $manifestPath -Raw
+            # Replace Identity Name with a GUID placeholder that VS will regenerate
+            $manifest = $manifest -replace 'Name="[0-9a-f-]+"', 'Name="$$guid1$$"'
+            # Replace PhoneProductId with another GUID placeholder
+            $manifest = $manifest -replace 'PhoneProductId="[0-9a-f-]+"', 'PhoneProductId="$$guid2$$"'
+            # Replace DisplayName and Description
+            $manifest = $manifest -replace '<DisplayName>WinUiTemplate</DisplayName>', '<DisplayName>$$safeprojectname$$</DisplayName>'
+            $manifest = $manifest -replace 'DisplayName="WinUiTemplate"', 'DisplayName="$$safeprojectname$$"'
+            $manifest = $manifest -replace '<Description>WinUiTemplate</Description>', '<Description>$$safeprojectname$$</Description>'
+            $manifest = $manifest -replace 'Description="WinUiTemplate"', 'Description="$$safeprojectname$$"'
+            # Replace Publisher (optional - keep generic for template)
+            $manifest = $manifest -replace '<PublisherDisplayName>.*?</PublisherDisplayName>', '<PublisherDisplayName>$$username$$</PublisherDisplayName>'
+            $manifest = $manifest -replace 'Publisher="CN=.*?"', 'Publisher="CN=$$username$$"'
+            Set-Content $manifestPath -Value $manifest -NoNewline
           }
 
           # Replace in WinUiTemplate.Core project - use $ext_safeprojectname$ for namespaces
