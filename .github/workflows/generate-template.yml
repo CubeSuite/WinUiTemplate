@@ -73,7 +73,7 @@ jobs:
             </TemplateContent>
           </VSTemplate>
           "@
-          Set-Content -Path "./template-output/MyTemplate.vstemplate" -Value $vstemplateContent
+          Set-Content -Path "./template-output/WinUI3 Template.vstemplate" -Value $vstemplateContent
 
       - name: Upload template artifact
         uses: actions/upload-artifact@v4
