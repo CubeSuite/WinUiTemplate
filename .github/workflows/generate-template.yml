@@ -45,37 +45,7 @@ jobs:
               $newName = $_.Name -replace 'WinUiTemplate', '$safeprojectname$'
               Rename-Item -Path $_.FullName -NewName $newName
             }
-
-      - name: Create vstemplate file
-        run: |
-          $vstemplateContent = @"
-          <VSTemplate Version="3.0.0" Type="ProjectGroup" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
-            <TemplateData>
-              <Name>WinUI 3 MVVM Template</Name>
-              <Description></Description>
-              <ProjectType>CSharp</ProjectType>
-              <DefaultName>WinUi3App</DefaultName>
-              <ProvideDefaultName>true</ProvideDefaultName>
-            </TemplateData>
-            <TemplateContent>
-              <ProjectCollection>
-                <ProjectTemplateLink ProjectName="`$safeprojectname`$">
-                  `$safeprojectname`$\`$safeprojectname`$.csproj
-                </ProjectTemplateLink>
-                <ProjectTemplateLink ProjectName="`$safeprojectname`$.Core">
-                  `$safeprojectname`$.Core\`$safeprojectname`$.Core.csproj
-                </ProjectTemplateLink>
-                <ProjectTemplateLink ProjectName="`$safeprojectname`$.Tests">
-                  `$safeprojectname`$.Tests\`$safeprojectname`$.Tests.csproj
-                </ProjectTemplateLink>
-                <SolutionFolder Name="`$safeprojectname`$">
-                </SolutionFolder>
-              </ProjectCollection>
-            </TemplateContent>
-          </VSTemplate>
-          "@
-          Set-Content -Path "./template-output/WinUI3 Template.vstemplate" -Value $vstemplateContent
-
+            
       - name: Upload template artifact
         uses: actions/upload-artifact@v4
         with:
