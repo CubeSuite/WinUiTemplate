@@ -224,6 +224,23 @@ jobs:
             }
             elseif ($_.Name -eq "WinUiTemplate.Tests.csproj") {
               $content = $content -replace '<RootNamespace>WinUiTemplate\.Tests</RootNamespace>', '<RootNamespace>$$safeprojectname$$</RootNamespace>'
+
+              # For Tests project, disable implicit includes and explicitly add all .cs files
+              # This ensures template files are copied properly
+              if ($content -notmatch '<EnableDefaultCompileItems>') {
+                # Add EnableDefaultCompileItems=false to PropertyGroup
+                $content = $content -replace '(<IsTestProject>true</IsTestProject>)', "`$1`n    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>"
+
+                # Get all .cs files in the Tests directory and add them explicitly
+                $testFiles = Get-ChildItem -Path "./template-output/WinUiTemplate.Tests" -Filter "*.cs" -File | ForEach-Object { $_.Name }
+                $compileItems = ""
+                foreach ($file in $testFiles) {
+                  $compileItems += "    <Compile Include=`"$file`" />`n"
+                }
+
+                # Insert ItemGroup with Compile items before </Project>
+                $content = $content -replace '(</Project>)', "  <ItemGroup>`n$compileItems  </ItemGroup>`n`$1"
+              }
             }
 
             Set-Content $_.FullName -Value $content -NoNewline
