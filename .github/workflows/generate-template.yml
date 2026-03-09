@@ -75,13 +75,8 @@ jobs:
           "@
           Set-Content -Path "./template-output/MyTemplate.vstemplate" -Value $vstemplateContent
 
-      - name: Create template zip
-        shell: pwsh
-        run: |
-          Compress-Archive -Path "./template-output/*" -DestinationPath "./WinUiTemplate.zip" -Force
-
       - name: Upload template artifact
         uses: actions/upload-artifact@v4
         with:
-          name: visual-studio-template
-          path: ./WinUiTemplate.zip
+          name: WinUi3 Template
+          path: ./template-output/
