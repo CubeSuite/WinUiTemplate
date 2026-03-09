@@ -9,6 +9,38 @@
     </TemplateData>
     <TemplateContent>
         <Project File="$safeprojectname$.csproj"
-                 ReplaceParameters="true"/>
+                 ReplaceParameters="true">
+            <ProjectItem ReplaceParameters="true"
+                         TargetFileName="App.xaml">App.xaml</ProjectItem>
+            <ProjectItem ReplaceParameters="true"
+                         TargetFileName="App.xaml.cs">App.xaml.cs</ProjectItem>
+            <ProjectItem ReplaceParameters="true"
+                         TargetFileName="Package.appxmanifest">Package.appxmanifest</ProjectItem>
+            <Folder Name="Assets"
+                    TargetFolderName="Assets">
+                <ProjectItem>Assets\AppIcon.png</ProjectItem>
+                <ProjectItem>Assets\AppTiles\LargeTile.png</ProjectItem>
+                <ProjectItem>Assets\AppTiles\SmallTile.png</ProjectItem>
+                <ProjectItem>Assets\AppTiles\SquareTile.png</ProjectItem>
+                <ProjectItem>Assets\AppTiles\WideTile.png</ProjectItem>
+            </Folder>
+            <Folder Name="Converters"
+                    TargetFolderName="Converters">
+                <ProjectItem ReplaceParameters="true">Converters\BoolToVisibilityConverter.cs</ProjectItem>
+                <ProjectItem ReplaceParameters="true">Converters\InverseBoolToVisibilityConverter.cs</ProjectItem>
+            </Folder>
+            <Folder Name="ViewModels"
+                    TargetFolderName="ViewModels">
+                <ProjectItem ReplaceParameters="true">ViewModels\MainWindowViewModel.cs</ProjectItem>
+                <ProjectItem ReplaceParameters="true">ViewModels\ShellPageViewModel.cs</ProjectItem>
+            </Folder>
+            <Folder Name="Views"
+                    TargetFolderName="Views">
+                <ProjectItem ReplaceParameters="true">Views\MainWindow.xaml</ProjectItem>
+                <ProjectItem ReplaceParameters="true">Views\MainWindow.xaml.cs</ProjectItem>
+                <ProjectItem ReplaceParameters="true">Views\ShellPage.xaml</ProjectItem>
+                <ProjectItem ReplaceParameters="true">Views\ShellPage.xaml.cs</ProjectItem>
+            </Folder>
+        </Project>
     </TemplateContent>
 </VSTemplate>

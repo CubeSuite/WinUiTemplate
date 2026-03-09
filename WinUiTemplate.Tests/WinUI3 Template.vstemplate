@@ -6,7 +6,10 @@
     <Hidden>true</Hidden>
   </TemplateData>
   <TemplateContent>
-    <Project File="$safeprojectname$.Tests.csproj" ReplaceParameters="true">
-    </Project>
+      <Project File="$safeprojectname$.Tests.csproj"
+               ReplaceParameters="true">
+          <ProjectItem ReplaceParameters="true">ArchiveServiceTests.cs</ProjectItem>
+          <ProjectItem ReplaceParameters="true">TestUtils.cs</ProjectItem>
+      </Project>
   </TemplateContent>
 </VSTemplate>
