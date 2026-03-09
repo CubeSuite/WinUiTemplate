@@ -55,7 +55,8 @@ jobs:
               foreach ($file in $items) {
                   if ($file.Extension -eq ".csproj") { continue }
                   $fileName = $file.Name
-                  $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md)$') { "true" } else { "false" }
+                  # Include .appxmanifest and .manifest for template parameter replacement
+                  $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest)$') { "true" } else { "false" }
                   $xml += "$Indent<ProjectItem ReplaceParameters=`"$replaceParams`"`n"
                   $xml += "$Indent             TargetFileName=`"$fileName`">$fileName</ProjectItem>`n"
               }
