@@ -186,12 +186,12 @@ jobs:
         run: |
           Get-ChildItem -Path "./template-output" -Recurse -File | ForEach-Object {
             if ($_.Extension -match '\.(cs|csproj|xaml|json|sln|slnx)$') {
-              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '`$safeprojectname`$' | Set-Content $_.FullName -NoNewline
+              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
             }
           }
           
       - name: Upload template artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WinUi3 Template
+          name: WinUi3 MVVM Template
           path: ./template-output/
