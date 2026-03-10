@@ -89,6 +89,9 @@ jobs:
 
                   $fileName = $file.Name
 
+                  # Determine the source file path (relative to .vstemplate location)
+                  $sourceFile = if ($RelativePath) { "$RelativePath\$fileName" } else { $fileName }
+
                   # Determine target location
                   $targetFile = if ($RelativePath -match '^SolutionItems\\?(.*)') {
                       # Files in SolutionItems go to solution root (../ from project)
@@ -106,7 +109,7 @@ jobs:
                   $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest|yml|yaml|sln|slnx)$') { "true" } else { "false" }
 
                   $xml += "$Indent<ProjectItem ReplaceParameters=`"$replaceParams`"`n"
-                  $xml += "$Indent             TargetFileName=`"$targetFile`">$fileName</ProjectItem>`n"
+                  $xml += "$Indent             TargetFileName=`"$targetFile`">$sourceFile</ProjectItem>`n"
               }
 
               return $xml
