@@ -12,23 +12,33 @@ jobs:
       - name: Copy project files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path "./template-output/.github/workflows" -Force
-
-          Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/.github/workflows/run-unit-tests.yml" -Recurse -Force
-          Copy-Item -Path "*.sln*" -Destination "./template-output" -Force
-          Copy-Item -Path ".gitignore" -Destination "./template-output/.gitignore" -Force
-          Copy-Item -Path "LICENSE.txt" -Destination "./template-output/LICENSE.txt" -Force
-
-          # Copy projects excluding build artifacts but not based on extension
+          # Copy projects first
           Copy-Item -Path "WinUiTemplate" -Destination "./template-output/WinUiTemplate" -Recurse -Force
           Copy-Item -Path "WinUiTemplate.Core" -Destination "./template-output/WinUiTemplate.Core" -Recurse -Force
           Copy-Item -Path "WinUiTemplate.Tests" -Destination "./template-output/WinUiTemplate.Tests" -Recurse -Force
 
-          # Remove build artifacts
-          Remove-Item -Path "./template-output/*/bin" -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path "./template-output/*/obj" -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path "./template-output/*/.vs" -Recurse -Force -ErrorAction SilentlyContinue
-          Get-ChildItem -Path "./template-output" -Recurse -Filter "*.user" | Remove-Item -Force
+          # Copy solution-level files into main project's SolutionItems folder
+          # These will be placed at solution root via TargetFileName in the vstemplate
+          # Note: Use 'github' (no dot) - will be renamed to '.github' during template instantiation
+          New-Item -ItemType Directory -Path "./template-output/WinUiTemplate/SolutionItems/github/workflows" -Force
+
+          Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/WinUiTemplate/SolutionItems/github/workflows/" -Force
+
+          # Copy solution file - prefer .sln, fallback to .slnx
+          if (Test-Path "*.sln") {
+            Copy-Item -Path "*.sln" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
+          } elseif (Test-Path "*.slnx") {
+            Copy-Item -Path "*.slnx" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
+          }
+
+          Copy-Item -Path ".gitignore" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
+          Copy-Item -Path "LICENSE.txt" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
+
+          # Remove build artifacts recursively
+          Get-ChildItem -Path "./template-output" -Directory -Recurse -Filter "bin" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+          Get-ChildItem -Path "./template-output" -Directory -Recurse -Filter "obj" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+          Get-ChildItem -Path "./template-output" -Directory -Recurse -Filter ".vs" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+          Get-ChildItem -Path "./template-output" -File -Recurse -Filter "*.user" -ErrorAction SilentlyContinue | Remove-Item -Force
 
       - name: Generate vstemplate files
         shell: pwsh
@@ -36,7 +46,8 @@ jobs:
           function Generate-ProjectItemsXml {
               param(
                   [string]$Path,
-                  [string]$Indent = "            "
+                  [string]$Indent = "            ",
+                  [string]$RelativePath = ""
               )
 
               $items = Get-ChildItem -Path $Path -File
@@ -44,21 +55,35 @@ jobs:
 
               $xml = ""
 
+              # Process folders recursively (no Folder tags - just traverse and collect files)
               foreach ($folder in $folders) {
                   $folderName = $folder.Name
-                  $xml += "$Indent<Folder Name=`"$folderName`"`n"
-                  $xml += "$Indent        TargetFolderName=`"$folderName`">`n"
-                  $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent ($Indent + "    ")
-                  $xml += "$Indent</Folder>`n"
+
+                  # Skip folders that shouldn't be in templates
+                  if ($folderName -in @("SolutionItems", "bin", "obj", ".vs")) {
+                      continue
+                  }
+
+                  $newRelativePath = if ($RelativePath) { "$RelativePath\$folderName" } else { $folderName }
+                  $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent $Indent -RelativePath $newRelativePath
               }
 
+              # Process files - generate flat ProjectItem list with full paths
               foreach ($file in $items) {
                   if ($file.Extension -eq ".csproj") { continue }
+
                   $fileName = $file.Name
-                  # Include .appxmanifest and .manifest for template parameter replacement
-                  $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest)$') { "true" } else { "false" }
+
+                  # Source file is always the relative path from .vstemplate location
+                  $sourceFile = if ($RelativePath) { "$RelativePath\$fileName" } else { $fileName }
+
+                  # Include yml/yaml/sln/slnx for template parameter replacement
+                  $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest|yml|yaml|sln|slnx)$') { "true" } else { "false" }
+
+                  # Regular files - VS will create folder structure from the path
+                  # TargetFileName is just the filename - the path in the content determines folder structure
                   $xml += "$Indent<ProjectItem ReplaceParameters=`"$replaceParams`"`n"
-                  $xml += "$Indent             TargetFileName=`"$fileName`">$fileName</ProjectItem>`n"
+                  $xml += "$Indent             TargetFileName=`"$fileName`">$sourceFile</ProjectItem>`n"
               }
 
               return $xml
@@ -187,10 +212,12 @@ jobs:
       - name: Replace project name in source files
         shell: pwsh
         run: |
-          # Replace in main WinUiTemplate project
+          # Replace in main WinUiTemplate project (exclude SolutionItems)
           Get-ChildItem -Path "./template-output/WinUiTemplate" -Recurse -File | ForEach-Object {
-            if ($_.Extension -match '\.(cs|xaml|json|manifest)$') {
-              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
+            if ($_.FullName -notmatch '\\SolutionItems\\') {
+              if ($_.Extension -match '\.(cs|xaml|json|manifest)$') {
+                (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
+              }
             }
           }
 
@@ -231,8 +258,10 @@ jobs:
           Get-ChildItem -Path "./template-output" -Recurse -Filter "*.csproj" | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
 
-            # For project references, use $ext_safeprojectname$
+            # For project references, use $ext_safeprojectname$ for both path and filename
             $content = $content -replace '\\WinUiTemplate\.Core\\', '\$$ext_safeprojectname$$.Core\'
+            $content = $content -replace 'WinUiTemplate\.Core\.csproj', '$$ext_safeprojectname$$.Core.csproj'
+            $content = $content -replace 'WinUiTemplate\.Tests\.csproj', '$$ext_safeprojectname$$.Tests.csproj'
 
             # For assembly names and root namespaces in the project's own file
             if ($_.Name -eq "WinUiTemplate.csproj") {
@@ -265,8 +294,8 @@ jobs:
             Set-Content $_.FullName -Value $content -NoNewline
           }
 
-          # Replace in solution files
-          Get-ChildItem -Path "./template-output" -Filter "*.sln*" | ForEach-Object {
+          # Replace in solution files (now in SolutionItems folder)
+          Get-ChildItem -Path "./template-output/WinUiTemplate/SolutionItems" -Filter "*.sln*" -File -ErrorAction SilentlyContinue | ForEach-Object {
             (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
           }
           
