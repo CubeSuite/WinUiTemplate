@@ -34,11 +34,11 @@ jobs:
           Copy-Item -Path ".gitignore" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
           Copy-Item -Path "LICENSE.txt" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
 
-          # Remove build artifacts
-          Remove-Item -Path "./template-output/*/bin" -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path "./template-output/*/obj" -Recurse -Force -ErrorAction SilentlyContinue
-          Remove-Item -Path "./template-output/*/.vs" -Recurse -Force -ErrorAction SilentlyContinue
-          Get-ChildItem -Path "./template-output" -Recurse -Filter "*.user" | Remove-Item -Force
+          # Remove build artifacts recursively
+          Get-ChildItem -Path "./template-output" -Directory -Recurse -Filter "bin" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+          Get-ChildItem -Path "./template-output" -Directory -Recurse -Filter "obj" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+          Get-ChildItem -Path "./template-output" -Directory -Recurse -Filter ".vs" -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force
+          Get-ChildItem -Path "./template-output" -File -Recurse -Filter "*.user" -ErrorAction SilentlyContinue | Remove-Item -Force
 
       - name: Generate vstemplate files
         shell: pwsh
@@ -55,61 +55,35 @@ jobs:
 
               $xml = ""
 
+              # Process folders recursively (no Folder tags - just traverse and collect files)
               foreach ($folder in $folders) {
                   $folderName = $folder.Name
+
+                  # Skip folders that shouldn't be in templates
+                  if ($folderName -in @("SolutionItems", "bin", "obj", ".vs")) {
+                      continue
+                  }
+
                   $newRelativePath = if ($RelativePath) { "$RelativePath\$folderName" } else { $folderName }
-
-                  # Special handling for SolutionItems - don't create the folder itself, just process contents
-                  if ($folderName -eq "SolutionItems") {
-                      $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent $Indent -RelativePath $newRelativePath
-                  }
-                  # If inside SolutionItems, create folders with ..\ prefix to place at solution root
-                  elseif ($RelativePath -match '^SolutionItems') {
-                      $subPath = if ($RelativePath -match '^SolutionItems\\?(.*)') { $matches[1] } else { "" }
-
-                      # Rename 'github' folder to '.github' in target
-                      $targetFolderName = if ($folderName -eq "github") { ".github" } else { $folderName }
-                      $targetFolder = if ($subPath) { "..\$subPath\$targetFolderName" } else { "..\$targetFolderName" }
-
-                      $xml += "$Indent<Folder Name=`"$folderName`"`n"
-                      $xml += "$Indent        TargetFolderName=`"$targetFolder`">`n"
-                      $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent ($Indent + "    ") -RelativePath $newRelativePath
-                      $xml += "$Indent</Folder>`n"
-                  }
-                  else {
-                      $xml += "$Indent<Folder Name=`"$folderName`"`n"
-                      $xml += "$Indent        TargetFolderName=`"$folderName`">`n"
-                      $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent ($Indent + "    ") -RelativePath $newRelativePath
-                      $xml += "$Indent</Folder>`n"
-                  }
+                  $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent $Indent -RelativePath $newRelativePath
               }
 
+              # Process files - generate flat ProjectItem list with full paths
               foreach ($file in $items) {
                   if ($file.Extension -eq ".csproj") { continue }
 
                   $fileName = $file.Name
 
-                  # Determine the source file path (relative to .vstemplate location)
+                  # Source file is always the relative path from .vstemplate location
                   $sourceFile = if ($RelativePath) { "$RelativePath\$fileName" } else { $fileName }
-
-                  # Determine target location
-                  $targetFile = if ($RelativePath -match '^SolutionItems\\?(.*)') {
-                      # Files in SolutionItems go to solution root (../ from project)
-                      $subPath = $matches[1]
-                      if ($subPath) {
-                          "..\$subPath\$fileName"
-                      } else {
-                          "..\$fileName"
-                      }
-                  } else {
-                      $fileName
-                  }
 
                   # Include yml/yaml/sln/slnx for template parameter replacement
                   $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest|yml|yaml|sln|slnx)$') { "true" } else { "false" }
 
+                  # Regular files - VS will create folder structure from the path
+                  # TargetFileName is just the filename - the path in the content determines folder structure
                   $xml += "$Indent<ProjectItem ReplaceParameters=`"$replaceParams`"`n"
-                  $xml += "$Indent             TargetFileName=`"$targetFile`">$sourceFile</ProjectItem>`n"
+                  $xml += "$Indent             TargetFileName=`"$fileName`">$sourceFile</ProjectItem>`n"
               }
 
               return $xml
@@ -284,8 +258,10 @@ jobs:
           Get-ChildItem -Path "./template-output" -Recurse -Filter "*.csproj" | ForEach-Object {
             $content = Get-Content $_.FullName -Raw
 
-            # For project references, use $ext_safeprojectname$
+            # For project references, use $ext_safeprojectname$ for both path and filename
             $content = $content -replace '\\WinUiTemplate\.Core\\', '\$$ext_safeprojectname$$.Core\'
+            $content = $content -replace 'WinUiTemplate\.Core\.csproj', '$$ext_safeprojectname$$.Core.csproj'
+            $content = $content -replace 'WinUiTemplate\.Tests\.csproj', '$$ext_safeprojectname$$.Tests.csproj'
 
             # For assembly names and root namespaces in the project's own file
             if ($_.Name -eq "WinUiTemplate.csproj") {
