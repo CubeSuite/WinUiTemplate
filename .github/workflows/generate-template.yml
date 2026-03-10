@@ -12,17 +12,26 @@ jobs:
       - name: Copy project files
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path "./template-output/.github/workflows" -Force
-
-          Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/.github/workflows/run-unit-tests.yml" -Recurse -Force
-          Copy-Item -Path "*.sln*" -Destination "./template-output" -Force
-          Copy-Item -Path ".gitignore" -Destination "./template-output/.gitignore" -Force
-          Copy-Item -Path "LICENSE.txt" -Destination "./template-output/LICENSE.txt" -Force
-
-          # Copy projects excluding build artifacts but not based on extension
+          # Copy projects first
           Copy-Item -Path "WinUiTemplate" -Destination "./template-output/WinUiTemplate" -Recurse -Force
           Copy-Item -Path "WinUiTemplate.Core" -Destination "./template-output/WinUiTemplate.Core" -Recurse -Force
           Copy-Item -Path "WinUiTemplate.Tests" -Destination "./template-output/WinUiTemplate.Tests" -Recurse -Force
+
+          # Copy solution-level files into main project's SolutionItems folder
+          # These will be placed at solution root via TargetFileName in the vstemplate
+          New-Item -ItemType Directory -Path "./template-output/WinUiTemplate/SolutionItems/.github/workflows" -Force
+
+          Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/WinUiTemplate/SolutionItems/.github/workflows/" -Force
+
+          # Copy solution file - prefer .sln, fallback to .slnx
+          if (Test-Path "*.sln") {
+            Copy-Item -Path "*.sln" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
+          } elseif (Test-Path "*.slnx") {
+            Copy-Item -Path "*.slnx" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
+          }
+
+          Copy-Item -Path ".gitignore" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
+          Copy-Item -Path "LICENSE.txt" -Destination "./template-output/WinUiTemplate/SolutionItems/" -Force
 
           # Remove build artifacts
           Remove-Item -Path "./template-output/*/bin" -Recurse -Force -ErrorAction SilentlyContinue
@@ -36,7 +45,8 @@ jobs:
           function Generate-ProjectItemsXml {
               param(
                   [string]$Path,
-                  [string]$Indent = "            "
+                  [string]$Indent = "            ",
+                  [string]$RelativePath = ""
               )
 
               $items = Get-ChildItem -Path $Path -File
@@ -46,19 +56,56 @@ jobs:
 
               foreach ($folder in $folders) {
                   $folderName = $folder.Name
-                  $xml += "$Indent<Folder Name=`"$folderName`"`n"
-                  $xml += "$Indent        TargetFolderName=`"$folderName`">`n"
-                  $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent ($Indent + "    ")
-                  $xml += "$Indent</Folder>`n"
+                  $newRelativePath = if ($RelativePath) { "$RelativePath\$folderName" } else { $folderName }
+
+                  # Special handling for SolutionItems - don't create the folder itself, just process contents
+                  if ($folderName -eq "SolutionItems") {
+                      $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent $Indent -RelativePath $newRelativePath
+                  }
+                  # If inside SolutionItems, create folders with ..\ prefix to place at solution root
+                  elseif ($RelativePath -match '^SolutionItems') {
+                      $subPath = if ($RelativePath -match '^SolutionItems\\?(.*)') { $matches[1] } else { "" }
+
+                      # Rename 'github' folder to '.github' in target
+                      $targetFolderName = if ($folderName -eq "github") { ".github" } else { $folderName }
+                      $targetFolder = if ($subPath) { "..\$subPath\$targetFolderName" } else { "..\$targetFolderName" }
+
+                      $xml += "$Indent<Folder Name=`"$folderName`"`n"
+                      $xml += "$Indent        TargetFolderName=`"$targetFolder`">`n"
+                      $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent ($Indent + "    ") -RelativePath $newRelativePath
+                      $xml += "$Indent</Folder>`n"
+                  }
+                  else {
+                      $xml += "$Indent<Folder Name=`"$folderName`"`n"
+                      $xml += "$Indent        TargetFolderName=`"$folderName`">`n"
+                      $xml += Generate-ProjectItemsXml -Path $folder.FullName -Indent ($Indent + "    ") -RelativePath $newRelativePath
+                      $xml += "$Indent</Folder>`n"
+                  }
               }
 
               foreach ($file in $items) {
                   if ($file.Extension -eq ".csproj") { continue }
+
                   $fileName = $file.Name
-                  # Include .appxmanifest and .manifest for template parameter replacement
-                  $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest)$') { "true" } else { "false" }
+
+                  # Determine target location
+                  $targetFile = if ($RelativePath -match '^SolutionItems\\?(.*)') {
+                      # Files in SolutionItems go to solution root (../ from project)
+                      $subPath = $matches[1]
+                      if ($subPath) {
+                          "..\$subPath\$fileName"
+                      } else {
+                          "..\$fileName"
+                      }
+                  } else {
+                      $fileName
+                  }
+
+                  # Include yml/yaml/sln/slnx for template parameter replacement
+                  $replaceParams = if ($file.Extension -match '\.(cs|csproj|xml|xaml|json|txt|md|manifest|appxmanifest|yml|yaml|sln|slnx)$') { "true" } else { "false" }
+
                   $xml += "$Indent<ProjectItem ReplaceParameters=`"$replaceParams`"`n"
-                  $xml += "$Indent             TargetFileName=`"$fileName`">$fileName</ProjectItem>`n"
+                  $xml += "$Indent             TargetFileName=`"$targetFile`">$fileName</ProjectItem>`n"
               }
 
               return $xml
@@ -187,10 +234,12 @@ jobs:
       - name: Replace project name in source files
         shell: pwsh
         run: |
-          # Replace in main WinUiTemplate project
+          # Replace in main WinUiTemplate project (exclude SolutionItems)
           Get-ChildItem -Path "./template-output/WinUiTemplate" -Recurse -File | ForEach-Object {
-            if ($_.Extension -match '\.(cs|xaml|json|manifest)$') {
-              (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
+            if ($_.FullName -notmatch '\\SolutionItems\\') {
+              if ($_.Extension -match '\.(cs|xaml|json|manifest)$') {
+                (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
+              }
             }
           }
 
@@ -265,8 +314,8 @@ jobs:
             Set-Content $_.FullName -Value $content -NoNewline
           }
 
-          # Replace in solution files
-          Get-ChildItem -Path "./template-output" -Filter "*.sln*" | ForEach-Object {
+          # Replace in solution files (now in SolutionItems folder)
+          Get-ChildItem -Path "./template-output/WinUiTemplate/SolutionItems" -Filter "*.sln*" -File -ErrorAction SilentlyContinue | ForEach-Object {
             (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
           }
           
