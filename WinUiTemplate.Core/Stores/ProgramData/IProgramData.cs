@@ -9,7 +9,6 @@ namespace WinUiTemplate.Stores.Interfaces
         bool IsDebugBuild { get; }
         string ProgramName { get; }
         Version ProgramVersion { get; }
-        bool RunUnitTests { get; }
         bool EnableBackups { get; }
         EncryptionLevel EncryptionLevel { get; }
         bool UsesApi { get; }

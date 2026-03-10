@@ -20,15 +20,13 @@ namespace WinUiTemplate.Stores
                 #endif
             }
         }
-        public bool RunUnitTests => false;
-        public string ProgramName => "WinUiTemplate";
+        public string ProgramName => "WinUiTemplate"; // ToDo: Set Program Name
         public string ProgramNameNoSpaces => ProgramName.Replace(" ", "");
         public Version ProgramVersion => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0, 0);
         public IFilePaths FilePaths { get; }
-        public bool EnableBackups { get; } = true;
-        public bool EncryptData { get; } = false;
-        public EncryptionLevel EncryptionLevel { get; } = EncryptionLevel.None;
-        public bool UsesApi { get; } = false;
+        public bool EnableBackups { get; } = true; // ToDo: Set EnableBackups
+        public EncryptionLevel EncryptionLevel { get; } = EncryptionLevel.None; // ToDo: Set EncryptionLevel
+        public bool UsesApi { get; } = false; // ToDo: Set UsesApi
 
         // Constructors 
 
