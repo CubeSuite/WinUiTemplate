@@ -19,9 +19,10 @@ jobs:
 
           # Copy solution-level files into main project's SolutionItems folder
           # These will be placed at solution root via TargetFileName in the vstemplate
-          New-Item -ItemType Directory -Path "./template-output/WinUiTemplate/SolutionItems/.github/workflows" -Force
+          # Note: Use 'github' (no dot) - will be renamed to '.github' during template instantiation
+          New-Item -ItemType Directory -Path "./template-output/WinUiTemplate/SolutionItems/github/workflows" -Force
 
-          Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/WinUiTemplate/SolutionItems/.github/workflows/" -Force
+          Copy-Item -Path ".github/workflows/run-unit-tests.yml" -Destination "./template-output/WinUiTemplate/SolutionItems/github/workflows/" -Force
 
           # Copy solution file - prefer .sln, fallback to .slnx
           if (Test-Path "*.sln") {
