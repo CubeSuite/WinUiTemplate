@@ -366,3 +366,6 @@ TestResults/
 *.trx
 *.coverage
 *.coveragexml
+
+# Test configuration files with credentials
+**/testconfig.json

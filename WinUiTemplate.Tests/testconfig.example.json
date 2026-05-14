@@ -1,0 +1,9 @@
+{
+  "PostgreSQL": {
+    "Host": "localhost",
+    "Port": 5432,
+    "Database": "WinUI3Debug",
+    "Username": "postgres",
+    "Password": "mySecurePassword123"
+  }
+}

@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 namespace WinUiTemplate.Stores
 {
     public enum EncryptionLevel {
-        None,
-        Settings,
-        Data
+        Settings, // Only EncryptedSettings
+        Data // Everything in data folder
     }
 }

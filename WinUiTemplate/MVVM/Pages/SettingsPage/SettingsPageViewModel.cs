@@ -154,6 +154,15 @@ namespace WinUiTemplate.MVVM.Pages
                         }
                     )
                 ]),
+                new SettingsCategoryList("Encryption", [
+                    new ButtonSetting(
+                        name: "Decrypt Data",
+                        description: "Creates a .zip with your decrypted data to send to the developer for debugging.",
+                        icon: "\uE785",
+                        buttonText: "Decrypt",
+                        onClick: DecryptData
+                    )
+                ])
             };
 
             if (programData.EnableBackups) {
@@ -194,18 +203,6 @@ namespace WinUiTemplate.MVVM.Pages
                 ]));
             }
 
-            if (programData.EncryptionLevel > Stores.EncryptionLevel.None) {
-                SettingsCategories.Add(new SettingsCategoryList("Encryption", [
-                    new ButtonSetting(
-                        name: "Decrypt Data",
-                        description: "Creates a .zip with your decrypted data to send to the developer for debugging.",
-                        icon: "\uE785",
-                        buttonText: "Decrypt",
-                        onClick: DecryptData
-                    )
-                ]));
-            }
-
             if (programData.UsesApi) {
                 SettingsCategories.Add(new SettingsCategoryList("Internet", [
                     new ComparableSetting<int>(
@@ -227,6 +224,79 @@ namespace WinUiTemplate.MVVM.Pages
                         min: 0,
                         max: 5,
                         serviceProvider
+                    )
+                ]));
+            }
+
+            if (programData.UsesRemoteDatabase) {
+                SettingsCategories.Add(new SettingsCategoryList("Database", [
+                    new EncryptedSetting(
+                        name: "Database Host",
+                        description: "The hostname or IP address of your PostgreSQL database server (stored encrypted)",
+                        icon: "\uE968",
+                        getValueFunc: () => userSettings.DatabaseHost,
+                        setValueFunc: (value) => userSettings.DatabaseHost = value,
+                        serviceProvider
+                    ),
+                    new ComparableSetting<int>(
+                        name: "Database Port",
+                        description: "The port number your PostgreSQL database is listening on",
+                        icon: "\uE8AB",
+                        getValueFunc: () => userSettings.DatabasePort,
+                        setValueFunc: (value) => userSettings.DatabasePort = value,
+                        min: 1,
+                        max: 65535,
+                        serviceProvider
+                    ),
+                    new GenericSetting<string>(
+                        name: "Database Name",
+                        description: "The name of the database to connect to",
+                        icon: "\uE74E",
+                        getValueFunc: () => userSettings.DatabaseName,
+                        setValueFunc: (value) => userSettings.DatabaseName = value
+                    ),
+                    new EncryptedSetting(
+                        name: "Username",
+                        description: "The username to authenticate with the database (stored encrypted)",
+                        icon: "\uE77B",
+                        getValueFunc: () => userSettings.DatabaseUsername,
+                        setValueFunc: (value) => userSettings.DatabaseUsername = value,
+                        serviceProvider
+                    ),
+                    new EncryptedSetting(
+                        name: "Password",
+                        description: "The password to authenticate with the database (stored encrypted)",
+                        icon: "\uE72E",
+                        getValueFunc: () => userSettings.DatabasePassword,
+                        setValueFunc: (value) => userSettings.DatabasePassword = value,
+                        serviceProvider
+                    ),
+                    new ComparableSetting<int>(
+                        name: "Connection Timeout",
+                        description: "Maximum time in seconds to wait when establishing a database connection",
+                        icon: "\uE916",
+                        getValueFunc: () => userSettings.DatabaseConnectionTimeout,
+                        setValueFunc: (value) => userSettings.DatabaseConnectionTimeout = value,
+                        min: 5,
+                        max: 120,
+                        serviceProvider
+                    ),
+                    new ComparableSetting<int>(
+                        name: "Max Pool Size",
+                        description: "Maximum number of connections to maintain in the connection pool",
+                        icon: "\uE90A",
+                        getValueFunc: () => userSettings.DatabaseMaxPoolSize,
+                        setValueFunc: (value) => userSettings.DatabaseMaxPoolSize = value,
+                        min: 1,
+                        max: 100,
+                        serviceProvider
+                    ),
+                    new GenericSetting<bool>(
+                        name: "Use SSL",
+                        description: "Enable SSL/TLS encryption for database connections",
+                        icon: "\uE72C",
+                        getValueFunc: () => userSettings.DatabaseUseSsl,
+                        setValueFunc: (value) => userSettings.DatabaseUseSsl = value
                     )
                 ]));
             }

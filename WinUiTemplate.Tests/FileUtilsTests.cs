@@ -40,7 +40,7 @@ namespace WinUiTemplate.Tests
 
             mockProgramData.Setup(x => x.ProgramName).Returns("TestApp");
             mockProgramData.Setup(x => x.FilePaths).Returns(mockFilePaths.Object);
-            mockProgramData.Setup(x => x.EncryptionLevel).Returns(EncryptionLevel.None);
+            mockProgramData.Setup(x => x.EncryptionLevel).Returns(EncryptionLevel.Settings);
 
             mockFilePaths.Setup(x => x.RootFolder).Returns(Path.Combine(tempFolder.Path, "Root"));
             mockFilePaths.Setup(x => x.DataFolder).Returns(Path.Combine(tempFolder.Path, "Root", "Data"));

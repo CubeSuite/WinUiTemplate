@@ -60,6 +60,15 @@ namespace WinUiTemplate.Stores
         private int _apiTimeout = 10;
         private int _apiMaxRetries = 3;
 
+        private string _databaseHost = "localhost";
+        private int _databasePort = 5432;
+        private string _databaseName = "";
+        private string _databaseUsername = "";
+        private string _databasePassword = "";
+        private int _databaseConnectionTimeout = 30;
+        private int _databaseMaxPoolSize = 20;
+        private bool _databaseUseSsl = true;
+
         private readonly object saveLock = new object();
         private CancellationTokenSource? tokenSource;
 
@@ -80,7 +89,15 @@ namespace WinUiTemplate.Stores
             int MaxBackups,
             bool AutomatedBackups,
             int ApiTimeout,
-            int ApiMaxRetries
+            int ApiMaxRetries,
+            string DatabaseHost,
+            int DatabasePort,
+            string DatabaseName,
+            string DatabaseUsername,
+            string DatabasePassword,
+            int DatabaseConnectionTimeout,
+            int DatabaseMaxPoolSize,
+            bool DatabaseUseSsl
         );
 
         // Properties
@@ -244,6 +261,86 @@ namespace WinUiTemplate.Stores
             }
         }
 
+        public string DatabaseHost {
+            get => _databaseHost;
+            set {
+                if (_databaseHost == value) return;
+                _databaseHost = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabaseHost));
+            }
+        }
+
+        public int DatabasePort {
+            get => _databasePort;
+            set {
+                if (_databasePort == value) return;
+                _databasePort = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabasePort));
+            }
+        }
+
+        public string DatabaseName {
+            get => _databaseName;
+            set {
+                if (_databaseName == value) return;
+                _databaseName = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabaseName));
+            }
+        }
+
+        public string DatabaseUsername {
+            get => _databaseUsername;
+            set {
+                if (_databaseUsername == value) return;
+                _databaseUsername = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabaseUsername));
+            }
+        }
+
+        public string DatabasePassword {
+            get => _databasePassword;
+            set {
+                if (_databasePassword == value) return;
+                _databasePassword = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabasePassword));
+            }
+        }
+
+        public int DatabaseConnectionTimeout {
+            get => _databaseConnectionTimeout;
+            set {
+                if (_databaseConnectionTimeout == value) return;
+                _databaseConnectionTimeout = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabaseConnectionTimeout));
+            }
+        }
+
+        public int DatabaseMaxPoolSize {
+            get => _databaseMaxPoolSize;
+            set {
+                if (_databaseMaxPoolSize == value) return;
+                _databaseMaxPoolSize = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabaseMaxPoolSize));
+            }
+        }
+
+        public bool DatabaseUseSsl {
+            get => _databaseUseSsl;
+            set {
+                if (_databaseUseSsl == value) return;
+                _databaseUseSsl = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(DatabaseUseSsl));
+            }
+        }
+
         // Constructors
 
         public UserSettings(IServiceProvider serviceProvider) {
@@ -360,7 +457,15 @@ namespace WinUiTemplate.Stores
             _maxBackups,
             _automaticBackups,
             _apiTimeout,
-            _apiMaxRetries
+            _apiMaxRetries,
+            _databaseHost,
+            _databasePort,
+            _databaseName,
+            _databaseUsername,
+            _databasePassword,
+            _databaseConnectionTimeout,
+            _databaseMaxPoolSize,
+            _databaseUseSsl
         );
 
         private void LoadFromDTO(SettingsDTO dto) {
@@ -379,6 +484,14 @@ namespace WinUiTemplate.Stores
             _automaticBackups = dto.AutomatedBackups;
             _apiTimeout = dto.ApiTimeout;
             _apiMaxRetries = dto.ApiMaxRetries;
+            _databaseHost = dto.DatabaseHost;
+            _databasePort = dto.DatabasePort;
+            _databaseName = dto.DatabaseName;
+            _databaseUsername = dto.DatabaseUsername;
+            _databasePassword = dto.DatabasePassword;
+            _databaseConnectionTimeout = dto.DatabaseConnectionTimeout;
+            _databaseMaxPoolSize = dto.DatabaseMaxPoolSize;
+            _databaseUseSsl = dto.DatabaseUseSsl;
         }
     }
 }

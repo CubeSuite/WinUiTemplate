@@ -139,6 +139,14 @@ namespace WinUiTemplate.Tests
             settings.AutomaticBackups.Should().BeTrue();
             settings.ApiTimeout.Should().Be(10);
             settings.ApiMaxRetries.Should().Be(3);
+            settings.DatabaseHost.Should().Be("localhost");
+            settings.DatabasePort.Should().Be(5432);
+            settings.DatabaseName.Should().BeEmpty();
+            settings.DatabaseUsername.Should().BeEmpty();
+            settings.DatabasePassword.Should().BeEmpty();
+            settings.DatabaseConnectionTimeout.Should().Be(30);
+            settings.DatabaseMaxPoolSize.Should().Be(20);
+            settings.DatabaseUseSsl.Should().BeTrue();
         }
 
         #endregion
@@ -165,6 +173,14 @@ namespace WinUiTemplate.Tests
             settings.AutomaticBackups = false;
             settings.ApiTimeout = 30;
             settings.ApiMaxRetries = 5;
+            settings.DatabaseHost = "db.example.com";
+            settings.DatabasePort = 5433;
+            settings.DatabaseName = "mydb";
+            settings.DatabaseUsername = "admin";
+            settings.DatabasePassword = "secret123";
+            settings.DatabaseConnectionTimeout = 60;
+            settings.DatabaseMaxPoolSize = 50;
+            settings.DatabaseUseSsl = false;
 
             settings.IsFirstLaunch.Should().BeFalse();
             settings.LogDebugMessages.Should().BeTrue();
@@ -181,6 +197,14 @@ namespace WinUiTemplate.Tests
             settings.AutomaticBackups.Should().BeFalse();
             settings.ApiTimeout.Should().Be(30);
             settings.ApiMaxRetries.Should().Be(5);
+            settings.DatabaseHost.Should().Be("db.example.com");
+            settings.DatabasePort.Should().Be(5433);
+            settings.DatabaseName.Should().Be("mydb");
+            settings.DatabaseUsername.Should().Be("admin");
+            settings.DatabasePassword.Should().Be("secret123");
+            settings.DatabaseConnectionTimeout.Should().Be(60);
+            settings.DatabaseMaxPoolSize.Should().Be(50);
+            settings.DatabaseUseSsl.Should().BeFalse();
         }
 
         #endregion
@@ -247,6 +271,84 @@ namespace WinUiTemplate.Tests
             changedPropertyName.Should().Be(nameof(settings.BackupsFolder));
         }
 
+        [Fact]
+        public void DatabaseHost_RaisesSettingChangedEvent_WhenValueChanges()
+        {
+            UserSettings settings = CreateUserSettings();
+            string? changedPropertyName = null;
+            settings.SettingChanged += (name) => changedPropertyName = name;
+
+            settings.DatabaseHost = "db.example.com";
+
+            changedPropertyName.Should().Be(nameof(settings.DatabaseHost));
+        }
+
+        [Fact]
+        public void DatabasePort_RaisesSettingChangedEvent_WhenValueChanges()
+        {
+            UserSettings settings = CreateUserSettings();
+            string? changedPropertyName = null;
+            settings.SettingChanged += (name) => changedPropertyName = name;
+
+            settings.DatabasePort = 5433;
+
+            changedPropertyName.Should().Be(nameof(settings.DatabasePort));
+        }
+
+        [Fact]
+        public void DatabaseUseSsl_RaisesSettingChangedEvent_WhenValueChanges()
+        {
+            UserSettings settings = CreateUserSettings();
+            string? changedPropertyName = null;
+            settings.SettingChanged += (name) => changedPropertyName = name;
+
+            settings.DatabaseUseSsl = false;
+
+            changedPropertyName.Should().Be(nameof(settings.DatabaseUseSsl));
+        }
+
+        #endregion
+
+        #region Database Settings Tests
+
+        [Fact]
+        public void DatabaseSettings_CanBeSetAndRetrieved()
+        {
+            UserSettings settings = CreateUserSettings();
+
+            settings.DatabaseHost = "postgres.example.com";
+            settings.DatabasePort = 5433;
+            settings.DatabaseName = "production_db";
+            settings.DatabaseUsername = "dbadmin";
+            settings.DatabasePassword = "P@ssw0rd!";
+            settings.DatabaseConnectionTimeout = 45;
+            settings.DatabaseMaxPoolSize = 30;
+            settings.DatabaseUseSsl = false;
+
+            settings.DatabaseHost.Should().Be("postgres.example.com");
+            settings.DatabasePort.Should().Be(5433);
+            settings.DatabaseName.Should().Be("production_db");
+            settings.DatabaseUsername.Should().Be("dbadmin");
+            settings.DatabasePassword.Should().Be("P@ssw0rd!");
+            settings.DatabaseConnectionTimeout.Should().Be(45);
+            settings.DatabaseMaxPoolSize.Should().Be(30);
+            settings.DatabaseUseSsl.Should().BeFalse();
+        }
+
+        [Fact]
+        public void DatabasePassword_DoesNotRaiseEvent_WhenSetToSameValue()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DatabasePassword = "test123";
+            int eventCount = 0;
+            settings.SettingChanged += (name) => eventCount++;
+
+            settings.DatabasePassword = "test123";
+
+            eventCount.Should().Be(0);
+        }
+
+
         #endregion
 
         #region Load Tests
@@ -281,7 +383,15 @@ namespace WinUiTemplate.Tests
                 ""MaxBackups"": 10,
                 ""AutomatedBackups"": false,
                 ""ApiTimeout"": 30,
-                ""ApiMaxRetries"": 5
+                ""ApiMaxRetries"": 5,
+                ""DatabaseHost"": ""db.example.com"",
+                ""DatabasePort"": 5433,
+                ""DatabaseName"": ""testdb"",
+                ""DatabaseUsername"": ""testuser"",
+                ""DatabasePassword"": ""testpass"",
+                ""DatabaseConnectionTimeout"": 60,
+                ""DatabaseMaxPoolSize"": 50,
+                ""DatabaseUseSsl"": false
             }";
             SetupSuccessfulFileRead(json);
 
@@ -303,6 +413,14 @@ namespace WinUiTemplate.Tests
             settings.AutomaticBackups.Should().BeFalse();
             settings.ApiTimeout.Should().Be(30);
             settings.ApiMaxRetries.Should().Be(5);
+            settings.DatabaseHost.Should().Be("db.example.com");
+            settings.DatabasePort.Should().Be(5433);
+            settings.DatabaseName.Should().Be("testdb");
+            settings.DatabaseUsername.Should().Be("testuser");
+            settings.DatabasePassword.Should().Be("testpass");
+            settings.DatabaseConnectionTimeout.Should().Be(60);
+            settings.DatabaseMaxPoolSize.Should().Be(50);
+            settings.DatabaseUseSsl.Should().BeFalse();
         }
 
         [Fact]

@@ -12,5 +12,6 @@ namespace WinUiTemplate.Stores.Interfaces
         bool EnableBackups { get; }
         EncryptionLevel EncryptionLevel { get; }
         bool UsesApi { get; }
+        bool UsesRemoteDatabase { get; }
     }
 }
