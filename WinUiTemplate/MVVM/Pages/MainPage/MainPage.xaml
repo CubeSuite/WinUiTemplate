@@ -46,7 +46,6 @@
                 </ItemsRepeater>
                 <Frame x:Name="pageFrame"
                        Grid.Row="1" />
-
             </Grid>
         </NavigationView>
 

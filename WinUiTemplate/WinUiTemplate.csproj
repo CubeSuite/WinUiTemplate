@@ -15,6 +15,7 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Controls\TitleLabel.xaml" />
     <None Remove="MVVM\Pages\BackupsPage.xaml" />
     <None Remove="MVVM\Pages\HomePage.xaml" />
     <None Remove="MVVM\Pages\MainPage.xaml" />
@@ -95,6 +96,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WinUiTemplate.Core\WinUiTemplate.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\TitleLabel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="MVVM\Views\CustomTitleBar\CustomTitleBar.xaml">
