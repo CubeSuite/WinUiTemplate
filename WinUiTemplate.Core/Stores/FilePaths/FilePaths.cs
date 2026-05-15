@@ -19,5 +19,6 @@ namespace WinUiTemplate.Stores
         public string TempMetadataFile => $"{RootFolder}\\metadata.json";
         public string SettingsFile => $"{DataFolder}\\Settings.json";
         public string KeyFile => $"{DataFolder}\\EncryptionKey.bin";
+        public string Database => $"{DataFolder}\\Database.db";
     }
 }

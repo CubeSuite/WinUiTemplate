@@ -25,8 +25,9 @@ namespace WinUiTemplate.Stores
         public Version ProgramVersion => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0, 0);
         public IFilePaths FilePaths { get; }
         public bool EnableBackups { get; } = true; // ToDo: Set EnableBackups
-        public EncryptionLevel EncryptionLevel { get; } = EncryptionLevel.None; // ToDo: Set EncryptionLevel
+        public EncryptionLevel EncryptionLevel { get; } = EncryptionLevel.Settings; // ToDo: Set EncryptionLevel
         public bool UsesApi { get; } = false; // ToDo: Set UsesApi
+        public bool UsesRemoteDatabase { get; } = false; // ToDo: Set UsesRemoteDatabase
 
         // Constructors 
 

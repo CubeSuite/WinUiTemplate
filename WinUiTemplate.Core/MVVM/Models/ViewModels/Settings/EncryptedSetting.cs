@@ -39,10 +39,6 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
                                :base(name, description, icon, "System.String") 
         {
             IProgramData programData = serviceProvider.GetRequiredService<IProgramData>();
-            if (programData.EncryptionLevel == EncryptionLevel.None) {
-                Debug.Assert(false, $"You need to set ProgramData.EncryptionLevel to at least Settings");
-            }
-
             encryptionService = serviceProvider.GetRequiredService<IEncryptionService>();
             getValue = getValueFunc;
             setValue = setValueFunc;

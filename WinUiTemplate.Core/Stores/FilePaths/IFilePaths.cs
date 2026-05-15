@@ -11,5 +11,6 @@
         string TempMetadataFile { get; }
         string SettingsFile { get; }
         string KeyFile { get; }
+        string Database { get; }
     }
 }

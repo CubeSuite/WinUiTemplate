@@ -32,6 +32,13 @@ namespace WinUiTemplate.Stores.Interfaces
         int ApiTimeout { get; set; }
         int ApiMaxRetries { get; set; }
 
+        string DatabaseHost { get; set; }
+        int DatabasePort { get; set; }
+        string DatabaseName { get; set; }
+        string DatabaseUsername { get; set; }
+        string DatabasePassword { get; set; }
+        int DatabaseConnectionTimeout { get; set; }
+
         // Events
         event Action? SettingsLoaded;
         event Action<string>? SettingChanged;
