@@ -162,7 +162,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task EncryptToBase64Async_ReturnsEmptyForNull() {
-            string result = await encryptionService.EncryptToBase64Async(null);
+            string result = await encryptionService.EncryptToBase64Async(null!);
 
             result.Should().BeEmpty();
         }
@@ -176,7 +176,7 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public async Task DecryptFromBase64Async_ReturnsEmptyForNull() {
-            string result = await encryptionService.DecryptFromBase64Async(null);
+            string result = await encryptionService.DecryptFromBase64Async(null!);
 
             result.Should().BeEmpty();
         }

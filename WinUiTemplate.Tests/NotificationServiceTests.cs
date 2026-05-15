@@ -356,7 +356,7 @@ namespace WinUiTemplate.Tests
             Mock<IServiceProvider> mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(ILoggerService)))
-                .Returns(null);
+                .Returns(null!);
 
             Action act = () => new NotificationService(mockServiceProvider.Object);
 

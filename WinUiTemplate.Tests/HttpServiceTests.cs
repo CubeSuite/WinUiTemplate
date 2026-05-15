@@ -272,7 +272,7 @@ namespace WinUiTemplate.Tests
             Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.OK, responseJson);
             HttpService httpService = CreateHttpService(mockHandler);
 
-            TestModel? result = await httpService.PostAsync<TestModel>("/api/test", null);
+            TestModel? result = await httpService.PostAsync<TestModel>("/api/test", null!);
 
             result.Should().NotBeNull();
         }

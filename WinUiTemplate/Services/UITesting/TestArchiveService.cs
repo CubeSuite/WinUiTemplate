@@ -21,7 +21,9 @@ namespace WinUiTemplate.Services.Testing
         }
 
         // Events
+#pragma warning disable CS0067 // Event is never used - this is a test implementation
         public event Action<ZipProgress>? ProgressChanged;
+#pragma warning restore CS0067
 
         // Public Functions
         public Task<OperationResult> ZipFolderAsync(string sourceFolder, string zipFilePath, CancellationToken cancellationToken = default) {
