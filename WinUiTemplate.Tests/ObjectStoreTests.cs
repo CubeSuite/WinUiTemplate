@@ -465,6 +465,7 @@ namespace WinUiTemplate.Tests
     }
 
     // Tests for RemoteObjectRepository implementation
+    [Trait("Category", "RequiresPostgreSQL")]
     public class RemoteObjectRepositoryTests : ObjectStoreTestsBase<string, TestItem>
     {
         private readonly Mock<IUserSettings> mockUserSettings;
