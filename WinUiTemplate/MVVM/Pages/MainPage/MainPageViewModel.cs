@@ -23,6 +23,7 @@ namespace WinUiTemplate.MVVM.Pages
 
         public MainPageViewModel(IServiceProvider serviceProvider) {
             serviceProvider.GetRequiredService<INotificationService>().NotificationRequested += OnNotificationRequested;
+            serviceProvider.GetRequiredService<INavigationService>().AllowNavigationChanged += OnNavigationAllowedChanged;
 
             backupService = serviceProvider.GetRequiredService<IBackupService>();
             backupService.BackupCreated += OnBackupCreatedOrDeleted;
@@ -37,8 +38,8 @@ namespace WinUiTemplate.MVVM.Pages
 
         public ObservableCollection<NotificationViewModel> Notifications { get; }
 
-        [ObservableProperty]
-        public partial Visibility BackupsButtonVisibility { get; set; }
+        [ObservableProperty] public partial Visibility BackupsButtonVisibility { get; set; }
+        [ObservableProperty] public partial bool NavMenuEnabled { get; set; }
 
         // Listeners
 
@@ -48,6 +49,10 @@ namespace WinUiTemplate.MVVM.Pages
 
         private void OnBackupCreatedOrDeleted() {
             CheckForBackups();
+        }
+
+        private void OnNavigationAllowedChanged(bool allowed) {
+            NavMenuEnabled = allowed;
         }
 
         // Private Functions

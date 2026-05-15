@@ -10,6 +10,7 @@
     <Grid>
         <NavigationView x:Name="navMenu"
                         IsBackButtonVisible="Collapsed"
+                        IsEnabled="{Binding NavMenuEnabled}"
                         IsPaneOpen="False"
                         IsPaneToggleButtonVisible="True"
                         ItemInvoked="OnNavigationViewItemInvoked">
@@ -46,6 +47,7 @@
                 </ItemsRepeater>
                 <Frame x:Name="pageFrame"
                        Grid.Row="1" />
+
             </Grid>
         </NavigationView>
 
