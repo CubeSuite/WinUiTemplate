@@ -484,8 +484,6 @@ namespace WinUiTemplate.Tests
             mockUserSettings.Setup(x => x.DatabaseUsername).Returns(pgConfig.Username);
             mockUserSettings.Setup(x => x.DatabasePassword).Returns(pgConfig.Password);
             mockUserSettings.Setup(x => x.DatabaseConnectionTimeout).Returns(30);
-            mockUserSettings.Setup(x => x.DatabaseMaxPoolSize).Returns(20);
-            mockUserSettings.Setup(x => x.DatabaseUseSsl).Returns(false);
 
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(IUserSettings)))
@@ -792,8 +790,6 @@ namespace WinUiTemplate.Tests
             mockUserSettings.Setup(x => x.DatabaseUsername).Returns("test");
             mockUserSettings.Setup(x => x.DatabasePassword).Returns("test");
             mockUserSettings.Setup(x => x.DatabaseConnectionTimeout).Returns(30);
-            mockUserSettings.Setup(x => x.DatabaseMaxPoolSize).Returns(20);
-            mockUserSettings.Setup(x => x.DatabaseUseSsl).Returns(false);
 
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(ILoggerService)))

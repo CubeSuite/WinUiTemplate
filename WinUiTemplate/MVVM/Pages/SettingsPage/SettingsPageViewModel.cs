@@ -280,23 +280,6 @@ namespace WinUiTemplate.MVVM.Pages
                         min: 5,
                         max: 120,
                         serviceProvider
-                    ),
-                    new ComparableSetting<int>(
-                        name: "Max Pool Size",
-                        description: "Maximum number of connections to maintain in the connection pool",
-                        icon: "\uE90A",
-                        getValueFunc: () => userSettings.DatabaseMaxPoolSize,
-                        setValueFunc: (value) => userSettings.DatabaseMaxPoolSize = value,
-                        min: 1,
-                        max: 100,
-                        serviceProvider
-                    ),
-                    new GenericSetting<bool>(
-                        name: "Use SSL",
-                        description: "Enable SSL/TLS encryption for database connections",
-                        icon: "\uE72C",
-                        getValueFunc: () => userSettings.DatabaseUseSsl,
-                        setValueFunc: (value) => userSettings.DatabaseUseSsl = value
                     )
                 ]));
             }

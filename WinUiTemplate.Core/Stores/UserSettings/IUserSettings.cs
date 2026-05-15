@@ -38,8 +38,6 @@ namespace WinUiTemplate.Stores.Interfaces
         string DatabaseUsername { get; set; }
         string DatabasePassword { get; set; }
         int DatabaseConnectionTimeout { get; set; }
-        int DatabaseMaxPoolSize { get; set; }
-        bool DatabaseUseSsl { get; set; }
 
         // Events
         event Action? SettingsLoaded;

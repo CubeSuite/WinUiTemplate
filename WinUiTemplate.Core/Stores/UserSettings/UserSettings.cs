@@ -66,8 +66,6 @@ namespace WinUiTemplate.Stores
         private string _databaseUsername = "";
         private string _databasePassword = "";
         private int _databaseConnectionTimeout = 30;
-        private int _databaseMaxPoolSize = 20;
-        private bool _databaseUseSsl = true;
 
         private readonly object saveLock = new object();
         private CancellationTokenSource? tokenSource;
@@ -95,9 +93,7 @@ namespace WinUiTemplate.Stores
             string DatabaseName,
             string DatabaseUsername,
             string DatabasePassword,
-            int DatabaseConnectionTimeout,
-            int DatabaseMaxPoolSize,
-            bool DatabaseUseSsl
+            int DatabaseConnectionTimeout
         );
 
         // Properties
@@ -321,26 +317,6 @@ namespace WinUiTemplate.Stores
             }
         }
 
-        public int DatabaseMaxPoolSize {
-            get => _databaseMaxPoolSize;
-            set {
-                if (_databaseMaxPoolSize == value) return;
-                _databaseMaxPoolSize = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabaseMaxPoolSize));
-            }
-        }
-
-        public bool DatabaseUseSsl {
-            get => _databaseUseSsl;
-            set {
-                if (_databaseUseSsl == value) return;
-                _databaseUseSsl = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabaseUseSsl));
-            }
-        }
-
         // Constructors
 
         public UserSettings(IServiceProvider serviceProvider) {
@@ -463,9 +439,7 @@ namespace WinUiTemplate.Stores
             _databaseName,
             _databaseUsername,
             _databasePassword,
-            _databaseConnectionTimeout,
-            _databaseMaxPoolSize,
-            _databaseUseSsl
+            _databaseConnectionTimeout
         );
 
         private void LoadFromDTO(SettingsDTO dto) {
@@ -490,8 +464,6 @@ namespace WinUiTemplate.Stores
             _databaseUsername = dto.DatabaseUsername;
             _databasePassword = dto.DatabasePassword;
             _databaseConnectionTimeout = dto.DatabaseConnectionTimeout;
-            _databaseMaxPoolSize = dto.DatabaseMaxPoolSize;
-            _databaseUseSsl = dto.DatabaseUseSsl;
         }
     }
 }

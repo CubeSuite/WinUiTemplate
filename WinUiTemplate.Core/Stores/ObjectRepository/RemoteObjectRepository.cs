@@ -343,8 +343,8 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 Username = userSettings.DatabaseUsername,
                 Password = userSettings.DatabasePassword,
                 Timeout = userSettings.DatabaseConnectionTimeout,
-                MaxPoolSize = userSettings.DatabaseMaxPoolSize,
-                SslMode = userSettings.DatabaseUseSsl ? SslMode.Require : SslMode.Disable
+                MaxPoolSize = 20,
+                SslMode = SslMode.Disable
             };
 
             return builder.ToString();
