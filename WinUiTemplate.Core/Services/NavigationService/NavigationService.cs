@@ -14,9 +14,21 @@ namespace WinUiTemplate.Services
     {
         // Events
         public event Action<ObservableObject>? NavigationRequested;
+        public event Action<bool>? AllowNavigationChanged;
+
+        // Members
+        private bool _allowNavigation = true;
 
         // Properties
-        public bool AllowNavigation { get; set; } = true;
+        
+        public bool AllowNavigation {
+            get => _allowNavigation;
+            set {
+                if (_allowNavigation == value) return;
+                _allowNavigation = value;
+                AllowNavigationChanged?.Invoke(value);
+            }
+        }
 
         // Public Functions
 

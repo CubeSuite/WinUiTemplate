@@ -21,6 +21,11 @@ namespace WinUiTemplate.Services.Interfaces
         /// </summary>
         event Action<ObservableObject>? NavigationRequested;
 
+        /// <summary>
+        /// Occurs when <see cref="AllowNavigation"/> changes value;
+        /// </summary>
+        event Action<bool>? AllowNavigationChanged;
+
         // Public Functions
         /// <summary>
         /// Navigates to the specified page.
