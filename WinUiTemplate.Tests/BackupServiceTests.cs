@@ -378,7 +378,7 @@ namespace WinUiTemplate.Tests
             resultWhitespace.Success.Should().BeFalse();
             resultWhitespace.ErrorMessage.Should().Contain("Invalid backup path");
 
-            OperationResult resultNull = await backupService.RestoreBackupAsync(null);
+            OperationResult resultNull = await backupService.RestoreBackupAsync(null!);
             resultNull.Success.Should().BeFalse();
             resultNull.ErrorMessage.Should().Contain("Invalid backup path");
         }
@@ -829,7 +829,7 @@ namespace WinUiTemplate.Tests
             resultWhitespace.Success.Should().BeFalse();
             resultWhitespace.ErrorMessage.Should().Be("Invalid backup path");
 
-            OperationResult resultNull = await backupService.DeleteBackupAsync(null);
+            OperationResult resultNull = await backupService.DeleteBackupAsync(null!);
             resultNull.Success.Should().BeFalse();
             resultNull.ErrorMessage.Should().Be("Invalid backup path");
         }

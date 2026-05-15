@@ -29,7 +29,7 @@ namespace WinUiTemplate.Tests
             Mock<IServiceProvider> mockServiceProvider = new Mock<IServiceProvider>();
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(IUserSettings)))
-                .Returns(null);
+                .Returns(null!);
 
             Action act = () => new ThemeService(mockServiceProvider.Object);
 
