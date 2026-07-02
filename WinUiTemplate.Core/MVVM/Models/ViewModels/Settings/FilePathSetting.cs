@@ -19,7 +19,7 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
         // Services & Stores
         private readonly IDialogService dialogService;
 
-        // Members
+        // Fields
         private PickerType pickerType;
         private string filter;
 

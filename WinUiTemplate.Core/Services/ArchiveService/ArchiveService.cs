@@ -21,7 +21,7 @@ namespace WinUiTemplate.Services
         private readonly IFileUtils fileUtils;
         private readonly ILoggerService logger;
 
-        // Members
+        // Fields
         private const int bufferSize = 81920;
 
         // Constructors

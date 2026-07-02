@@ -22,7 +22,7 @@ namespace WinUiTemplate.Services
 {
     public class DialogService : IDialogService
     {
-        // Members
+        // Fields
         private nint windowId;
         private XamlRoot? xamlRoot;
         private readonly SemaphoreSlim dialogLock = new SemaphoreSlim(1, 1);

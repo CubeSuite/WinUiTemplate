@@ -16,7 +16,7 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
         // Services & Stores
         IEncryptionService encryptionService;
 
-        // Members
+        // Fields
         private readonly Func<string> getValue;
         private readonly Action<string> setValue;
         private string _decrypted = "";

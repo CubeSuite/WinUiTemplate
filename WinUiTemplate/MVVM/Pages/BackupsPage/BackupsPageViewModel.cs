@@ -20,7 +20,7 @@ namespace WinUiTemplate.MVVM.Pages
         private readonly IServiceProvider serviceProvider;
         private readonly IBackupService backupService;
 
-        // Members
+        // Fields
         private CancellationTokenSource tokenSource;
 
         // Properties

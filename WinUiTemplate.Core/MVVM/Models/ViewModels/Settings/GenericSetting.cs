@@ -8,7 +8,7 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
 {
     public class GenericSetting<T> : SettingBase
     {
-        // Members
+        // Fields
         private readonly Func<T> getValue;
         private readonly Action<T> setValue;
 

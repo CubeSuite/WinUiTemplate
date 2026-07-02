@@ -37,7 +37,7 @@ namespace WinUiTemplate.Stores
         private readonly ILoggerService logger;
         private readonly INotificationService notificationService;
 
-        // Members
+        // Fields
 
         private bool _loaded = false;
         private bool _isFirstLaunch = true;

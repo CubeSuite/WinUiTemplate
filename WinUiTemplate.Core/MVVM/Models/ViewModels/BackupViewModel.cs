@@ -18,7 +18,7 @@ namespace WinUiTemplate.MVVM.Models.ViewModels
         // Services & Stores
         private readonly IBackupService backupService;
 
-        // Members
+        // Fields
         private string zipFile;
         private bool isRestoring = false;
         private CancellationTokenSource tokenSource;

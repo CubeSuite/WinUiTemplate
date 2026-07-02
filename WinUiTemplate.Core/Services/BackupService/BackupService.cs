@@ -29,7 +29,7 @@ namespace WinUiTemplate.Services
         private readonly ILoggerService logger;
         private readonly IArchiveService archiveService;
 
-        // Members
+        // Fields
         private const int bufferSize = 81920;
 
         // Constructors

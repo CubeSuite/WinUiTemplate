@@ -15,7 +15,7 @@ namespace WinUiTemplate.Core.Stores
         // Services & Stores
         private readonly ILoggerService logger;
 
-        // Members
+        // Fields
         private Dictionary<T, V> cache = new Dictionary<T, V>();
 
         // Properties

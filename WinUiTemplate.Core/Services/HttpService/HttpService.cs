@@ -20,7 +20,7 @@ namespace WinUiTemplate.Services
         private readonly ILoggerService logger;
         private readonly IUserSettings userSettings;
         
-        // Members
+        // Fields
         private readonly HttpClient client;
         private const string baseUrl = "";
 
