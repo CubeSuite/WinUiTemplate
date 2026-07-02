@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WinUiTemplate.MVVM.Models.ViewModels;
 
 namespace WinUiTemplate.Services.Interfaces
 {
@@ -16,6 +18,11 @@ namespace WinUiTemplate.Services.Interfaces
         /// A value indicating whether debug messages should be logged to a file.
         /// </summary>
         bool LogDebugToFile { get; set; }
+
+        /// <summary>
+        /// Collection of all LogEntryViewModel's logged since applciation start.
+        /// </summary>
+        ObservableCollection<LogEntryViewModel> LogEntries { get; }
 
         // Public Functions
         /// <summary> 
