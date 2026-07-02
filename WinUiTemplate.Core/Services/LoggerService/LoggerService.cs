@@ -57,7 +57,7 @@ namespace WinUiTemplate.Services
 
         // Events
 
-        public event Action OnFatal;
+        public event Action? OnFatal;
 
         // Public Functions
 
