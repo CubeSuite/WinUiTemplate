@@ -1,16 +1,19 @@
+using WinUiTemplate.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.Services;
 
 namespace WinUiTemplate.Core.Stores.ObjectCache
 {
     public interface IObjectRepository<T, V> : IObjectCache<T, V>
     {
-        // Additional repository-specific methods for database operations
-        
+        // Properties
+        string TableName { get; }
+
+        // Public Functions
+
         /// <summary>
         /// Executes a custom SQL query and returns results as instances of V
         /// </summary>

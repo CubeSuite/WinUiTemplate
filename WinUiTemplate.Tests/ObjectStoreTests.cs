@@ -20,10 +20,15 @@ namespace WinUiTemplate.Tests
     // Test model for LocalObjectRepository
     public class TestItem
     {
-        public int Value { get; set; }
-        public string Name { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public Color BackgroundColor { get; set; }
+        private int value;
+        private string name;
+        private DateTime createdAt;
+        private Color backgroundColor;
+
+        public int Value { get => value; set => this.value = value; }
+        public string Name { get => name; set => this.name = value; }
+        public DateTime CreatedAt { get => createdAt; set => this.createdAt = value; }
+        public Color BackgroundColor { get => backgroundColor; set => this.backgroundColor = value; }
     }
 
     // Base test class for IObjectCache<T, V>
@@ -269,6 +274,7 @@ namespace WinUiTemplate.Tests
     public class LocalObjectRepositoryTests : ObjectStoreTestsBase<string, TestItem>, IClassFixture<TestDatabaseCleanupFixture>
     {
         private readonly Mock<IFilePaths> mockFilePaths;
+        private readonly Mock<IProgramData> mockProgramData;
         private readonly string testDatabasePath;
         private readonly string testDatabaseDirectory;
         private static readonly string testRootDirectory = Path.Combine(Path.GetTempPath(), "WinUiTemplate_Tests");
@@ -282,9 +288,12 @@ namespace WinUiTemplate.Tests
             mockFilePaths = new Mock<IFilePaths>();
             mockFilePaths.Setup(x => x.Database).Returns(testDatabasePath);
 
+            mockProgramData = new Mock<IProgramData>();
+            mockProgramData.Setup(x => x.FilePaths).Returns(mockFilePaths.Object);
+
             mockServiceProvider
-                .Setup(x => x.GetService(typeof(IFilePaths)))
-                .Returns(mockFilePaths.Object);
+                .Setup(x => x.GetService(typeof(IProgramData)))
+                .Returns(mockProgramData.Object);
         }
 
         protected override IObjectCache<string, TestItem> CreateStore() {
@@ -636,7 +645,7 @@ namespace WinUiTemplate.Tests
             store.TryAdd("key2", new TestItem { Value = 200, Name = "Item 2", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 0, 255, 0) });
             store.TryAdd("key3", new TestItem { Value = 300, Name = "Item 3", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 0, 0, 255) });
 
-            IEnumerable<TestItem> results = repo.Query("SELECT * FROM \"TestItems\" WHERE \"Value\" > $1", 150);
+            IEnumerable<TestItem> results = repo.Query("SELECT * FROM \"TestItems\" WHERE \"value\" > $1", 150);
 
             List<TestItem> resultList = results.ToList();
             Assert.Equal(2, resultList.Count);
@@ -654,7 +663,7 @@ namespace WinUiTemplate.Tests
             store.TryAdd("key1", new TestItem { Value = 100, Name = "Item 1", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 255, 0, 0) });
             store.TryAdd("key2", new TestItem { Value = 200, Name = "Item 2", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 0, 255, 0) });
 
-            OperationResult result = repo.ExecuteCommand("UPDATE \"TestItems\" SET \"Value\" = $1 WHERE \"Key\" = $2", 999, "key1");
+            OperationResult result = repo.ExecuteCommand("UPDATE \"TestItems\" SET \"value\" = $1 WHERE \"Key\" = $2", 999, "key1");
 
             Assert.True(result.Success);
             Assert.Contains("1 row(s) affected", result.ErrorMessage);
@@ -763,8 +772,11 @@ namespace WinUiTemplate.Tests
     // Test class with unsupported type for validation tests
     public class UnsupportedTestItem
     {
-        public int Value { get; set; }
-        public System.Collections.Generic.Dictionary<string, string> UnsupportedProperty { get; set; } // Not supported
+        private int value;
+        private TimeSpan unsupportedProperty;
+
+        public int Value { get => value; set => this.value = value; }
+        public TimeSpan UnsupportedProperty { get => unsupportedProperty; set => unsupportedProperty = value; }
     }
 
     // Tests for type validation in object repositories
@@ -773,6 +785,7 @@ namespace WinUiTemplate.Tests
         private readonly Mock<ILoggerService> mockLogger;
         private readonly Mock<IServiceProvider> mockServiceProvider;
         private readonly Mock<IFilePaths> mockFilePaths;
+        private readonly Mock<IProgramData> mockProgramData;
         private readonly Mock<IUserSettings> mockUserSettings;
         private readonly string testDatabasePath;
 
@@ -780,11 +793,13 @@ namespace WinUiTemplate.Tests
             mockLogger = new Mock<ILoggerService>();
             mockServiceProvider = new Mock<IServiceProvider>();
             mockFilePaths = new Mock<IFilePaths>();
+            mockProgramData = new Mock<IProgramData>();
             mockUserSettings = new Mock<IUserSettings>();
 
             testDatabasePath = Path.Combine(Path.GetTempPath(), $"validation_test_{Guid.NewGuid():N}.db");
 
             mockFilePaths.Setup(x => x.Database).Returns(testDatabasePath);
+            mockProgramData.Setup(x => x.FilePaths).Returns(mockFilePaths.Object);
             mockUserSettings.Setup(x => x.DatabaseHost).Returns("localhost");
             mockUserSettings.Setup(x => x.DatabasePort).Returns(5432);
             mockUserSettings.Setup(x => x.DatabaseName).Returns("test");
@@ -796,8 +811,8 @@ namespace WinUiTemplate.Tests
                 .Setup(x => x.GetService(typeof(ILoggerService)))
                 .Returns(mockLogger.Object);
             mockServiceProvider
-                .Setup(x => x.GetService(typeof(IFilePaths)))
-                .Returns(mockFilePaths.Object);
+                .Setup(x => x.GetService(typeof(IProgramData)))
+                .Returns(mockProgramData.Object);
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(IUserSettings)))
                 .Returns(mockUserSettings.Object);
@@ -810,8 +825,8 @@ namespace WinUiTemplate.Tests
                 new LocalObjectRepository<string, UnsupportedTestItem>(mockServiceProvider.Object);
             });
 
-            Assert.Contains("UnsupportedProperty", exception.Message);
-            Assert.Contains("Dictionary", exception.Message);
+            Assert.Contains("unsupportedProperty", exception.Message);
+            Assert.Contains("TimeSpan", exception.Message);
             Assert.Contains("Supported types:", exception.Message);
         }
 
@@ -822,8 +837,8 @@ namespace WinUiTemplate.Tests
                 new RemoteObjectRepository<string, UnsupportedTestItem>(mockServiceProvider.Object);
             });
 
-            Assert.Contains("UnsupportedProperty", exception.Message);
-            Assert.Contains("Dictionary", exception.Message);
+            Assert.Contains("unsupportedProperty", exception.Message);
+            Assert.Contains("TimeSpan", exception.Message);
             Assert.Contains("Supported types:", exception.Message);
         }
 
