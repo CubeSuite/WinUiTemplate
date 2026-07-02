@@ -19,7 +19,7 @@ namespace WinUiTemplate.Services
         // Services & Stores
         private readonly IProgramData programData;
 
-        // Members
+        // Fields
         private const int keySizeBytes = 32;
         private const int ivSizeBytes = 12;
         private const int tagSizeBytes = 16;

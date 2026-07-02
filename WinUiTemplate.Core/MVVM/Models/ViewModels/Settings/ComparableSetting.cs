@@ -10,7 +10,7 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
 {
     public class ComparableSetting<T> : SettingBase where T : IComparable
     {
-        // Members
+        // Fields
         private ILoggerService logger;
 
         private Func<T> getValue;

@@ -25,7 +25,7 @@ namespace WinUiTemplate.Services
         private readonly IProgramData programData;
         private readonly IFileUtils fileUtils;
 
-        // Members
+        // Fields
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
         private readonly object consoleLock = new object();
         private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();

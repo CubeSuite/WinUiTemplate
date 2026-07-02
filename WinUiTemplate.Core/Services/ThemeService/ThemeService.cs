@@ -23,7 +23,7 @@ namespace WinUiTemplate.Services
         // Services & Stores
         private readonly IUserSettings userSettings;
 
-        // Members
+        // Fields
         private UISettings uiSettings = new UISettings();
         private string[] appearanceSettings = {
             nameof(IUserSettings.AccentColour),

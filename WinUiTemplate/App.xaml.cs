@@ -44,7 +44,7 @@ namespace WinUiTemplate
         private INotificationService notificationService = null!;
         private IFileUtils fileUtils = null!;
 
-        // Members
+        // Fields
         private Window? _window;
 
         // Testing

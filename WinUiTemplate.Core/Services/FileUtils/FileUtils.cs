@@ -21,7 +21,7 @@ namespace WinUiTemplate.Services
         private readonly IDialogService dialogService;
         private readonly IEncryptionService encryptionService;
 
-        // Members
+        // Fields
         private const string timestampFormat = "yyyy-MM-dd HH-mm-ss";
         private const string _encryptedFileHeader = "WinUiTemplateEF:";
 
