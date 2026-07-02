@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace FactoryPlanner.Services
+namespace WinUiTemplate.Services
 {
     public record FileResult(bool Success, string? ErrorMessage, StorageFile? File)
     {
