@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using Npgsql;
 using System;
 using System.Collections.Generic;
@@ -20,11 +21,13 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
         // Services & Stores
         private readonly ILoggerService logger;
         private readonly IUserSettings userSettings;
-        private readonly string tableName;
-        private readonly PropertyInfo[] properties;
+        private readonly string _tableName;
+        private readonly FieldInfo[] fields;
         private readonly string connectionString;
 
         // Properties
+        public string TableName => _tableName;
+
         public IEnumerable<V> Values {
             get {
                 List<V> values = new List<V>();
@@ -33,7 +36,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                     connection.Open();
 
                     using NpgsqlCommand command = connection.CreateCommand();
-                    command.CommandText = $"SELECT * FROM {tableName}";
+                    command.CommandText = $"SELECT * FROM {_tableName}";
 
                     using NpgsqlDataReader reader = command.ExecuteReader();
                     while (reader.Read()) {
@@ -57,7 +60,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                     connection.Open();
 
                     using NpgsqlCommand command = connection.CreateCommand();
-                    command.CommandText = $"SELECT \"Key\" FROM {tableName}";
+                    command.CommandText = $"SELECT \"Key\" FROM {_tableName}";
 
                     using NpgsqlDataReader reader = command.ExecuteReader();
                     while (reader.Read()) {
@@ -79,7 +82,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                     connection.Open();
 
                     using NpgsqlCommand command = connection.CreateCommand();
-                    command.CommandText = $"SELECT COUNT(*) FROM {tableName}";
+                    command.CommandText = $"SELECT COUNT(*) FROM {_tableName}";
 
                     object result = command.ExecuteScalar();
                     return Convert.ToInt32(result);
@@ -91,16 +94,17 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
         }
 
         // Constructors
+
         public RemoteObjectRepository(IServiceProvider serviceProvider) {
             logger = serviceProvider.GetRequiredService<ILoggerService>();
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
 
-            tableName = $"\"{typeof(V).Name}s\"";
-            properties = typeof(V).GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(p => p.CanRead && p.CanWrite)
+            _tableName = $"\"{typeof(V).Name}s\"";
+            fields = typeof(V).GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+                .Where(f => !f.IsInitOnly)
                 .ToArray();
 
-            ValidatePropertyTypes();
+            ValidateFieldTypes();
             connectionString = BuildConnectionString();
             EnsureTableExists();
         }
@@ -121,21 +125,24 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 StringBuilder placeholders = new StringBuilder("$1");
                 int parameterIndex = 2;
 
-                foreach (PropertyInfo prop in properties) {
-                    columns.Append($", \"{prop.Name}\"");
+                foreach (FieldInfo field in fields) {
+                    columns.Append($", \"{field.Name}\"");
                     placeholders.Append($", ${parameterIndex}");
                     parameterIndex++;
                 }
 
-                command.CommandText = $"INSERT INTO {tableName} ({columns}) VALUES ({placeholders})";
+                command.CommandText = $"INSERT INTO {_tableName} ({columns}) VALUES ({placeholders})";
                 command.Parameters.AddWithValue(keyString);
 
-                foreach (PropertyInfo prop in properties) {
-                    object value = prop.GetValue(instance);
-                    Type targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                foreach (FieldInfo field in fields) {
+                    object? value = field.GetValue(instance);
+                    Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
 
                     if (targetType == typeof(Color) && value is Color colorValue) {
                         command.Parameters.AddWithValue(colorValue.ToHex());
+                    }
+                    else if (IsCollectionType(targetType) && value != null) {
+                        command.Parameters.AddWithValue(JsonConvert.SerializeObject(value));
                     }
                     else {
                         command.Parameters.AddWithValue(value ?? DBNull.Value);
@@ -145,7 +152,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 command.ExecuteNonQuery();
 
                 return new OperationResult(true, null, false);
-            } catch (PostgresException ex) when (ex.SqlState == "23505") { // Unique violation
+            } catch (PostgresException ex) when (ex.SqlState == "23505") {
                 string errorMessage = $"Key '{key}' already exists in repository";
                 logger.LogWarning(errorMessage);
                 return new OperationResult(false, errorMessage, false);
@@ -168,20 +175,23 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 StringBuilder setClause = new StringBuilder();
                 int parameterIndex = 1;
 
-                for (int i = 0; i < properties.Length; i++) {
+                for (int i = 0; i < fields.Length; i++) {
                     if (i > 0) setClause.Append(", ");
-                    setClause.Append($"\"{properties[i].Name}\" = ${parameterIndex}");
+                    setClause.Append($"\"{fields[i].Name}\" = ${parameterIndex}");
                     parameterIndex++;
                 }
 
-                command.CommandText = $"UPDATE {tableName} SET {setClause} WHERE \"Key\" = ${parameterIndex}";
+                command.CommandText = $"UPDATE {_tableName} SET {setClause} WHERE \"Key\" = ${parameterIndex}";
 
-                foreach (PropertyInfo prop in properties) {
-                    object value = prop.GetValue(instance);
-                    Type targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                foreach (FieldInfo field in fields) {
+                    object value = field.GetValue(instance);
+                    Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
 
                     if (targetType == typeof(Color) && value is Color colorValue) {
                         command.Parameters.AddWithValue(colorValue.ToHex());
+                    }
+                    else if (IsCollectionType(targetType) && value != null) {
+                        command.Parameters.AddWithValue(JsonConvert.SerializeObject(value));
                     }
                     else {
                         command.Parameters.AddWithValue(value ?? DBNull.Value);
@@ -213,7 +223,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 connection.Open();
 
                 using NpgsqlCommand command = connection.CreateCommand();
-                command.CommandText = $"DELETE FROM {tableName} WHERE \"Key\" = $1";
+                command.CommandText = $"DELETE FROM {_tableName} WHERE \"Key\" = $1";
                 command.Parameters.AddWithValue(keyString);
 
                 int rowsAffected = command.ExecuteNonQuery();
@@ -242,7 +252,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 connection.Open();
 
                 using NpgsqlCommand command = connection.CreateCommand();
-                command.CommandText = $"SELECT * FROM {tableName} WHERE \"Key\" = $1";
+                command.CommandText = $"SELECT * FROM {_tableName} WHERE \"Key\" = $1";
                 command.Parameters.AddWithValue(keyString);
 
                 using NpgsqlDataReader reader = command.ExecuteReader();
@@ -269,7 +279,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 connection.Open();
 
                 using NpgsqlCommand command = connection.CreateCommand();
-                command.CommandText = $"SELECT COUNT(*) FROM {tableName} WHERE \"Key\" = $1";
+                command.CommandText = $"SELECT COUNT(*) FROM {_tableName} WHERE \"Key\" = $1";
                 command.Parameters.AddWithValue(keyString);
 
                 object result = command.ExecuteScalar();
@@ -286,7 +296,7 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 connection.Open();
 
                 using NpgsqlCommand command = connection.CreateCommand();
-                command.CommandText = $"DELETE FROM {tableName}";
+                command.CommandText = $"DELETE FROM {_tableName}";
                 command.ExecuteNonQuery();
 
                 return new OperationResult(true, null, false);
@@ -299,11 +309,11 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
 
         // Private Functions
 
-        private void ValidatePropertyTypes() {
+        private void ValidateFieldTypes() {
             List<string> unsupportedProperties = new List<string>();
 
-            foreach (PropertyInfo prop in properties) {
-                Type targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            foreach (FieldInfo field in fields) {
+                Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
 
                 // Check if type is supported for serialization
                 bool isSupported = 
@@ -320,16 +330,17 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                     targetType == typeof(Guid) ||
                     targetType == typeof(Color) ||
                     targetType == typeof(string) ||
-                    targetType.IsEnum;
+                    targetType.IsEnum ||
+                    IsCollectionType(targetType);
 
                 if (!isSupported) {
-                    unsupportedProperties.Add($"{prop.Name} ({targetType.Name})");
+                    unsupportedProperties.Add($"{field.Name} ({targetType.Name})");
                 }
             }
 
             if (unsupportedProperties.Count > 0) {
                 string errorMessage = $"Type '{typeof(V).Name}' contains unsupported property types: {string.Join(", ", unsupportedProperties)}. " +
-                    "Supported types: int, long, short, byte, bool, float, double, decimal, byte[], DateTime, Guid, Color, string, and enums.";
+                    "Supported types: int, long, short, byte, bool, float, double, decimal, byte[], DateTime, Guid, Color, string, enums, and collections (List, Array, HashSet, Dictionary).";
                 logger.LogError(errorMessage);
                 throw new NotSupportedException(errorMessage);
             }
@@ -358,11 +369,11 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
                 using NpgsqlCommand command = connection.CreateCommand();
 
                 StringBuilder createTableSql = new StringBuilder();
-                createTableSql.AppendLine($"CREATE TABLE IF NOT EXISTS {tableName} (");
+                createTableSql.AppendLine($"CREATE TABLE IF NOT EXISTS {_tableName} (");
                 createTableSql.AppendLine("    \"Key\" TEXT PRIMARY KEY");
 
-                foreach (PropertyInfo prop in properties) {
-                    string sqlType = GetPostgresType(prop.PropertyType);
+                foreach (FieldInfo prop in fields) {
+                    string sqlType = GetPostgresType(prop.FieldType);
                     createTableSql.AppendLine($",   \"{prop.Name}\" {sqlType}");
                 }
 
@@ -397,35 +408,54 @@ namespace WinUiTemplate.Core.Stores.ObjectStore
             return "TEXT";
         }
 
+        private bool IsCollectionType(Type type) {
+            if (type.IsArray) return true;
+            if (type.IsGenericType) {
+                Type genericDef = type.GetGenericTypeDefinition();
+                return genericDef == typeof(List<>) ||
+                       genericDef == typeof(HashSet<>) ||
+                       genericDef == typeof(Dictionary<,>) ||
+                       genericDef == typeof(IList<>) ||
+                       genericDef == typeof(ICollection<>) ||
+                       genericDef == typeof(IEnumerable<>) ||
+                       genericDef == typeof(IDictionary<,>);
+            }
+            return false;
+        }
+
         private V CreateInstanceFromReader(NpgsqlDataReader reader) {
             V instance = Activator.CreateInstance<V>();
 
-            foreach (PropertyInfo prop in properties) {
+            foreach (FieldInfo field in fields) {
                 try {
-                    int ordinal = reader.GetOrdinal(prop.Name);
+                    int ordinal = reader.GetOrdinal(field.Name);
 
                     if (!reader.IsDBNull(ordinal)) {
                         object value = reader.GetValue(ordinal);
-                        Type targetType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+                        Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
 
                         if (targetType.IsEnum && value is string enumString) {
-                            prop.SetValue(instance, Enum.Parse(targetType, enumString));
+                            field.SetValue(instance, Enum.Parse(targetType, enumString));
                         }
                         else if (targetType == typeof(Guid) && value is string guidString) {
-                            prop.SetValue(instance, Guid.Parse(guidString));
+                            field.SetValue(instance, Guid.Parse(guidString));
                         }
                         else if (targetType == typeof(Color) && value is string colorString) {
-                            prop.SetValue(instance, colorString.ToColor());
+                            field.SetValue(instance, colorString.ToColor());
+                        }
+                        else if (IsCollectionType(targetType) && value is string jsonString) {
+                            object? deserializedValue = JsonConvert.DeserializeObject(jsonString, field.FieldType);
+                            field.SetValue(instance, deserializedValue);
                         }
                         else if (value.GetType() != targetType) {
-                            prop.SetValue(instance, Convert.ChangeType(value, targetType));
+                            field.SetValue(instance, Convert.ChangeType(value, targetType));
                         }
                         else {
-                            prop.SetValue(instance, value);
+                            field.SetValue(instance, value);
                         }
                     }
                 } catch (Exception ex) {
-                    logger.LogWarning($"Error setting property {prop.Name}: {ex.Message}");
+                    logger.LogWarning($"Error setting property {field.Name}: {ex.Message}");
                 }
             }
 
