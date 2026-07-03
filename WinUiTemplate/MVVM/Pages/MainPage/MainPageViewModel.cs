@@ -23,7 +23,10 @@ namespace WinUiTemplate.MVVM.Pages
 
         public MainPageViewModel(IServiceProvider serviceProvider) {
             serviceProvider.GetRequiredService<INotificationService>().NotificationRequested += OnNotificationRequested;
-            serviceProvider.GetRequiredService<INavigationService>().AllowNavigationChanged += OnNavigationAllowedChanged;
+
+            INavigationService navigationService = serviceProvider.GetRequiredService<INavigationService>();
+            navigationService.AllowNavigationChanged += OnNavigationAllowedChanged;
+            NavMenuEnabled = navigationService.AllowNavigation;
 
             backupService = serviceProvider.GetRequiredService<IBackupService>();
             backupService.BackupCreated += OnBackupCreatedOrDeleted;
