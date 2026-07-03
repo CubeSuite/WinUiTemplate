@@ -41,7 +41,7 @@ namespace WinUiTemplate.Stores
 
         private bool _loaded = false;
         private bool _isFirstLaunch = true;
-        
+
         private bool _logDebugMessages = false;
         private int _maxLogs = 5;
 
@@ -66,6 +66,9 @@ namespace WinUiTemplate.Stores
         private string _databaseUsername = "";
         private string _databasePassword = "";
         private int _databaseConnectionTimeout = 30;
+
+        private bool _searchCaseSensitive = false;
+        private bool _searchSplitQuery = true;
 
         private readonly object saveLock = new object();
         private CancellationTokenSource? tokenSource;
@@ -93,7 +96,9 @@ namespace WinUiTemplate.Stores
             string DatabaseName,
             string DatabaseUsername,
             string DatabasePassword,
-            int DatabaseConnectionTimeout
+            int DatabaseConnectionTimeout,
+            bool SearchCaseSensitive,
+            bool SearchSplitQuery
         );
 
         // Properties
@@ -317,6 +322,26 @@ namespace WinUiTemplate.Stores
             }
         }
 
+        public bool SearchCaseSensitive {
+            get => _searchCaseSensitive;
+            set {
+                if (_searchCaseSensitive == value) return;
+                _searchCaseSensitive = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(SearchCaseSensitive));
+            }
+        }
+
+        public bool SearchSplitQuery {
+            get => _searchSplitQuery;
+            set {
+                if (_searchSplitQuery == value) return;
+                _searchSplitQuery = value;
+                if (Loaded) DebounceSave();
+                SettingChanged?.Invoke(nameof(SearchSplitQuery));
+            }
+        }
+
         // Constructors
 
         public UserSettings(IServiceProvider serviceProvider) {
@@ -348,7 +373,7 @@ namespace WinUiTemplate.Stores
                 }
 
                 SettingsDTO? dto = JsonConvert.DeserializeObject<SettingsDTO>(result.Content ?? "{}");
-                if(dto == null) {
+                if (dto == null) {
                     string error = $"Parsed Settings.json is null";
                     Debug.Assert(false, error);
                     logger.LogError(error);
@@ -388,7 +413,7 @@ namespace WinUiTemplate.Stores
                             await Task.Delay(saveDebounceDelayMs, token);
                             if (!token.IsCancellationRequested) await SaveAsync();
                         }
-                        catch (TaskCanceledException) {} // Expected
+                        catch (TaskCanceledException) { } // Expected
                         catch (Exception e) {
                             Debug.Assert(false, $"UserSettings.DebounceSave failed: '{e.Message}'");
                         }
@@ -439,7 +464,9 @@ namespace WinUiTemplate.Stores
             _databaseName,
             _databaseUsername,
             _databasePassword,
-            _databaseConnectionTimeout
+            _databaseConnectionTimeout,
+            _searchCaseSensitive,
+            _searchSplitQuery
         );
 
         private void LoadFromDTO(SettingsDTO dto) {
@@ -464,6 +491,8 @@ namespace WinUiTemplate.Stores
             _databaseUsername = dto.DatabaseUsername;
             _databasePassword = dto.DatabasePassword;
             _databaseConnectionTimeout = dto.DatabaseConnectionTimeout;
+            _searchCaseSensitive = dto.SearchCaseSensitive;
+            _searchSplitQuery = dto.SearchSplitQuery;
         }
     }
 }
