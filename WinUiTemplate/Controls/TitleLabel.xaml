@@ -8,12 +8,13 @@
              x:Name="thisControl"
              mc:Ignorable="d">
 
-    <Border Margin="8,0"
-            BorderBrush="{ThemeResource SystemAccentColor}"
-            BorderThickness="0,0,0,2">
+    <Border BorderBrush="{ThemeResource SystemAccentColor}"
+            BorderThickness="0,0,0,2"
+            Margin="8,0">
         <TextBlock Text="{Binding ElementName=thisControl, Path=Text, UpdateSourceTrigger=PropertyChanged}"
                    FontSize="20"
-                   FontWeight="Bold" />
+                   FontWeight="Bold"
+                   VerticalAlignment="Center" />
     </Border>
 
 </UserControl>
