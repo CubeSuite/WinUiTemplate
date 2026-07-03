@@ -79,7 +79,7 @@ namespace WinUiTemplate.Core.Stores
             return cache.ContainsKey(key);
         }
 
-        public OperationResult Clear() {
+        public virtual OperationResult Clear() {
             cache.Clear();
             return new OperationResult(true, null, false);
         }
