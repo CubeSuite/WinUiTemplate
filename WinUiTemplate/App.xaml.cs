@@ -87,8 +87,6 @@ namespace WinUiTemplate
                 string.IsNullOrWhiteSpace(userSettings.BackupsFolder)) {
                 notificationService?.Notify(InfoBarSeverity.Warning, "Automatic Backups Disabled", "Automatic Backups will not work until you choose a location to store them in the settings.");
             }
-
-            await fileUtils.TryWriteFileAsync($"{programData.FilePaths.DataFolder}\\Test.txt", "Some random text", true);
         }
 
         private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e) {
