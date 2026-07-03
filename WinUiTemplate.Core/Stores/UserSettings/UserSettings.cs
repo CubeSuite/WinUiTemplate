@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -114,232 +115,117 @@ namespace WinUiTemplate.Stores
 
         public bool IsFirstLaunch {
             get => _isFirstLaunch;
-            set {
-                if (_isFirstLaunch == value) return;
-                _isFirstLaunch = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(IsFirstLaunch));
-            }
+            set => SetSetting(ref _isFirstLaunch, value);
         }
 
         public bool LogDebugMessages {
             get => _logDebugMessages;
-            set {
-                if (_logDebugMessages == value) return;
-                _logDebugMessages = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(LogDebugMessages));
-            }
+            set => SetSetting(ref _logDebugMessages, value);
         }
 
         public int MaxLogs {
             get => _maxLogs;
-            set {
-                if (_maxLogs == value) return;
-                _maxLogs = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(MaxLogs));
-            }
+            set => SetSetting(ref _maxLogs, value);
         }
 
         public bool DarkMode {
             get => _darkMode;
-            set {
-                if (_darkMode == value) return;
-                _darkMode = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DarkMode));
-            }
+            set => SetSetting(ref _darkMode, value);
         }
 
         public bool RememberLayout {
             get => _rememberLayout;
-            set {
-                if (_rememberLayout == value) return;
-                _rememberLayout = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(RememberLayout));
-            }
+            set => SetSetting(ref _rememberLayout, value);
         }
 
         public bool OpenMaximised {
             get => _openMaximised;
-            set {
-                if (_openMaximised == value) return;
-                _openMaximised = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(OpenMaximised));
-            }
+            set => SetSetting(ref _openMaximised, value);
         }
 
         public int DefaultWidth {
             get => _defaultWidth;
-            set {
-                if (_defaultWidth == value) return;
-                _defaultWidth = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DefaultWidth));
-            }
+            set => SetSetting(ref _defaultWidth, value);
         }
 
         public int DefaultHeight {
             get => _defaultHeight;
-            set {
-                if (_defaultHeight == value) return;
-                _defaultHeight = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DefaultHeight));
-            }
+            set => SetSetting(ref _defaultHeight, value);
         }
 
         public IThemeService.Backdrop Backdrop {
             get => _backdrop;
-            set {
-                if (_backdrop == value) return;
-                _backdrop = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(Backdrop));
-            }
+            set => SetSetting(ref _backdrop, value);
         }
 
         public string AccentColour {
             get => _accentColour;
-            set {
-                if (_accentColour == value) return;
-                _accentColour = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(AccentColour));
-            }
+            set => SetSetting(ref _accentColour, value);
         }
 
         public string BackupsFolder {
             get => _backupsFolder;
-            set {
-                if (_backupsFolder == value) return;
-                _backupsFolder = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(BackupsFolder));
-            }
+            set => SetSetting(ref _backupsFolder, value);
         }
 
         public int MaxBackups {
             get => _maxBackups;
-            set {
-                if (_maxBackups == value) return;
-                _maxBackups = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(MaxBackups));
-            }
+            set => SetSetting(ref _maxBackups, value);
         }
 
         public bool AutomaticBackups {
             get => _automaticBackups;
-            set {
-                if (_automaticBackups == value) return;
-                _automaticBackups = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(AutomaticBackups));
-            }
+            set => SetSetting(ref _automaticBackups, value);
         }
 
         public int ApiTimeout {
             get => _apiTimeout;
-            set {
-                if (_apiTimeout == value) return;
-                _apiTimeout = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(ApiTimeout));
-            }
+            set => SetSetting(ref _apiTimeout, value);
         }
 
         public int ApiMaxRetries {
             get => _apiMaxRetries;
-            set {
-                if (_apiMaxRetries == value) return;
-                _apiMaxRetries = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(ApiMaxRetries));
-            }
+            set => SetSetting(ref _apiMaxRetries, value);
         }
 
         public string DatabaseHost {
             get => _databaseHost;
-            set {
-                if (_databaseHost == value) return;
-                _databaseHost = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabaseHost));
-            }
+            set => SetSetting(ref _databaseHost, value);
         }
 
         public int DatabasePort {
             get => _databasePort;
-            set {
-                if (_databasePort == value) return;
-                _databasePort = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabasePort));
-            }
+            set => SetSetting(ref _databasePort, value);
         }
 
         public string DatabaseName {
             get => _databaseName;
-            set {
-                if (_databaseName == value) return;
-                _databaseName = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabaseName));
-            }
+            set => SetSetting(ref _databaseName, value);
         }
 
         public string DatabaseUsername {
             get => _databaseUsername;
-            set {
-                if (_databaseUsername == value) return;
-                _databaseUsername = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabaseUsername));
-            }
+            set => SetSetting(ref _databaseUsername, value);
         }
 
         public string DatabasePassword {
             get => _databasePassword;
-            set {
-                if (_databasePassword == value) return;
-                _databasePassword = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabasePassword));
-            }
+            set => SetSetting(ref _databasePassword, value);
         }
 
         public int DatabaseConnectionTimeout {
             get => _databaseConnectionTimeout;
-            set {
-                if (_databaseConnectionTimeout == value) return;
-                _databaseConnectionTimeout = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(DatabaseConnectionTimeout));
-            }
+            set => SetSetting(ref _databaseConnectionTimeout, value);
         }
 
         public bool SearchCaseSensitive {
             get => _searchCaseSensitive;
-            set {
-                if (_searchCaseSensitive == value) return;
-                _searchCaseSensitive = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(SearchCaseSensitive));
-            }
+            set => SetSetting(ref _searchCaseSensitive, value);
         }
 
         public bool SearchSplitQuery {
             get => _searchSplitQuery;
-            set {
-                if (_searchSplitQuery == value) return;
-                _searchSplitQuery = value;
-                if (Loaded) DebounceSave();
-                SettingChanged?.Invoke(nameof(SearchSplitQuery));
-            }
+            set => SetSetting(ref _searchSplitQuery, value);
         }
 
         // Constructors
@@ -400,6 +286,13 @@ namespace WinUiTemplate.Stores
         }
 
         // Private Functions
+
+        private void SetSetting<T>(ref T field, T value, [CallerMemberName] string name = "") {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            if (Loaded) DebounceSave();
+            SettingChanged?.Invoke(name);
+        }
 
         private void DebounceSave() {
             try {
