@@ -14,6 +14,16 @@ namespace WinUiTemplate.Tests
             public string Name { get; set; } = "";
         }
 
+        private class AnotherTestViewModel : ObservableObject
+        {
+            public string Name { get; set; } = "";
+        }
+
+        private class ThirdTestViewModel : ObservableObject
+        {
+            public string Name { get; set; } = "";
+        }
+
         // Tests
 
         #region Navigate Method Tests
@@ -50,7 +60,7 @@ namespace WinUiTemplate.Tests
         public void Navigate_PassesCorrectViewModel_ToEvent() {
             NavigationService navigationService = new NavigationService();
             TestViewModel viewModel1 = new TestViewModel { Name = "Page1" };
-            TestViewModel viewModel2 = new TestViewModel { Name = "Page2" };
+            AnotherTestViewModel viewModel2 = new AnotherTestViewModel { Name = "Page2" };
             ObservableObject? lastNavigatedViewModel = null;
 
             navigationService.NavigationRequested += (vm) => lastNavigatedViewModel = vm;
@@ -59,15 +69,15 @@ namespace WinUiTemplate.Tests
             (lastNavigatedViewModel as TestViewModel)?.Name.Should().Be("Page1");
 
             navigationService.Navigate(viewModel2);
-            (lastNavigatedViewModel as TestViewModel)?.Name.Should().Be("Page2");
+            (lastNavigatedViewModel as AnotherTestViewModel)?.Name.Should().Be("Page2");
         }
 
         [Fact]
         public void Navigate_CanBeCalledMultipleTimes() {
             NavigationService navigationService = new NavigationService();
             TestViewModel viewModel1 = new TestViewModel { Name = "Page1" };
-            TestViewModel viewModel2 = new TestViewModel { Name = "Page2" };
-            TestViewModel viewModel3 = new TestViewModel { Name = "Page3" };
+            AnotherTestViewModel viewModel2 = new AnotherTestViewModel { Name = "Page2" };
+            ThirdTestViewModel viewModel3 = new ThirdTestViewModel { Name = "Page3" };
             int navigationCount = 0;
 
             navigationService.NavigationRequested += (vm) => navigationCount++;
@@ -77,6 +87,51 @@ namespace WinUiTemplate.Tests
             navigationService.Navigate(viewModel3);
 
             navigationCount.Should().Be(3);
+        }
+
+        [Fact]
+        public void Navigate_DoesNotNavigate_WhenSamePageTypeIsAlreadyCurrent() {
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
+            int navigationCount = 0;
+
+            navigationService.NavigationRequested += (vm) => navigationCount++;
+
+            navigationService.Navigate(viewModel);
+            navigationService.Navigate(new TestViewModel { Name = "AnotherInstance" });
+
+            navigationCount.Should().Be(1, "navigating to the same page type should be blocked");
+        }
+
+        [Fact]
+        public void Navigate_AllowsNavigation_WhenDifferentPageTypeNavigatedTo() {
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel1 = new TestViewModel { Name = "Page1" };
+            AnotherTestViewModel viewModel2 = new AnotherTestViewModel { Name = "Page2" };
+            int navigationCount = 0;
+
+            navigationService.NavigationRequested += (vm) => navigationCount++;
+
+            navigationService.Navigate(viewModel1);
+            navigationService.Navigate(viewModel2);
+
+            navigationCount.Should().Be(2, "navigating to a different page type should be allowed");
+        }
+
+        [Fact]
+        public void Navigate_AllowsNavigation_BackToSameType_AfterNavigatingElsewhere() {
+            NavigationService navigationService = new NavigationService();
+            TestViewModel viewModel1 = new TestViewModel { Name = "Page1" };
+            AnotherTestViewModel viewModel2 = new AnotherTestViewModel { Name = "Page2" };
+            int navigationCount = 0;
+
+            navigationService.NavigationRequested += (vm) => navigationCount++;
+
+            navigationService.Navigate(viewModel1);
+            navigationService.Navigate(viewModel2);
+            navigationService.Navigate(viewModel1);
+
+            navigationCount.Should().Be(3, "navigating back to a previously visited type should be allowed after visiting another");
         }
 
         [Fact]
@@ -172,6 +227,7 @@ namespace WinUiTemplate.Tests
         public void AllowNavigation_WhenSetBackToTrue_AllowsNavigationAgain() {
             NavigationService navigationService = new NavigationService();
             TestViewModel viewModel = new TestViewModel { Name = "TestPage" };
+            AnotherTestViewModel viewModel2 = new AnotherTestViewModel { Name = "AnotherPage" };
             int navigationCount = 0;
 
             navigationService.NavigationRequested += (vm) => navigationCount++;
@@ -184,7 +240,7 @@ namespace WinUiTemplate.Tests
             navigationCount.Should().Be(1);
 
             navigationService.AllowNavigation = true;
-            navigationService.Navigate(viewModel);
+            navigationService.Navigate(viewModel2);
             navigationCount.Should().Be(2);
         }
 
@@ -216,7 +272,7 @@ namespace WinUiTemplate.Tests
             eventCount.Should().Be(1);
 
             navigationService.NavigationRequested -= handler;
-            navigationService.Navigate(new TestViewModel());
+            navigationService.Navigate(new AnotherTestViewModel());
             eventCount.Should().Be(1, "event should not be invoked after unsubscribing");
         }
 
@@ -237,7 +293,7 @@ namespace WinUiTemplate.Tests
             handler2Count.Should().Be(1);
 
             navigationService.NavigationRequested -= handler1;
-            navigationService.Navigate(new TestViewModel());
+            navigationService.Navigate(new AnotherTestViewModel());
             handler1Count.Should().Be(1);
             handler2Count.Should().Be(2);
         }
@@ -250,12 +306,14 @@ namespace WinUiTemplate.Tests
         public void NavigationService_SupportsCompleteWorkflow() {
             NavigationService navigationService = new NavigationService();
             TestViewModel page1 = new TestViewModel { Name = "Page1" };
-            TestViewModel page2 = new TestViewModel { Name = "Page2" };
+            AnotherTestViewModel page2 = new AnotherTestViewModel { Name = "Page2" };
             System.Collections.Generic.List<string> navigationHistory = new System.Collections.Generic.List<string>();
 
             navigationService.NavigationRequested += (vm) => {
                 if (vm is TestViewModel testVm) {
                     navigationHistory.Add(testVm.Name);
+                } else if (vm is AnotherTestViewModel anotherVm) {
+                    navigationHistory.Add(anotherVm.Name);
                 }
             };
 
