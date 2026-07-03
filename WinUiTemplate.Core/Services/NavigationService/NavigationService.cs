@@ -19,6 +19,8 @@ namespace WinUiTemplate.Services
         // Fields
         private bool _allowNavigation = true;
 
+        private Type? currentPageType;
+
         // Properties
         
         public bool AllowNavigation {
@@ -33,7 +35,11 @@ namespace WinUiTemplate.Services
         // Public Functions
 
         public void Navigate(ObservableObject pageViewModel) {
-            if (AllowNavigation) NavigationRequested?.Invoke(pageViewModel);
+            Type type = pageViewModel.GetType();
+            if (!AllowNavigation || currentPageType == type) return;
+            
+            currentPageType = type;
+            NavigationRequested?.Invoke(pageViewModel);
         }
     }
 }
