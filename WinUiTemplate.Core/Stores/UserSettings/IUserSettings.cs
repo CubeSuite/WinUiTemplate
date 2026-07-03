@@ -39,6 +39,9 @@ namespace WinUiTemplate.Stores.Interfaces
         string DatabasePassword { get; set; }
         int DatabaseConnectionTimeout { get; set; }
 
+        bool SearchCaseSensitive { get; set; }
+        bool SearchSplitQuery { get; set; }
+
         // Events
         event Action? SettingsLoaded;
         event Action<string>? SettingChanged;

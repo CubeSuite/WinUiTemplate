@@ -154,6 +154,24 @@ namespace WinUiTemplate.MVVM.Pages
                         }
                     )
                 ]),
+
+                new SettingsCategoryList("Search", [
+                    new GenericSetting<bool>(
+                    name: "Case Sensitive",
+                    description: "Whether search queries should be case sensitive",
+                    icon: "\uE84A",
+                    getValueFunc: () => userSettings.SearchCaseSensitive,
+                    setValueFunc: (value) => userSettings.SearchCaseSensitive = value
+                ),
+                new GenericSetting<bool>(
+                    name: "Split Search Query",
+                    description: "When enabled, searches for each word in the query separately",
+                    icon: "\uE8C6",
+                    getValueFunc: () => userSettings.SearchSplitQuery,
+                    setValueFunc: (value) => userSettings.SearchSplitQuery = value
+                )
+                ]),
+
                 new SettingsCategoryList("Encryption", [
                     new ButtonSetting(
                         name: "Decrypt Data",
