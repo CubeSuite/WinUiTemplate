@@ -21,6 +21,11 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
+        <Rectangle x:Name="Tint"
+                   Grid.RowSpan="2"
+                   Fill="Transparent"
+                   Opacity="0.5" />
+
         <titlebar:CustomTitleBar x:Name="titleBar" />
 
     </Grid>

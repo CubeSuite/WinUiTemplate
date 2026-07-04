@@ -45,12 +45,13 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
         // Constructors
 
         public ComparableSetting(string name, string description, string icon,
-                                 Func<T> getValueFunc, Action<T> setValueFunc, T min, T max, IServiceProvider serviceProvider)
+                                 Func<T> getValueFunc, Action<T> setValueFunc, T min, T max, IServiceProvider serviceProvider, Func<bool>? isVisibleFunc = null)
                                 :base(name, description, icon, "Comparable") 
         {
             logger = serviceProvider.GetRequiredService<ILoggerService>();
             getValue = getValueFunc;
             setValue = setValueFunc;
+            getIsVisibleFunc = isVisibleFunc;
 
             Min = min;
             Max = max;

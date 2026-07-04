@@ -1,9 +1,13 @@
 using FluentAssertions;
+using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 using Moq;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Windows.UI;
+using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.Stores;
 using WinUiTemplate.Services;
 using WinUiTemplate.Services.Interfaces;
 using WinUiTemplate.Stores;
@@ -21,7 +25,11 @@ namespace WinUiTemplate.Tests
         private readonly Mock<ILoggerService> mockLogger;
         private readonly Mock<INotificationService> mockNotificationService;
         private readonly Mock<IServiceProvider> mockServiceProvider;
+        
+        // Fields
         private readonly string settingsFilePath;
+        private static Color red = new Color { A = 255, R = 255, G = 0, B = 0 };
+        private static Color blue = new Color { A = 255, R = 0, G = 0, B = 255 };
 
         // Constructors
 
@@ -127,13 +135,17 @@ namespace WinUiTemplate.Tests
             settings.IsFirstLaunch.Should().BeTrue();
             settings.LogDebugMessages.Should().BeFalse();
             settings.MaxLogs.Should().Be(5);
-            settings.DarkMode.Should().BeTrue();
+            settings.Theme.Should().Be(ThemeOption.MatchWindows);
+            settings.Backdrop.Should().Be(BackdropOption.AcrylicBase);
+            settings.AccentSource.Should().Be(AccentSourceOption.MatchWindows);
+            settings.CustomAccentColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.MatchWindows);
+            settings.CustomWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+            settings.WindowTintOpacity.Should().Be(0.5);
             settings.RememberLayout.Should().BeTrue();
             settings.OpenMaximised.Should().BeFalse();
             settings.DefaultWidth.Should().Be(1600);
             settings.DefaultHeight.Should().Be(900);
-            settings.Backdrop.Should().Be(IThemeService.Backdrop.Acrylic);
-            settings.AccentColour.Should().BeEmpty();
             settings.BackupsFolder.Should().BeEmpty();
             settings.MaxBackups.Should().Be(5);
             settings.AutomaticBackups.Should().BeTrue();
@@ -145,6 +157,8 @@ namespace WinUiTemplate.Tests
             settings.DatabaseUsername.Should().BeEmpty();
             settings.DatabasePassword.Should().BeEmpty();
             settings.DatabaseConnectionTimeout.Should().Be(30);
+            settings.SearchCaseSensitive.Should().BeFalse();
+            settings.SearchSplitQuery.Should().BeTrue();
         }
 
         #endregion
@@ -159,13 +173,17 @@ namespace WinUiTemplate.Tests
             settings.IsFirstLaunch = false;
             settings.LogDebugMessages = true;
             settings.MaxLogs = 10;
-            settings.DarkMode = false;
+            settings.Theme = ThemeOption.Light;
+            settings.Backdrop = BackdropOption.Mica;
+            settings.AccentSource = AccentSourceOption.Custom;
+            settings.CustomAccentColour = red;
+            settings.WindowTintSource = WindowTintSourceOption.Custom;
+            settings.CustomWindowTintColour = blue;
+            settings.WindowTintOpacity = 0.75;
             settings.RememberLayout = false;
             settings.OpenMaximised = true;
             settings.DefaultWidth = 1920;
             settings.DefaultHeight = 1080;
-            settings.Backdrop = IThemeService.Backdrop.Mica;
-            settings.AccentColour = "#FF0000";
             settings.BackupsFolder = "C:\\Backups";
             settings.MaxBackups = 10;
             settings.AutomaticBackups = false;
@@ -177,17 +195,23 @@ namespace WinUiTemplate.Tests
             settings.DatabaseUsername = "admin";
             settings.DatabasePassword = "secret123";
             settings.DatabaseConnectionTimeout = 60;
+            settings.SearchCaseSensitive = true;
+            settings.SearchSplitQuery = false;
 
             settings.IsFirstLaunch.Should().BeFalse();
             settings.LogDebugMessages.Should().BeTrue();
             settings.MaxLogs.Should().Be(10);
-            settings.DarkMode.Should().BeFalse();
+            settings.Theme.Should().Be(ThemeOption.Light);
+            settings.Backdrop.Should().Be(BackdropOption.Mica);
+            settings.AccentSource.Should().Be(AccentSourceOption.Custom);
+            settings.CustomAccentColour.Should().Be(red);
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.Custom);
+            settings.CustomWindowTintColour.Should().Be(blue);
+            settings.WindowTintOpacity.Should().Be(0.75);
             settings.RememberLayout.Should().BeFalse();
             settings.OpenMaximised.Should().BeTrue();
             settings.DefaultWidth.Should().Be(1920);
             settings.DefaultHeight.Should().Be(1080);
-            settings.Backdrop.Should().Be(IThemeService.Backdrop.Mica);
-            settings.AccentColour.Should().Be("#FF0000");
             settings.BackupsFolder.Should().Be("C:\\Backups");
             settings.MaxBackups.Should().Be(10);
             settings.AutomaticBackups.Should().BeFalse();
@@ -199,6 +223,8 @@ namespace WinUiTemplate.Tests
             settings.DatabaseUsername.Should().Be("admin");
             settings.DatabasePassword.Should().Be("secret123");
             settings.DatabaseConnectionTimeout.Should().Be(60);
+            settings.SearchCaseSensitive.Should().BeTrue();
+            settings.SearchSplitQuery.Should().BeFalse();
         }
 
         #endregion
@@ -206,19 +232,7 @@ namespace WinUiTemplate.Tests
         #region SettingChanged Event Tests
 
         [Fact]
-        public void IsFirstLaunch_RaisesSettingChangedEvent_WhenValueChanges()
-        {
-            UserSettings settings = CreateUserSettings();
-            string? changedPropertyName = null;
-            settings.SettingChanged += (name) => changedPropertyName = name;
-
-            settings.IsFirstLaunch = false;
-
-            changedPropertyName.Should().Be(nameof(settings.IsFirstLaunch));
-        }
-
-        [Fact]
-        public void LogDebugMessages_RaisesSettingChangedEvent_WhenValueChanges()
+        public void Property_RaisesSettingChangedEvent_WhenValueChanges()
         {
             UserSettings settings = CreateUserSettings();
             string? changedPropertyName = null;
@@ -230,63 +244,15 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
-        public void DarkMode_RaisesSettingChangedEvent_WhenValueChanges()
-        {
-            UserSettings settings = CreateUserSettings();
-            string? changedPropertyName = null;
-            settings.SettingChanged += (name) => changedPropertyName = name;
-
-            settings.DarkMode = false;
-
-            changedPropertyName.Should().Be(nameof(settings.DarkMode));
-        }
-
-        [Fact]
         public void Property_DoesNotRaiseSettingChangedEvent_WhenValueIsSame()
         {
             UserSettings settings = CreateUserSettings();
             int eventCount = 0;
             settings.SettingChanged += (name) => eventCount++;
 
-            settings.DarkMode = true;
+            settings.SearchSplitQuery = true;
 
             eventCount.Should().Be(0);
-        }
-
-        [Fact]
-        public void BackupsFolder_RaisesSettingChangedEvent_WhenValueChanges()
-        {
-            UserSettings settings = CreateUserSettings();
-            string? changedPropertyName = null;
-            settings.SettingChanged += (name) => changedPropertyName = name;
-
-            settings.BackupsFolder = "C:\\Backups";
-
-            changedPropertyName.Should().Be(nameof(settings.BackupsFolder));
-        }
-
-        [Fact]
-        public void DatabaseHost_RaisesSettingChangedEvent_WhenValueChanges()
-        {
-            UserSettings settings = CreateUserSettings();
-            string? changedPropertyName = null;
-            settings.SettingChanged += (name) => changedPropertyName = name;
-
-            settings.DatabaseHost = "db.example.com";
-
-            changedPropertyName.Should().Be(nameof(settings.DatabaseHost));
-        }
-
-        [Fact]
-        public void DatabasePort_RaisesSettingChangedEvent_WhenValueChanges()
-        {
-            UserSettings settings = CreateUserSettings();
-            string? changedPropertyName = null;
-            settings.SettingChanged += (name) => changedPropertyName = name;
-
-            settings.DatabasePort = 5433;
-
-            changedPropertyName.Should().Be(nameof(settings.DatabasePort));
         }
 
         #endregion
@@ -313,20 +279,6 @@ namespace WinUiTemplate.Tests
             settings.DatabaseConnectionTimeout.Should().Be(45);
         }
 
-        [Fact]
-        public void DatabasePassword_DoesNotRaiseEvent_WhenSetToSameValue()
-        {
-            UserSettings settings = CreateUserSettings();
-            settings.DatabasePassword = "test123";
-            int eventCount = 0;
-            settings.SettingChanged += (name) => eventCount++;
-
-            settings.DatabasePassword = "test123";
-
-            eventCount.Should().Be(0);
-        }
-
-
         #endregion
 
         #region Load Tests
@@ -350,13 +302,17 @@ namespace WinUiTemplate.Tests
                 ""IsFirstLaunch"": false,
                 ""LogDebugMessages"": true,
                 ""MaxLogs"": 15,
-                ""DarkMode"": false,
+                ""Theme"": 1,
+                ""Backdrop"": 1,
+                ""AccentSource"": 1,
+                ""CustomAccentColour"": {""A"":255,""R"":255,""G"":0,""B"":0},
+                ""WindowTintSource"": 1,
+                ""CustomWindowTintColour"": {""A"":255,""R"":0,""G"":0,""B"":255},
+                ""WindowTintOpacity"": 0.8,
                 ""RememberLayout"": false,
                 ""OpenMaximised"": true,
                 ""DefaultWidth"": 1920,
                 ""DefaultHeight"": 1080,
-                ""Backdrop"": 1,
-                ""AccentColour"": ""#FF0000"",
                 ""BackupsFolder"": ""C:\\Backups"",
                 ""MaxBackups"": 10,
                 ""AutomatedBackups"": false,
@@ -367,7 +323,9 @@ namespace WinUiTemplate.Tests
                 ""DatabaseName"": ""testdb"",
                 ""DatabaseUsername"": ""testuser"",
                 ""DatabasePassword"": ""testpass"",
-                ""DatabaseConnectionTimeout"": 60
+                ""DatabaseConnectionTimeout"": 60,
+                ""SearchCaseSensitive"": true,
+                ""SearchSplitQuery"": false
             }";
             SetupSuccessfulFileRead(json);
 
@@ -377,13 +335,17 @@ namespace WinUiTemplate.Tests
             settings.IsFirstLaunch.Should().BeFalse();
             settings.LogDebugMessages.Should().BeTrue();
             settings.MaxLogs.Should().Be(15);
-            settings.DarkMode.Should().BeFalse();
+            settings.Theme.Should().Be(ThemeOption.Dark);
+            settings.Backdrop.Should().Be(BackdropOption.MicaAlt);
+            settings.AccentSource.Should().Be(AccentSourceOption.Custom);
+            settings.CustomAccentColour.Should().Be(red);
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.Custom);
+            settings.CustomWindowTintColour.Should().Be(blue);
+            settings.WindowTintOpacity.Should().Be(0.8);
             settings.RememberLayout.Should().BeFalse();
             settings.OpenMaximised.Should().BeTrue();
             settings.DefaultWidth.Should().Be(1920);
             settings.DefaultHeight.Should().Be(1080);
-            settings.Backdrop.Should().Be(IThemeService.Backdrop.Mica);
-            settings.AccentColour.Should().Be("#FF0000");
             settings.BackupsFolder.Should().Be("C:\\Backups");
             settings.MaxBackups.Should().Be(10);
             settings.AutomaticBackups.Should().BeFalse();
@@ -395,6 +357,8 @@ namespace WinUiTemplate.Tests
             settings.DatabaseUsername.Should().Be("testuser");
             settings.DatabasePassword.Should().Be("testpass");
             settings.DatabaseConnectionTimeout.Should().Be(60);
+            settings.SearchCaseSensitive.Should().BeTrue();
+            settings.SearchSplitQuery.Should().BeFalse();
         }
 
         [Fact]
@@ -459,7 +423,7 @@ namespace WinUiTemplate.Tests
             SetupSuccessfulFileWrite();
             await settings.Load();
 
-            Action act = () => settings.DarkMode = false;
+            Action act = () => settings.LogDebugMessages = true;
 
             act.Should().NotThrow();
         }
@@ -469,7 +433,7 @@ namespace WinUiTemplate.Tests
         {
             UserSettings settings = CreateUserSettings();
 
-            Action act = () => settings.DarkMode = false;
+            Action act = () => settings.LogDebugMessages = true;
 
             act.Should().NotThrow();
         }
@@ -482,11 +446,11 @@ namespace WinUiTemplate.Tests
             await settings.Load();
 
             settings.MaxLogs = 20;
-            settings.DarkMode = false;
+            settings.LogDebugMessages = true;
             settings.BackupsFolder = "C:\\TestBackups";
 
             settings.MaxLogs.Should().Be(20);
-            settings.DarkMode.Should().BeFalse();
+            settings.LogDebugMessages.Should().BeTrue();
             settings.BackupsFolder.Should().Be("C:\\TestBackups");
         }
 

@@ -2,6 +2,7 @@
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using System;
@@ -13,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.Stores;
 using WinUiTemplate.Services.Interfaces;
 using WinUiTemplate.Stores.Interfaces;
 
@@ -24,17 +26,32 @@ namespace WinUiTemplate.Services
         private readonly IUserSettings userSettings;
 
         // Fields
-        private UISettings uiSettings = new UISettings();
+        private DispatcherQueue uiThreadDispatcher;
+        private UISettings uiSettings;
         private string[] appearanceSettings = {
-            nameof(IUserSettings.AccentColour),
-            nameof(IUserSettings.Backdrop)
+            nameof(IUserSettings.Theme),
+            nameof(IUserSettings.Backdrop),
+            nameof(IUserSettings.AccentSource),
+            nameof(IUserSettings.CustomAccentColour),
+            nameof(IUserSettings.WindowTintSource),
+            nameof(IUserSettings.CustomWindowTintColour),
+            nameof(IUserSettings.WindowTintOpacity),
         };
+
+        // Properties
+
+        public bool DarkMode => userSettings.Theme == ThemeOption.Dark || Application.Current.RequestedTheme == ApplicationTheme.Dark;
 
         // Constructors
 
         public ThemeService(IServiceProvider serviceProvider) {
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
             userSettings.SettingChanged += OnSettingChanged;
+
+            uiSettings = new UISettings();
+            uiSettings.ColorValuesChanged += OnColourValuesChanged;
+
+            uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
         }
 
         // Events
@@ -45,11 +62,23 @@ namespace WinUiTemplate.Services
         private void OnSettingChanged(string name) {
             if (appearanceSettings.Contains(name)) ApplyTheme();
         }
+        
+        private void OnColourValuesChanged(UISettings sender, object args) {
+            if (userSettings.Theme == ThemeOption.MatchWindows || 
+                userSettings.AccentSource == AccentSourceOption.MatchWindows ||
+                userSettings.WindowTintSource == WindowTintSourceOption.MatchWindows) {
+                uiThreadDispatcher.TryEnqueue(RaiseThemeChangeRequested);
+            }
+        }
 
         // Public Functions
 
         public void ApplyTheme() {
-            Color colour = GetColour(userSettings.AccentColour, UIColorType.Accent);
+            Color colour = userSettings.CustomAccentColour;
+            if (userSettings.AccentSource == AccentSourceOption.MatchWindows) {
+                colour = uiSettings.GetColorValue(UIColorType.AccentLight2);
+            }
+            // ToDo: experiment with non-monochrome accent
             Application.Current.Resources["SystemAccentColor"] = colour;
             Application.Current.Resources["SystemAccentColorLight1"] = colour;
             Application.Current.Resources["SystemAccentColorLight2"] = colour;
@@ -61,26 +90,15 @@ namespace WinUiTemplate.Services
         }
 
         public void ToggleTheme() {
-            userSettings.DarkMode = !userSettings.DarkMode;
+            ApplicationTheme windowsTheme = Application.Current.RequestedTheme;
+            userSettings.Theme = DarkMode ? ThemeOption.Light : ThemeOption.Dark;
             RaiseThemeChangeRequested();
-        }
-
-        public void ResetAccentColour() {
-            userSettings.AccentColour = uiSettings.GetColorValue(UIColorType.AccentLight2).ToHex();
         }
 
         // Private Functions
 
         private void RaiseThemeChangeRequested() {
             ThemeChangeRequested?.Invoke();
-        }
-
-        private Color GetColour(string hex, UIColorType fallbackType) {
-            if (!string.IsNullOrWhiteSpace(hex)) {
-                return hex.ToColor();
-            }
-
-            else return uiSettings.GetColorValue(fallbackType);
         }
     }
 }

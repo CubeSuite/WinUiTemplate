@@ -12,7 +12,9 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.UI;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.Stores;
 using WinUiTemplate.MVVM.Models.ViewModels.Settings;
 using WinUiTemplate.Services;
 using WinUiTemplate.Services.Interfaces;
@@ -39,28 +41,91 @@ namespace WinUiTemplate.Stores
         private readonly INotificationService notificationService;
 
         // Fields
+        private readonly object saveLock = new object();
+        private CancellationTokenSource? tokenSource;
 
+        private const int saveDebounceDelayMs = 200;
+
+        private record SettingsDTO(
+            // Hiddent
+            bool? IsFirstLaunch,
+            bool? LogDebugMessages,
+
+            // Logging  
+            int? MaxLogs,
+
+            // Appearance
+            ThemeOption? Theme,
+            BackdropOption? Backdrop,
+            AccentSourceOption? AccentSource,
+            Color? CustomAccentColour,
+            WindowTintSourceOption? WindowTintSource,
+            Color? CustomWindowTintColour,
+            double? WindowTintOpacity,
+
+            // Layout
+            bool? RememberLayout,
+            bool? OpenMaximised,
+            int? DefaultWidth,
+            int? DefaultHeight,
+
+            // Backups
+            string? BackupsFolder,
+            int? MaxBackups,
+            bool? AutomatedBackups,
+
+            // API
+            int? ApiTimeout,
+            int? ApiMaxRetries,
+
+            // Remote Database
+            string? DatabaseHost,
+            int? DatabasePort,
+            string? DatabaseName,
+            string? DatabaseUsername,
+            string? DatabasePassword,
+            int? DatabaseConnectionTimeout,
+
+            // Search
+            bool? SearchCaseSensitive,
+            bool? SearchSplitQuery
+        );
+
+        #region Setting Fields
+
+        // Hidden
         private bool _loaded = false;
         private bool _isFirstLaunch = true;
 
+        // Logging
         private bool _logDebugMessages = false;
         private int _maxLogs = 5;
 
-        private bool _darkMode = true;
+        // Appearance
+        private ThemeOption _theme = ThemeOption.MatchWindows;
+        private BackdropOption _backdrop = BackdropOption.AcrylicBase;
+        private AccentSourceOption _accentSource = AccentSourceOption.MatchWindows;
+        private Color _customAccentColour = GetWindowsAccentColour();
+        private WindowTintSourceOption _windowTintSource = WindowTintSourceOption.MatchWindows;
+        private Color _customWindowTintColour = GetWindowsAccentColour();
+        private double _windowTintOpacity = 0.5;
+
+        // Layout
         private bool _rememberLayout = true;
         private bool _openMaximised = false;
         private int _defaultWidth = 1600;
         private int _defaultHeight = 900;
-        private IThemeService.Backdrop _backdrop = IThemeService.Backdrop.Acrylic;
-        private string _accentColour = "";
 
+        // Backups
         private string _backupsFolder = "";
         private int _maxBackups = 5;
         private bool _automaticBackups = true;
 
+        // API
         private int _apiTimeout = 10;
         private int _apiMaxRetries = 3;
 
+        // Remote Database
         private string _databaseHost = "localhost";
         private int _databasePort = 5432;
         private string _databaseName = "";
@@ -68,41 +133,15 @@ namespace WinUiTemplate.Stores
         private string _databasePassword = "";
         private int _databaseConnectionTimeout = 30;
 
+        // Search
         private bool _searchCaseSensitive = false;
         private bool _searchSplitQuery = true;
 
-        private readonly object saveLock = new object();
-        private CancellationTokenSource? tokenSource;
+        #endregion
 
-        private const int saveDebounceDelayMs = 200;
+        #region Setting Properties
 
-        private record SettingsDTO(
-            bool IsFirstLaunch,
-            bool LogDebugMessages,
-            int MaxLogs,
-            bool DarkMode,
-            bool RememberLayout,
-            bool OpenMaximised,
-            int DefaultWidth,
-            int DefaultHeight,
-            IThemeService.Backdrop Backdrop,
-            string AccentColour,
-            string BackupsFolder,
-            int MaxBackups,
-            bool AutomatedBackups,
-            int ApiTimeout,
-            int ApiMaxRetries,
-            string DatabaseHost,
-            int DatabasePort,
-            string DatabaseName,
-            string DatabaseUsername,
-            string DatabasePassword,
-            int DatabaseConnectionTimeout,
-            bool SearchCaseSensitive,
-            bool SearchSplitQuery
-        );
-
-        // Properties
+        // Hidden
 
         public bool Loaded {
             get => _loaded;
@@ -118,6 +157,8 @@ namespace WinUiTemplate.Stores
             set => SetSetting(ref _isFirstLaunch, value);
         }
 
+        // Logging
+
         public bool LogDebugMessages {
             get => _logDebugMessages;
             set => SetSetting(ref _logDebugMessages, value);
@@ -128,10 +169,44 @@ namespace WinUiTemplate.Stores
             set => SetSetting(ref _maxLogs, value);
         }
 
-        public bool DarkMode {
-            get => _darkMode;
-            set => SetSetting(ref _darkMode, value);
+        // Appearance
+
+        public ThemeOption Theme {
+            get => _theme;
+            set => SetSetting(ref _theme, value);
         }
+
+        public BackdropOption Backdrop {
+            get => _backdrop;
+            set => SetSetting(ref _backdrop, value);
+        }
+
+        public AccentSourceOption AccentSource {
+            get => _accentSource;
+            set => SetSetting(ref _accentSource, value);
+        }
+
+        public Color CustomAccentColour {
+            get => _customAccentColour;
+            set => SetSetting(ref _customAccentColour, value);
+        }
+
+        public WindowTintSourceOption WindowTintSource {
+            get => _windowTintSource;
+            set => SetSetting(ref _windowTintSource, value);
+        }
+
+        public Color CustomWindowTintColour {
+            get => _customWindowTintColour;
+            set => SetSetting(ref _customWindowTintColour, value);
+        }
+
+        public double WindowTintOpacity {
+            get => _windowTintOpacity;
+            set => SetSetting(ref _windowTintOpacity, value);
+        }
+
+        // Layout
 
         public bool RememberLayout {
             get => _rememberLayout;
@@ -153,15 +228,7 @@ namespace WinUiTemplate.Stores
             set => SetSetting(ref _defaultHeight, value);
         }
 
-        public IThemeService.Backdrop Backdrop {
-            get => _backdrop;
-            set => SetSetting(ref _backdrop, value);
-        }
-
-        public string AccentColour {
-            get => _accentColour;
-            set => SetSetting(ref _accentColour, value);
-        }
+        // Backups
 
         public string BackupsFolder {
             get => _backupsFolder;
@@ -178,6 +245,8 @@ namespace WinUiTemplate.Stores
             set => SetSetting(ref _automaticBackups, value);
         }
 
+        // API
+
         public int ApiTimeout {
             get => _apiTimeout;
             set => SetSetting(ref _apiTimeout, value);
@@ -187,6 +256,8 @@ namespace WinUiTemplate.Stores
             get => _apiMaxRetries;
             set => SetSetting(ref _apiMaxRetries, value);
         }
+
+        // Remote Database
 
         public string DatabaseHost {
             get => _databaseHost;
@@ -218,6 +289,8 @@ namespace WinUiTemplate.Stores
             set => SetSetting(ref _databaseConnectionTimeout, value);
         }
 
+        // Search
+
         public bool SearchCaseSensitive {
             get => _searchCaseSensitive;
             set => SetSetting(ref _searchCaseSensitive, value);
@@ -227,6 +300,8 @@ namespace WinUiTemplate.Stores
             get => _searchSplitQuery;
             set => SetSetting(ref _searchSplitQuery, value);
         }
+
+        #endregion
 
         // Constructors
 
@@ -337,55 +412,97 @@ namespace WinUiTemplate.Stores
         }
 
         private SettingsDTO ToDTO() => new SettingsDTO(
+            // Hidden
             _isFirstLaunch,
+
+            // Logging
             _logDebugMessages,
             _maxLogs,
-            _darkMode,
+
+            // Appearance
+            _theme,
+            _backdrop,
+            _accentSource,
+            _customAccentColour,
+            _windowTintSource,
+            _customWindowTintColour,
+            _windowTintOpacity,
+
+            // Layout
             _rememberLayout,
             _openMaximised,
             _defaultWidth,
             _defaultHeight,
-            _backdrop,
-            _accentColour,
             _backupsFolder,
+
+            // Backups
             _maxBackups,
             _automaticBackups,
+
+            // API
             _apiTimeout,
             _apiMaxRetries,
+
+            // Remote Database
             _databaseHost,
             _databasePort,
             _databaseName,
             _databaseUsername,
             _databasePassword,
             _databaseConnectionTimeout,
+
+            // Search
             _searchCaseSensitive,
             _searchSplitQuery
         );
 
         private void LoadFromDTO(SettingsDTO dto) {
-            _isFirstLaunch = dto.IsFirstLaunch;
-            _logDebugMessages = dto.LogDebugMessages;
-            _maxLogs = dto.MaxLogs;
-            _darkMode = dto.DarkMode;
-            _rememberLayout = dto.RememberLayout;
-            _openMaximised = dto.OpenMaximised;
-            _defaultWidth = dto.DefaultWidth;
-            _defaultHeight = dto.DefaultHeight;
-            _backdrop = dto.Backdrop;
-            _accentColour = dto.AccentColour;
-            _backupsFolder = dto.BackupsFolder;
-            _maxBackups = dto.MaxBackups;
-            _automaticBackups = dto.AutomatedBackups;
-            _apiTimeout = dto.ApiTimeout;
-            _apiMaxRetries = dto.ApiMaxRetries;
-            _databaseHost = dto.DatabaseHost;
-            _databasePort = dto.DatabasePort;
-            _databaseName = dto.DatabaseName;
-            _databaseUsername = dto.DatabaseUsername;
-            _databasePassword = dto.DatabasePassword;
-            _databaseConnectionTimeout = dto.DatabaseConnectionTimeout;
-            _searchCaseSensitive = dto.SearchCaseSensitive;
-            _searchSplitQuery = dto.SearchSplitQuery;
+            // Hidden
+            _isFirstLaunch = dto.IsFirstLaunch ?? true;
+
+            // Logging
+            _logDebugMessages = dto.LogDebugMessages ?? false;
+            _maxLogs = dto.MaxLogs ?? 5;
+
+            // Appearance
+            _theme = dto.Theme ?? ThemeOption.MatchWindows;
+            _backdrop = dto.Backdrop ?? BackdropOption.AcrylicBase;
+            _accentSource = dto.AccentSource ?? AccentSourceOption.MatchWindows;
+            _customAccentColour = dto.CustomAccentColour ?? GetWindowsAccentColour();
+            _windowTintSource = dto.WindowTintSource ?? WindowTintSourceOption.None;
+            _customWindowTintColour = dto.CustomWindowTintColour ?? GetWindowsAccentColour();
+            _windowTintOpacity = dto.WindowTintOpacity ?? 0.5;
+
+            // Layout
+            _rememberLayout = dto.RememberLayout ?? true;
+            _openMaximised = dto.OpenMaximised ?? false;
+            _defaultWidth = dto.DefaultWidth ?? 1600;
+            _defaultHeight = dto.DefaultHeight ?? 900;
+
+            // Backups
+            _backupsFolder = dto.BackupsFolder ?? "";
+            _maxBackups = dto.MaxBackups ?? 5;
+            _automaticBackups = dto.AutomatedBackups ?? true;
+
+            // API
+            _apiTimeout = dto.ApiTimeout ?? 30;
+            _apiMaxRetries = dto.ApiMaxRetries ?? 3;
+
+            // Remote Database
+            _databaseHost = dto.DatabaseHost ?? "localhost";
+            _databasePort = dto.DatabasePort ?? 5432;
+            _databaseName = dto.DatabaseName ?? "";
+            _databaseUsername = dto.DatabaseUsername ?? "";
+            _databasePassword = dto.DatabasePassword ?? "";
+            _databaseConnectionTimeout = dto.DatabaseConnectionTimeout ?? 30;
+
+            // Search
+            _searchCaseSensitive = dto.SearchCaseSensitive ?? false;
+            _searchSplitQuery = dto.SearchSplitQuery ?? true;
+        }
+
+        private static Color GetWindowsAccentColour() {
+            return new UISettings().GetColorValue(UIColorType.AccentLight2);
         }
     }
 }

@@ -15,6 +15,7 @@ using Windows.Devices.Gpio.Provider;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.Stores;
 using WinUiTemplate.MVVM.Models.ViewModels.Settings;
 using WinUiTemplate.Services;
 using WinUiTemplate.Services.Interfaces;
@@ -50,7 +51,7 @@ namespace WinUiTemplate.MVVM.Pages
             encryptionService = serviceProvider.GetRequiredService<IEncryptionService>();
             archiveService = serviceProvider.GetRequiredService<IArchiveService>();
 
-            // Logging
+            userSettings.SettingChanged += OnSettingChanged;
 
             SettingsCategories = new List<SettingsCategoryList>() {
                 new SettingsCategoryList("Logging", [
@@ -94,6 +95,66 @@ namespace WinUiTemplate.MVVM.Pages
                 ]),
 
                 new SettingsCategoryList("Appearance", [
+                    new EnumSetting<ThemeOption>(
+                        name: "Theme",
+                        description: "Use to force light or dark mode, or match Windows.",
+                        icon: "\uF0CE",
+                        getValueFunc: () => userSettings.Theme,
+                        setValueFunc: (value) => userSettings.Theme = value
+                    ),
+                    new EnumSetting<BackdropOption>(
+                        name: "Backdrop",
+                        description: "Acrylic uses softer colours and is more transparent than Mica.",
+                        icon: "\uEB9F",
+                        getValueFunc: () => userSettings.Backdrop,
+                        setValueFunc: (value) => userSettings.Backdrop = value
+                    ),
+                    new EnumSetting<AccentSourceOption>(
+                        name: "Accent Colour Source",
+                        description: "Choose whether to use the Windows accent colour or a custom one",
+                        icon: "\uE790",
+                        getValueFunc: () => userSettings.AccentSource,
+                        setValueFunc: (value) => userSettings.AccentSource = value
+                    ),
+                    new GenericSetting<Color>(
+                        name: "Custom Accent Colour",
+                        description: $"The accent colour to use for {programData.ProgramName}",
+                        icon: "\uE73C",
+                        getValueFunc: () => userSettings.CustomAccentColour,
+                        setValueFunc: (value) => userSettings.CustomAccentColour = value,
+                        type: "",
+                        isVisibleFunc: () => userSettings.AccentSource == AccentSourceOption.Custom
+                    ),
+                    new EnumSetting<WindowTintSourceOption>(
+                        name: "Window Tint Source",
+                        description: "Choose whether to use no tint, a custom colour, or match the Windows accent colour",
+                        icon: "\uEF3C",
+                        getValueFunc: () => userSettings.WindowTintSource,
+                        setValueFunc: (value) => userSettings.WindowTintSource = value
+                    ),
+                    new GenericSetting<Color>(
+                        name: "Custom Window Tint Colour",
+                        description: $"The window tint colour to use for {programData.ProgramName}",
+                        icon: "\uE73C",
+                        getValueFunc: () => userSettings.CustomWindowTintColour,
+                        setValueFunc: (value) => userSettings.CustomWindowTintColour = value,
+                        type: "",
+                        isVisibleFunc: () => userSettings.WindowTintSource == WindowTintSourceOption.Custom
+                    ),
+                    new ComparableSetting<double>(
+                        name: "Window Tint Opacity",
+                        description: "The opacity of the window tint colour",
+                        icon: "\uE793",
+                        getValueFunc: () => userSettings.WindowTintOpacity * 100.0,
+                        setValueFunc: (value) => userSettings.WindowTintOpacity = value / 100.0,
+                        min: 0.0,
+                        max: 100.0,
+                        serviceProvider,
+                        isVisibleFunc: () => userSettings.WindowTintSource != WindowTintSourceOption.None
+                    )
+                ]),
+
+                new SettingsCategoryList("Layout", [
                     new GenericSetting<bool>(
                         name: "Remember Layout",
                         description: $"If enabled, when you open {programData.ProgramName} it will restore your last size / maximised state",
@@ -128,31 +189,6 @@ namespace WinUiTemplate.MVVM.Pages
                         max: 10000,
                         serviceProvider
                     ),
-                    new EnumSetting<IThemeService.Backdrop>(
-                        name: "Backdrop",
-                        description: $"Acrylic uses softer colours and is more transparent than Mica",
-                        icon: "\uEB9F",
-                        getValueFunc: () => userSettings.Backdrop,
-                        setValueFunc: (value) => userSettings.Backdrop = value
-                    ),
-                    new GenericSetting<Color>(
-                        name: "Accent Colour",
-                        description: $"The accent colour to use for {programData.ProgramName}",
-                        icon: "\uEF3C",
-                        getValueFunc: () => userSettings.AccentColour.ToColor(),
-                        setValueFunc: (value) => userSettings.AccentColour = value.ToHex()
-                    ),
-                    new ButtonSetting(
-                        name: "Reset Accent Colour To System Default",
-                        description: "Resets your accent colour to match the one you have chosen for Windows",
-                        icon: "\uE790",
-                        buttonText: "Reset",
-                        onClick: () => {
-                            userSettings.AccentColour = new UISettings().GetColorValue(UIColorType.AccentLight2).ToHex();
-                            OnPropertyChanged(nameof(SettingsCategories));
-                            return Task.CompletedTask;
-                        }
-                    )
                 ]),
 
                 new SettingsCategoryList("Search", [
@@ -300,6 +336,16 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     )
                 ]));
+            }
+        }
+
+        // Listeners
+
+        private void OnSettingChanged(string settingName) {
+            foreach(SettingsCategoryList category in SettingsCategories) {
+                foreach(SettingBase setting in category.Settings) {
+                    setting.NotifyIsVisibilityChanged();
+                }
             }
         }
 
