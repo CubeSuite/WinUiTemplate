@@ -27,7 +27,7 @@ This project provides a Visual Studio template that can be used to kickstart a W
 
 ## Available Services
 
-To see the public functions that are available for you to use for any service/store, read its interface file and the docstrings in it. Adding descriptions for every function in this README runs the risk of them becoming outdated.
+To see the public properties, functions and events that are available for you to use for any service/store, read its interface file and the docstrings in it. Adding descriptions for every function in this README runs the risk of them becoming outdated.
 
 ### TLDRs:
 
@@ -56,16 +56,22 @@ A base class to use with APIs, very untested
   Handles changing theme, along with `MainWindow.xaml.cs`
 
 Stores:
-- FilePaths - Stores paths of files and folders used by the application
-- ObjectCache - Wrapper around a Dictionary with useful functions. Use as a base class, see [ObjectCache](#objectcache)
-- LocalObjectRepository - Generates a local SQLite database for (almost) any object. Use as a base class, see [LocalObjectRepository](#localobjectrepository)
-- RemoteObjectRepository - Connects to a remote SQL database, only tested with PostgreSQL. Use as base class, see [RemoteObjectRepository](#remoteobjectrepository)
-- ProgramData - Stores various bits of data about your application.
-- UserSettings - Allows the user to configure the application's behaviour.
+- [FilePaths](#file-paths-store)  
+  Stores paths of files and folders used by the application
+- [ObjectCache](#object-cache)  
+  Wrapper around a Dictionary with useful functions. Use as a base class
+- [LocalObjectRepository](#local-object-repository)  
+  Generates a local SQLite database for (almost) any object. Use as a base class
+- [RemoteObjectRepository](#remote-object-repository)  
+  Connects to a remote SQL database, only tested with PostgreSQL. Use as base class
+- [ProgramData](#program-data)  
+  Stores various bits of data about your application.
+- [UserSettings](#user-settings)  
+  Allows the user to configure the application's behaviour.
 
 ### Archive Service
 
-This service is used for generating .zip files asynchronously, with support for `CancellationToken`s. Its main purpose is to be used by other services like the `BackupService` but can also invoke it manually if your application needs to generate archives.
+This service is used for generating .zip files asynchronously, with support for `CancellationToken`s. Its main purpose is to be used by other services like the `BackupService` but can also invoke it maanually if your application needs to generate archives.
 
 ### Backup Service
 
@@ -73,7 +79,7 @@ This service automates the process of backing up the user's data to a location o
 
 The user can then restore their data from one of these zip files from the `BackupsPage`. A backup is performed before restoring, if it succeeds, then everything in `IFilePaths.RootFolder` is deleted, and the backup archive is extracted into the root folder, then the application restarts to load the data.
 
-The `Windows.Storage` APIs require the user to browse to a location in a folder picker dialog for your application to gain access to that folder. Because of this, when a user first opens your application, they will see a Warning Notification stating that automatic backups cannot be performed until they've picked a location to store them, unless you or the user has disabled backups.
+The `Windows.Storage` APIs require the user to browse to a location in a folder picker dialog for your application to gain access that folder. Because of this, when a user first opens your application, they will see a Warning Notification stating that automatic backups cannot be performed until they've picked a location to store them, unless you or the user has disabled backups.
 
 ![Backup Warning Notification](Images/backup-warning.png)
 
@@ -88,11 +94,11 @@ This service is used for showing pop-up dialogs to the user, as well as handling
 >
 > Data stored with either ObjectRepository store is not yet encrypted, unless you manually encrypt it before storing it.
 
-This service can be used to encrypt or decrypt text. Its main purpose is to be used by other services, depending on the level of `IProgramData.EncryptionLevel`, but you can invoke it manually too.
+This service can be used to encrypt or decrypt text. Its main purpose is to be used by other services, depending on the level of `IProgramData.EncryptionLevel`, but you can invoke it manualy too.
 
 ### File Utils
 
-This service is a wrapper around the `Windows.Storage` API that simplifies interacting with files and folders. Every operation is asynchronous and supports cancellation tokens if you're doing something like scanning a folder recursively and you want the user to be able to abort the operation at some point. Each function returns a record that stores the result, any `StorageFile` or `StorageFolder` instances retrieved by the function, and an error message if not successful. Each record has an `implicit operator bool` that points to the `Success` property.
+This service is a wrapper around the `Windows.Storage` API that simplifies interacting with files and folders. Every operation is asynchronous and supports cancellation tokens if you're doing something like scanning folder recursively and you want the user to be able to abort the operation at some point. Each function returns a record that stores the result, any `StorageFile` or `StorageFolder` instances retrieved by the function, and an error message if not successful. Each record has an `implicit operator bool` that points to the `Success` property.
 
 Example use:
 
@@ -141,7 +147,7 @@ Display notification banners above the current page. See [BackupService](#backup
 
 ### Search Service
 
-This service can help you filter an `IEnumerable<T>` using a search term and an array of properties to check against that search term. The user can control this service's behaviour using `IUserSettings.SearchCaseSensitive` and `IUserSettings.SearchSplitQuery`, which splits a query like `"example query"` into the tokens `["example", "query"]`. Then, each object's selectors must contain each of those tokens to be included in the results.
+This service can help you filter an `IEnumerable<T>` using a search term and an array of properties to check against that search term. The user can control this service's behaviour using `IUserSettings.SearchCaseSensative` and `IUserSettings.SearchSplitQuery`, which splits a query like `"example query"` into the tokens `["example", "query"]`. Then, each object's selectors must contain each of those tokens to be included in the results.
 
 Example use:
 
@@ -183,7 +189,7 @@ private void OnRecipeAdded(Recipe recipe){
 
 ### Theme Service
 
-This service is used to control the applications current theme. It handles some of the backend code of theme switching. It is used by `CustomTitleBarViewModel` to toggle the theme and is used as a bridge between `IUserSettings` and the code that actually does theme and colour switching in `MainWindow.xaml.cs`. You shouldn't need to use this service manually.
+This service is used to control the applications current theme. It handles some of the backend code of theme switching. It is used by `CustomTitleBarViewModel` to toggle the theme and is used as a bridge between `IUserSettings` and the code that actually does theme and colour switching in `MainWindow.xaml.cs`. You shouldnt' need to use this service manually.
 
 ### File Paths Store
 
@@ -211,7 +217,7 @@ public interface IItemManager : IObjectCache<int, Item>{} // Or add IObjectCache
 public class ItemManager : ObjectCache<int, Item>, IItemManager 
 {
     public OperationResult TryAdd(Item item){
-        return TryAdd(item.id, item);
+        TryAdd(item.id, item);
     }
 
     ...
@@ -230,7 +236,7 @@ This store is able to generate a table in a local SQLite database for any classe
 - `Enum`
 - `Collections` - See `IsCollectionType()` for supported collections.
 
-To use this store, for performance reasons I highly recommended using an ObjectCache for your base class and encapsulating the LocalObjectRepository object. This makes interacting with the store fast and means you don't have to think about managing the database manually. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object.
+To use this store, for performance reasons I highly recomended using an ObjectCache for your base class and encapsulating the LocalObjectRepository object. This makes interacting with the store fast and means you don't have to think about managing the database manually. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object.
 
 Example use:
 
@@ -348,7 +354,7 @@ This can be used to disable the automatic backups feature of this template. If y
 - `UsesApi`
   - Sets whether your application communicates with any online HTTP APIs. If `false`, the 'Internet' category of settings in `SettingsPageViewModel` will be hidden from the user.
 - `UsesRemoteDatabase` 
-  - Sets whether your application uses `RemoteObjectRepository` to communicate with a remote SQL database. If `false`, the 'Database' category of settings in `SettingsPageViewModel` will be hidden from the user.
+  - Sets whether your applicate uses `RemoteObjectRepository` to communicate with a remote SQL database. If `false`, the 'Database' category of settings in `SettingsPageViewModel` will be hidden from the user.
   
   
 > [!WARNING]
@@ -356,7 +362,7 @@ This can be used to disable the automatic backups feature of this template. If y
 
 #### The Root Folder
 
-The first time you launch your application, Windows will create the folder that `IFilePaths.RootFolder` points to. Your application doesn't need to get permission from the user to read and write files in this folder. You need to give this folder a name though, or it will be assigned a UUID and be impossible to find. 
+The first time you launch your application, Windows will create the folder that `IFilePaths.RootFolder` points to. Your application doesn't need to get permission from the user to read and write files in this folder. You need to give this folder a name though, or it will be assinged a UUID and be impossible to find. 
 
 1) In the solution explorer, expand the main project.
 2) Find the file 'Package.appxmanifest' and double click it.
@@ -527,7 +533,7 @@ To add your page to the `NavigationView`:
 > <NavigationViewItem Content="My New Page">
 >    <NavigationViewItem.Icon>
 >        <FontIcon Glyph="&#xE8C6;">
->    </NavigationViewItem.Icon>
+>    <NavigationViewItem.Icon>
 > </NavigationViewItem>
 >
 > Download the WinUI 3 Gallery app to browse Glyphs.
