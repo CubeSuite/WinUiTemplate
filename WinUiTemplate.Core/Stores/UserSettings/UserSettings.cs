@@ -106,7 +106,7 @@ namespace WinUiTemplate.Stores
         private BackdropOption _backdrop = BackdropOption.AcrylicBase;
         private AccentSourceOption _accentSource = AccentSourceOption.MatchWindows;
         private Color _customAccentColour = GetWindowsAccentColour();
-        private WindowTintSourceOption _windowTintSource = WindowTintSourceOption.MatchWindows;
+        private WindowTintSourceOption _windowTintSource = WindowTintSourceOption.None;
         private Color _customWindowTintColour = GetWindowsAccentColour();
         private double _windowTintOpacity = 0.5;
 

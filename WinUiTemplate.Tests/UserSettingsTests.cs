@@ -139,7 +139,44 @@ namespace WinUiTemplate.Tests
             settings.Backdrop.Should().Be(BackdropOption.AcrylicBase);
             settings.AccentSource.Should().Be(AccentSourceOption.MatchWindows);
             settings.CustomAccentColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
-            settings.WindowTintSource.Should().Be(WindowTintSourceOption.MatchWindows);
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.None);
+            settings.CustomWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+            settings.WindowTintOpacity.Should().Be(0.5);
+            settings.RememberLayout.Should().BeTrue();
+            settings.OpenMaximised.Should().BeFalse();
+            settings.DefaultWidth.Should().Be(1600);
+            settings.DefaultHeight.Should().Be(900);
+            settings.BackupsFolder.Should().BeEmpty();
+            settings.MaxBackups.Should().Be(5);
+            settings.AutomaticBackups.Should().BeTrue();
+            settings.ApiTimeout.Should().Be(10);
+            settings.ApiMaxRetries.Should().Be(3);
+            settings.DatabaseHost.Should().Be("localhost");
+            settings.DatabasePort.Should().Be(5432);
+            settings.DatabaseName.Should().BeEmpty();
+            settings.DatabaseUsername.Should().BeEmpty();
+            settings.DatabasePassword.Should().BeEmpty();
+            settings.DatabaseConnectionTimeout.Should().Be(30);
+            settings.SearchCaseSensitive.Should().BeFalse();
+            settings.SearchSplitQuery.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task AllProperties_HaveCorrectDefaultValue_AfterLoadFromEmptyJson() {
+            UserSettings settings = CreateUserSettings();
+            string json = "{}";
+            SetupSuccessfulFileRead(json);
+            await settings.Load();
+
+            settings.Loaded.Should().BeFalse();
+            settings.IsFirstLaunch.Should().BeTrue();
+            settings.LogDebugMessages.Should().BeFalse();
+            settings.MaxLogs.Should().Be(5);
+            settings.Theme.Should().Be(ThemeOption.MatchWindows);
+            settings.Backdrop.Should().Be(BackdropOption.AcrylicBase);
+            settings.AccentSource.Should().Be(AccentSourceOption.MatchWindows);
+            settings.CustomAccentColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.None);
             settings.CustomWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
             settings.WindowTintOpacity.Should().Be(0.5);
             settings.RememberLayout.Should().BeTrue();

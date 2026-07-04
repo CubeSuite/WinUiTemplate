@@ -8,7 +8,7 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="ef6bd851-0c93-421d-8e0b-428b0ad4b32c"
+    Name="WinUiTemplate"
     Publisher="CN=ellio"
     Version="1.0.0.0" />
 
@@ -16,7 +16,7 @@
 
   <Properties>
     <DisplayName>WinUiTemplate</DisplayName>
-    <PublisherDisplayName>ellio</PublisherDisplayName>
+    <PublisherDisplayName>Equinox</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
