@@ -9,12 +9,16 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
 {
     public partial class SettingBase : ObservableObject
     {
+        // Fields
+        protected Func<bool>? getIsVisibleFunc;
+
         // Properties
 
         public string Name { get; }
         public string Description { get; }
         public string Icon { get; }
         public string Type { get; set; }
+        public bool IsVisible => getIsVisibleFunc == null || getIsVisibleFunc();
 
         // Constructors
 
@@ -34,6 +38,12 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
 
             if (!Description.EndsWith(".")) Description += ".";
             Type = type;
+        }
+
+        // Public Functions
+
+        public void NotifyIsVisibilityChanged() {
+            OnPropertyChanged(nameof(IsVisible));
         }
     }
 }

@@ -15,18 +15,16 @@ namespace WinUiTemplate.MVVM.Views.CustomTitleBar
     {
         // Services & Stores
         private readonly IProgramData programData;
-        private readonly IUserSettings userSettings;
         private readonly IThemeService themeService;
 
         // Properties
         public string ProgramName => programData.ProgramName;
         public string ProgramVersion => $"V{programData.ProgramVersion.Major}.{programData.ProgramVersion.Minor}.{programData.ProgramVersion.Build}";
-        public string ThemeIcon => userSettings.DarkMode ? "\uE706" : "\uE708";
+        public string ThemeIcon => themeService.DarkMode ? "\uE706" : "\uE708";
 
         // Constructors
         public CustomTitleBarViewModel(IServiceProvider serviceProvider) {
             programData = serviceProvider.GetRequiredService<IProgramData>();
-            userSettings = serviceProvider.GetRequiredService<IUserSettings>();
             themeService = serviceProvider.GetRequiredService<IThemeService>();
             themeService.ThemeChangeRequested += OnThemeChangeRequested;
         }

@@ -11,6 +11,9 @@ namespace WinUiTemplate.Services.Interfaces
     /// </summary>
     public interface IThemeService
     {
+        // Properties
+        public bool DarkMode { get; }
+
         // Events
         /// <summary>
         /// Occurs when a theme change is requested.
@@ -27,17 +30,5 @@ namespace WinUiTemplate.Services.Interfaces
         /// Toggles between light and dark theme modes.
         /// </summary>
         void ToggleTheme();
-
-        /// <summary>
-        /// Resets the accent color to the system default.
-        /// </summary>
-        void ResetAccentColour();
-
-        // Enums
-
-        public enum Backdrop {
-            Acrylic,
-            Mica
-        }
     }
 }

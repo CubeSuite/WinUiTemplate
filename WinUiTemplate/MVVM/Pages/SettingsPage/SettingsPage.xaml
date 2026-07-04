@@ -3,12 +3,16 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:community="using:CommunityToolkit.WinUI.Controls"
+      xmlns:converters="using:WinUiTemplate.MVVM.Converters"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:WinUiTemplate.MVVM.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:ui="using:CommunityToolkit.WinUI"
       xmlns:vms="using:WinUiTemplate.MVVM.Models.ViewModels.Settings"
       mc:Ignorable="d">
+    <Page.Resources>
+        <converters:TrueToVisibleConverter x:Key="trueToVisibleConverter" />
+    </Page.Resources>
     <Grid>
         <ScrollViewer>
             <ItemsRepeater x:Name="expandersContainer"
@@ -25,7 +29,8 @@
                             <community:SettingsExpander.ItemTemplate>
                                 <DataTemplate>
                                     <community:SettingsCard Header="{Binding Name}"
-                                                            Description="{Binding Description}">
+                                                            Description="{Binding Description}"
+                                                            Visibility="{Binding IsVisible, Converter={StaticResource trueToVisibleConverter}}">
                                         <community:SettingsCard.HeaderIcon>
                                             <FontIcon Glyph="{Binding Icon}" />
                                         </community:SettingsCard.HeaderIcon>
@@ -44,8 +49,8 @@
                                             </community:Case>
 
                                             <community:Case Value="Enum">
-                                                <ComboBox ItemsSource="{Binding Options}"
-                                                          SelectedItem="{Binding Value, Mode=TwoWay}" />
+                                                <ComboBox ItemsSource="{Binding Names}"
+                                                          SelectedItem="{Binding SelectedOption, Mode=TwoWay}" />
                                             </community:Case>
 
                                             <community:Case Value="Comparable">

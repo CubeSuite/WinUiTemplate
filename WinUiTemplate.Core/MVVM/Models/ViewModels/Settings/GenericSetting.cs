@@ -22,11 +22,12 @@ namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
         // Constructors
 
         public GenericSetting(string name, string description, string icon,
-                              Func<T> getValueFunc, Action<T> setValueFunc, string type = "")
+                              Func<T> getValueFunc, Action<T> setValueFunc, string type = "", Func<bool>? isVisibleFunc = null)
                              :base(name, description, icon) 
         {
             getValue = getValueFunc;
             setValue = setValueFunc;
+            getIsVisibleFunc = isVisibleFunc;
 
             Type = type == "" ? typeof(T).ToString() : type;
         }
