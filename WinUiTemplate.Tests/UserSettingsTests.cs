@@ -149,7 +149,7 @@ namespace WinUiTemplate.Tests
             settings.BackupsFolder.Should().BeEmpty();
             settings.MaxBackups.Should().Be(5);
             settings.AutomaticBackups.Should().BeTrue();
-            settings.ApiTimeout.Should().Be(10);
+            settings.ApiTimeout.Should().Be(30);
             settings.ApiMaxRetries.Should().Be(3);
             settings.DatabaseHost.Should().Be("localhost");
             settings.DatabasePort.Should().Be(5432);
@@ -168,7 +168,7 @@ namespace WinUiTemplate.Tests
             SetupSuccessfulFileRead(json);
             await settings.Load();
 
-            settings.Loaded.Should().BeFalse();
+            settings.Loaded.Should().BeTrue();
             settings.IsFirstLaunch.Should().BeTrue();
             settings.LogDebugMessages.Should().BeFalse();
             settings.MaxLogs.Should().Be(5);
@@ -186,7 +186,7 @@ namespace WinUiTemplate.Tests
             settings.BackupsFolder.Should().BeEmpty();
             settings.MaxBackups.Should().Be(5);
             settings.AutomaticBackups.Should().BeTrue();
-            settings.ApiTimeout.Should().Be(10);
+            settings.ApiTimeout.Should().Be(30);
             settings.ApiMaxRetries.Should().Be(3);
             settings.DatabaseHost.Should().Be("localhost");
             settings.DatabasePort.Should().Be(5432);

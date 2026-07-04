@@ -122,7 +122,7 @@ namespace WinUiTemplate.Stores
         private bool _automaticBackups = true;
 
         // API
-        private int _apiTimeout = 10;
+        private int _apiTimeout = 30;
         private int _apiMaxRetries = 3;
 
         // Remote Database
