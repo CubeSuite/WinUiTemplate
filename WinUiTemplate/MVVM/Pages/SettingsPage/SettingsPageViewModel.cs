@@ -273,8 +273,8 @@ namespace WinUiTemplate.MVVM.Pages
                         name: "Max Retries",
                         description: "A failed request from the internet will be retried this many times.",
                         icon: "\uE81C",
-                        getValueFunc: () => userSettings.ApiTimeout,
-                        setValueFunc: (value) => userSettings.ApiTimeout = value,
+                        getValueFunc: () => userSettings.ApiMaxRetries,
+                        setValueFunc: (value) => userSettings.ApiMaxRetries = value,
                         min: 0,
                         max: 5,
                         serviceProvider
