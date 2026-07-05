@@ -236,7 +236,28 @@ This store is able to generate a table in a local SQLite database for any classe
 - `Enum`
 - `Collections` - See `IsCollectionType()` for supported collections.
 
-To use this store, for performance reasons I highly recomended using an ObjectCache for your base class and encapsulating the LocalObjectRepository object. This makes interacting with the store fast and means you don't have to think about managing the database manually. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object.
+To use this store, for performance reasons I highly recomended using an ObjectCache for your base class and encapsulating the LocalObjectRepository object. This makes interacting with the store fast and means you don't have to think about managing the database manually. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object. A column in the table will be generated for each private field in the class, to avoid you needing to adjust the public interface of your models. If the key for a value is a field of that value, the first two columns will be duplicates, except values in the 'Key' column are converted to string. For example:
+
+```csharp
+class Item {
+  private int _id;
+  private string _name;
+  private int _value;
+
+  public string Price => $"£{_value}";
+}
+
+Item item = new Item(_id: 1, _name: "Test item", _value: 100);
+IObjectRepository repo = new LocalObjectRepository<int, Item>(serviceProvider);
+repo.TryAdd(item.ID, item);
+
+```
+
+Will generate the following table. Note that column names correspond to the private members, `Price` does not get a column:
+
+|Key|_id|_name|_value|
+|:-:|:-:|:---:|:----:|
+|"1"|1|"Test item"|100|
 
 Example use:
 
@@ -370,6 +391,7 @@ The first time you launch your application, Windows will create the folder that 
 4) Replace the UUID in 'Package name' with the name of your application.
 5) Now when your program is run, it will generate the folder:  
    `%LocalAppData%/Packages/{Package name}_{Some random characters}/`
+   1) `ProgramData.RootFolder` points to the 'LocalState' folder inside this one.
 6) You can now ask your users to find the log file there if a bug is preventing them from using the button for opening `IFilePaths.LogsFolder` in File Explorer.
 
 ### Testing
@@ -547,6 +569,7 @@ My personal code style mostly adheres to the C# standard with a few exceptions t
 1) I use inline opening braces, a preference I gained from my time with Java / Android development.
 2) In larger constructors, I use argument names.
 3) For event listeners, I name them with the format `On{ControlName}{EventName}` instead of `{ControlName}_{EventName}`
+4) Private fields only start with an underscore when they have a public property that points to them.
 
 ## Contributing
 
