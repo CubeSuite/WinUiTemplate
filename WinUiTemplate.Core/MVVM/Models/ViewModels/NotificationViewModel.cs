@@ -19,6 +19,8 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
         public string ButtonText { get; }
         public Action? OnButtonClicked { get; }
 
+        [ObservableProperty] public partial bool IsOpen { get; set; }
+
         public Visibility ActionButtonVisibility => ButtonText == "" ? Visibility.Collapsed : Visibility.Visible;
 
         // Constructors
@@ -29,6 +31,7 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
             Message = message;
             ButtonText = buttonText;
             OnButtonClicked = onClick;
+            IsOpen = true;
 
             OnPropertyChanged(nameof(ActionButtonVisibility));
         }

@@ -33,7 +33,7 @@
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate>
                             <InfoBar Title="{Binding Title}"
-                                     IsOpen="True"
+                                     IsOpen="{Binding IsOpen, Mode=TwoWay}"
                                      Message="{Binding Message}"
                                      Severity="{Binding Severity}">
                                 <InfoBar.ActionButton>

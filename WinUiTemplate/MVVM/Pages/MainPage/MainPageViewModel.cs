@@ -46,7 +46,17 @@ namespace WinUiTemplate.MVVM.Pages
         // Listeners
 
         private void OnNotificationRequested(NotificationViewModel notification) {
+            notification.PropertyChanged += OnNotificationPropertyChanged;
             Notifications.Add(notification);
+        }
+
+        private void OnNotificationPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
+            if (e.PropertyName == nameof(NotificationViewModel.IsOpen)
+                && sender is NotificationViewModel notification
+                && !notification.IsOpen) {
+                notification.PropertyChanged -= OnNotificationPropertyChanged;
+                Notifications.Remove(notification);
+            }
         }
 
         private void OnBackupCreatedOrDeleted() {
