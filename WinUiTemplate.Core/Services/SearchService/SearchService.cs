@@ -1,4 +1,4 @@
-﻿using WinUiTemplate.Stores.Interfaces;
+﻿using WinUiTemplate.Core.Stores.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;

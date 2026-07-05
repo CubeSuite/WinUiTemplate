@@ -31,8 +31,8 @@ using WinUiTemplate.Core.Stores;
 using WinUiTemplate.MVVM.Pages;
 using WinUiTemplate.MVVM.Views.CustomTitleBar;
 using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.

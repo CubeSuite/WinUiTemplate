@@ -2,9 +2,9 @@ using FluentAssertions;
 using Microsoft.UI.Xaml.Controls;
 using Moq;
 using System;
-using WinUiTemplate.MVVM.ViewModels;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.MVVM.Models.ViewModels;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Services;
 using Xunit;
 
 namespace WinUiTemplate.Tests

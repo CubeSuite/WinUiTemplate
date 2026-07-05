@@ -8,12 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 using WinUiTemplate.Core.Stores;
-using WinUiTemplate.Core.Stores.ObjectCache;
-using WinUiTemplate.Core.Stores.ObjectStore;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores.Interfaces;
 
 namespace WinUiTemplate.Tests
 {

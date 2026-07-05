@@ -1,5 +1,5 @@
 using WinUiTemplate.Core.Services;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 using FluentAssertions;
 using Moq;
 using System;

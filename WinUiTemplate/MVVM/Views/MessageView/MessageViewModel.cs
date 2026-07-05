@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
-using WinUiTemplate.Services;
+using WinUiTemplate.Core.Services.Interfaces;
 
 namespace WinUiTemplate.MVVM.Views.MessageView
 {

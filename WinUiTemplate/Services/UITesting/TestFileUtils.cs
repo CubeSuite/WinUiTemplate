@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
 namespace WinUiTemplate.Services.Testing
 {

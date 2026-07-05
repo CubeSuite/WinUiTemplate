@@ -16,7 +16,7 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using WinRT.Interop;
 using WinUiTemplate.MVVM.Views.MessageView;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
 namespace WinUiTemplate.Services
 {

@@ -11,8 +11,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Storage;
-using WinUiTemplate.MVVM.Models;
-using WinUiTemplate.MVVM.Models.ViewModels;
+using WinUiTemplate.Core.MVVM.Models;
+using WinUiTemplate.Core.MVVM.Models.ViewModels;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
 

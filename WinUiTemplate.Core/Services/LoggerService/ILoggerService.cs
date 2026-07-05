@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.MVVM.Models.ViewModels;
+using WinUiTemplate.Core.MVVM.Models.ViewModels;
 
 namespace WinUiTemplate.Core.Services.Interfaces
 {

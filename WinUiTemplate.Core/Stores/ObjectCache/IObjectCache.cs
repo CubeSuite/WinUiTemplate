@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Services;
 
-namespace WinUiTemplate.Core.Stores
+namespace WinUiTemplate.Core.Stores.Interfaces
 {
     /// <summary>
     /// A generic key/value cache store with guarded add, update, retrieve, and delete operations.

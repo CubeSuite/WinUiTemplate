@@ -14,8 +14,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.ViewManagement;
-using WinUiTemplate.Core.Stores;
-using WinUiTemplate.MVVM.Models.ViewModels.Settings;
 using WinUiTemplate.Core.Services.Interfaces;   
 using WinUiTemplate.Core.Stores.Interfaces;
 

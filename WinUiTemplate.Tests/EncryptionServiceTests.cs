@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 using WinUiTemplate.Services;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 using Xunit;
 
 namespace WinUiTemplate.Tests

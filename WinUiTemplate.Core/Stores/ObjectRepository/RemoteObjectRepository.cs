@@ -12,7 +12,7 @@ using Windows.UI;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
 
-namespace WinUiTemplate.Core.Stores.ObjectStore
+namespace WinUiTemplate.Core.Stores
 {
     public class RemoteObjectRepository<T, V> : IObjectRepository<T, V>
     {

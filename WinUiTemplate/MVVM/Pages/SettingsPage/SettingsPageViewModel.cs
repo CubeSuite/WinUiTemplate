@@ -16,11 +16,10 @@ using Windows.Storage;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using WinUiTemplate.Core.Stores;
-using WinUiTemplate.MVVM.Models.ViewModels.Settings;
+using WinUiTemplate.Core.MVVM.Models.ViewModels.Settings;
 using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.MVVM.Pages
 {
