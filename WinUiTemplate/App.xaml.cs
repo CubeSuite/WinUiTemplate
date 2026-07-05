@@ -33,7 +33,7 @@ namespace WinUiTemplate
     // ToDo: Unit Tests
 
     /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
+    /// Provides application-specific behaviour to supplement the default Application class.
     /// </summary>
     public partial class App : Application
     {
@@ -50,9 +50,10 @@ namespace WinUiTemplate
 
         // Testing
         const bool testArchiveService = false;
+        const bool testBackupService = false;
+        const bool testDialogService = false;
         const bool testEncryptionService = false;
         const bool testFileUtils = false;
-        const bool testBackupService = false;
 
         // Constructors
 
@@ -104,7 +105,7 @@ namespace WinUiTemplate
 
             services.AddSingleton(typeof(IArchiveService), testArchiveService ? typeof(TestArchiveService) : typeof(ArchiveService));
             services.AddSingleton(typeof(IBackupService), testBackupService ? typeof(TestBackupService) : typeof(BackupService));
-            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton(typeof(IDialogService), testDialogService ? typeof(TestDialogService) : typeof(DialogService));
             services.AddSingleton(typeof(IEncryptionService), testEncryptionService ? typeof(TestEncryptionService) : typeof(EncryptionService));
             services.AddSingleton<IHttpService, HttpService>();
             services.AddSingleton<ILoggerService, LoggerService>();

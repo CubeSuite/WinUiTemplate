@@ -36,7 +36,7 @@ Your PostgreSQL user needs the following permissions:
 - CREATE TABLE
 - SELECT, INSERT, UPDATE, DELETE on created tables
 
-## Test Database Behavior
+## Test Database Behaviour
 
 - The main database (`WinUI3Debug` in your case) is used as the connection database
 - Each test run creates unique temporary databases to avoid conflicts

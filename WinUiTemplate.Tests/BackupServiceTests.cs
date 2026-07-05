@@ -601,7 +601,7 @@ namespace WinUiTemplate.Tests
                 result.Success.Should().BeTrue();
             }
             catch (System.Runtime.InteropServices.COMException ex) when (ex.HResult == unchecked((int)0x80040154)) {
-                mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Sucessful", It.IsAny<string>()), Times.Once);
+                mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Successful", It.IsAny<string>()), Times.Once);
             }
         }
 
@@ -637,7 +637,7 @@ namespace WinUiTemplate.Tests
                 result.Success.Should().BeTrue();
             }
             catch (System.Runtime.InteropServices.COMException ex) when (ex.HResult == unchecked((int)0x80040154)) {
-                mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Sucessful", It.IsAny<string>()), Times.Once);
+                mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Successful", It.IsAny<string>()), Times.Once);
             }
         }
 
@@ -672,7 +672,7 @@ namespace WinUiTemplate.Tests
             catch (System.Runtime.InteropServices.COMException ex) when (ex.HResult == unchecked((int)0x80040154)) {
             }
 
-            mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Sucessful", "Test App will now restart."), Times.Once);
+            mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Successful", "Test App will now restart."), Times.Once);
         }
 
         [Fact]
@@ -726,7 +726,7 @@ namespace WinUiTemplate.Tests
             mockDialogService.Verify(x => x.Confirm("Restore Backup?", It.IsAny<string>()), Times.Once);
             mockLoggerService.Verify(x => x.Pause(), Times.Once);
             mockArchiveService.Verify(x => x.ExtractZip(zipPath, "C:\\RootFolder", It.IsAny<CancellationToken>()), Times.Once);
-            mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Sucessful", "Test App will now restart."), Times.Once);
+            mockDialogService.Verify(x => x.ShowMessage(MessageType.Success, "Restore Successful", "Test App will now restart."), Times.Once);
         }
 
 
@@ -852,7 +852,7 @@ namespace WinUiTemplate.Tests
             OperationResult result = await backupService.DeleteBackupAsync("C:\\test\\backup.zip");
 
             result.Success.Should().BeFalse();
-            result.ErrorMessage.Should().Be("Zip file not accessable");
+            result.ErrorMessage.Should().Be("Zip file not accessible");
         }
 
         [Fact]

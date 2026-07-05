@@ -267,7 +267,7 @@ namespace WinUiTemplate.Tests
         [Fact]
         public async Task Search_SearchesCollectionFields_WhenSelectorReturnsIEnumerable() {
             SearchService searchService = CreateSearchService();
-            // Create items with tags that will match the search behavior
+            // Create items with tags that will match the search behaviour
             List<TestItem> items = new List<TestItem>
             {
                 new TestItem { Name = "Item1", Tags = new List<string> { "raw material" } },

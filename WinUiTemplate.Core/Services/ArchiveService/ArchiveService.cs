@@ -8,9 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.Gaming.Input.ForceFeedback;
 using Windows.Storage;
-using Windows.Storage.FileProperties;
 using WinUiTemplate.Core.Services.Interfaces;
 
 namespace WinUiTemplate.Core.Services

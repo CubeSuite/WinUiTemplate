@@ -44,7 +44,7 @@ namespace WinUiTemplate.Core.Stores
         private const int saveDebounceDelayMs = 200;
 
         private record SettingsDTO(
-            // Hiddent
+            // Hidden
             bool? IsFirstLaunch,
             bool? LogDebugMessages,
 

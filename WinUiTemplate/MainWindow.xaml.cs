@@ -179,7 +179,7 @@ namespace WinUiTemplate
             DisposeAcrylicBackdrop();
             
             if (!DesktopAcrylicController.IsSupported()) {
-                notificationService.Notify(InfoBarSeverity.Warning, " \"Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.\"");
+                notificationService.Notify(InfoBarSeverity.Warning, "Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.");
                 SystemBackdrop = new MicaBackdrop();
                 return;
             }
@@ -199,7 +199,7 @@ namespace WinUiTemplate
 
             object backdropHost = this;
             if (backdropHost is not ICompositionSupportsSystemBackdrop backdropTarget) {
-                notificationService.Notify(InfoBarSeverity.Warning, " \"Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.\"");
+                notificationService.Notify(InfoBarSeverity.Warning, "Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.");
                 SystemBackdrop = new MicaBackdrop();
                 return;
             }
