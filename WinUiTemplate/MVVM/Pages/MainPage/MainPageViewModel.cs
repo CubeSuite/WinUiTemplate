@@ -8,9 +8,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.MVVM.ViewModels;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.MVVM.Models.ViewModels;
 
 namespace WinUiTemplate.MVVM.Pages
 {

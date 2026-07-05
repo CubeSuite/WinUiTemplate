@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinUiTemplate.Stores
+namespace WinUiTemplate.Core.Stores.Interfaces
 {
     public enum EncryptionLevel {
         Settings, // Only EncryptedSettings

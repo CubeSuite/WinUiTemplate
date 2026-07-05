@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.MVVM.ViewModels;
+using WinUiTemplate.Core.MVVM.Models.ViewModels;
 
-namespace WinUiTemplate.Services.Interfaces
+
+namespace WinUiTemplate.Core.Services.Interfaces
 {
     /// <summary>
     /// Provides functionality for displaying in-app notifications.

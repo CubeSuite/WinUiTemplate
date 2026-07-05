@@ -7,11 +7,9 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 using WinUiTemplate.Core.Stores;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores;
-using WinUiTemplate.Stores.Interfaces;
 using Xunit;
 
 namespace WinUiTemplate.Tests

@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
-using WinUiTemplate.MVVM.Models.ViewModels;
+using WinUiTemplate.Core.MVVM.Models.ViewModels;
 using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
 namespace WinUiTemplate.MVVM.Pages
 {

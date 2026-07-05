@@ -8,7 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace WinUiTemplate.Services.Interfaces
+namespace WinUiTemplate.Core.Services.Interfaces
 {
     /// <summary>
     /// Provides functionality for displaying dialogs and file pickers.

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinUiTemplate.MVVM.Models.ViewModels
+namespace WinUiTemplate.Core.MVVM.Models.ViewModels
 {
     public partial class LogEntryViewModel : ObservableObject
     {

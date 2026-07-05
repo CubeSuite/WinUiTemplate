@@ -6,10 +6,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.MVVM.ViewModels;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.MVVM.Models.ViewModels;
 
-namespace WinUiTemplate.Services
+namespace WinUiTemplate.Core.Services
 {
     public class NotificationService : INotificationService
     {

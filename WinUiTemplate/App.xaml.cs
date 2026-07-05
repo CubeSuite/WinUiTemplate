@@ -18,11 +18,12 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Web.Http;
 using WinUiTemplate.MVVM.Pages;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Services;
 using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
+using WinUiTemplate.Core.Stores;
 using WinUiTemplate.Services.Testing;
-using WinUiTemplate.Stores;
-using WinUiTemplate.Stores.Interfaces;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.

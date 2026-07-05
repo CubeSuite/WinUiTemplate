@@ -1,4 +1,4 @@
-﻿namespace WinUiTemplate.Services
+﻿namespace WinUiTemplate.Core.Services.Interfaces
 {
     public enum MessageType {
         None,

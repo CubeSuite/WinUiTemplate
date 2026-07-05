@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 
-namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
+namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 {
     public partial class ColourSetting : GenericSetting<string>
     {

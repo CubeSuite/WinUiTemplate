@@ -4,9 +4,9 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
-namespace WinUiTemplate.Stores
+namespace WinUiTemplate.Core.Stores
 {
     public class ProgramData : IProgramData
     {

@@ -9,12 +9,10 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
-using WinUiTemplate.Core.Stores.ObjectCache;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
-namespace WinUiTemplate.Core.Stores.ObjectStore
+namespace WinUiTemplate.Core.Stores
 {
     public class RemoteObjectRepository<T, V> : IObjectRepository<T, V>
     {

@@ -4,11 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
-using WinUiTemplate.Core.Stores;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
 
-namespace WinUiTemplate.Stores.Interfaces
+namespace WinUiTemplate.Core.Stores.Interfaces
 {
     public interface IUserSettings
     {

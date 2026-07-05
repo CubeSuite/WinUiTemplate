@@ -1,10 +1,11 @@
-﻿using WinUiTemplate.Stores.Interfaces;
+﻿using WinUiTemplate.Core.Stores.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WinUiTemplate.Core.Services.Interfaces;
 
 namespace WinUiTemplate.Core.Services
 {

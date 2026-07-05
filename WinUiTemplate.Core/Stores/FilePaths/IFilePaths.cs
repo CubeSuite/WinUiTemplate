@@ -1,4 +1,4 @@
-﻿namespace WinUiTemplate.Stores.Interfaces
+﻿namespace WinUiTemplate.Core.Stores.Interfaces
 {
     public interface IFilePaths
     {

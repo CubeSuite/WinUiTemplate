@@ -1,6 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using FluentAssertions;
-using WinUiTemplate.Services;
+using WinUiTemplate.Core.Services;
 using Xunit;
 
 namespace WinUiTemplate.Tests

@@ -2,8 +2,8 @@ using FluentAssertions;
 using Moq;
 using System.IO.Compression;
 using Windows.Storage;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Services;
 
 namespace WinUiTemplate.Tests
 {
