@@ -20,7 +20,7 @@ namespace WinUiTemplate.Core.Services.Interfaces
         bool LogDebugToFile { get; set; }
 
         /// <summary>
-        /// Collection of all LogEntryViewModel's logged since applciation start.
+        /// Collection of all LogEntryViewModel's logged since application start.
         /// </summary>
         ObservableCollection<LogEntryViewModel> LogEntries { get; }
 

@@ -149,7 +149,7 @@ namespace WinUiTemplate.Core.Services
             }
 
             await dialogService.ShowMessage(
-                MessageType.Success, "Restore Sucessful",
+                MessageType.Success, "Restore Successful",
                 $"{programData.ProgramName} will now restart."
             );
 
@@ -165,7 +165,7 @@ namespace WinUiTemplate.Core.Services
             }
 
             FileResult fileResult = await fileUtils.TryGetFileAsync(zipPath);
-            if (!fileResult.Success || fileResult.File == null) return new OperationResult(false, "Zip file not accessable", true);
+            if (!fileResult.Success || fileResult.File == null) return new OperationResult(false, "Zip file not accessible", true);
 
             try {
                 await fileResult.File.DeleteAsync();

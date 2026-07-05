@@ -13,32 +13,32 @@ namespace WinUiTemplate.Core.Services.Interfaces
     public interface IHttpService
     {
         /// <summary>
-        /// Sends an HTTP GET request asynchronously and deserializes the response.
+        /// Sends an HTTP GET request asynchronously and de serializes the response.
         /// </summary>
-        /// <typeparam name="T">The type to deserialize the response into.</typeparam>
+        /// <typeparam name="T">The type to de serialize the response into.</typeparam>
         /// <param name="endpoint">The endpoint URL to send the request to.</param>
         /// <param name="token">A token to monitor for cancellation requests.</param>
-        /// <returns>The deserialized response object, or null if the request failed or the response was empty.</returns>
+        /// <returns>The de serialized response object, or null if the request failed or the response was empty.</returns>
         Task<T?> GetAsync<T>(string endpoint, CancellationToken token = default);
 
         /// <summary>
-        /// Sends an HTTP POST request asynchronously with a JSON body and deserializes the response.
+        /// Sends an HTTP POST request asynchronously with a JSON body and de serializes the response.
         /// </summary>
-        /// <typeparam name="T">The type to deserialize the response into.</typeparam>
+        /// <typeparam name="T">The type to de serialize the response into.</typeparam>
         /// <param name="endpoint">The endpoint URL to send the request to.</param>
         /// <param name="body">The object to serialize and send in the request body.</param>
         /// <param name="token">A token to monitor for cancellation requests.</param>
-        /// <returns>The deserialized response object, or null if the request failed or the response was empty.</returns>
+        /// <returns>The de serialized response object, or null if the request failed or the response was empty.</returns>
         Task<T?> PostAsync<T>(string endpoint, object body, CancellationToken token = default);
 
         /// <summary>
-        /// Sends an HTTP PUT request asynchronously with a JSON body and deserializes the response.
+        /// Sends an HTTP PUT request asynchronously with a JSON body and de serializes the response.
         /// </summary>
-        /// <typeparam name="T">The type to deserialize the response into.</typeparam>
+        /// <typeparam name="T">The type to de serialize the response into.</typeparam>
         /// <param name="endpoint">The endpoint URL to send the request to.</param>
         /// <param name="body">The object to serialize and send in the request body.</param>
         /// <param name="token">A token to monitor for cancellation requests.</param>
-        /// <returns>The deserialized response object, or null if the request failed or the response was empty.</returns>
+        /// <returns>The de serialized response object, or null if the request failed or the response was empty.</returns>
         Task<T?> PutAsync<T>(string endpoint, object body, CancellationToken token = default);
 
         /// <summary>

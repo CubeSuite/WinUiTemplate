@@ -370,7 +370,7 @@ namespace WinUiTemplate.MVVM.Pages
         private async Task DecryptData() {
             if (!await dialogService.Confirm(
                 "Are You Sure?",
-                "The resulting archive may contain sensative information.\n\n" +
+                "The resulting archive may contain sensitive information.\n\n" +
                 "You need to carefully check it and remove any data you do not wish to share.\n\n" +
                 "Encrypted Settings such as API keys will not be decrypted.\n\n" +
                 "Do not share this file with anyone that you do not trust."
