@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinUiTemplate.MVVM.ViewModels
+namespace WinUiTemplate.Core.MVVM.ViewModels
 {
     public partial class NotificationViewModel : ObservableObject
     {

@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WinUiTemplate.Core.Services.Interfaces;
 
-namespace WinUiTemplate.Core.Stores.ObjectCache
+namespace WinUiTemplate.Core.Stores.Interfaces
 {
     public interface IObjectRepository<T, V> : IObjectCache<T, V>
     {
         // Properties
+        /// <summary>
+        /// Gets the name of the database table associated with the repository
+        /// </summary>
         string TableName { get; }
 
         // Public Functions

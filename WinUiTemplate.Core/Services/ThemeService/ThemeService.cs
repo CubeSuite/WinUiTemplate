@@ -15,10 +15,10 @@ using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.ViewManagement;
 using WinUiTemplate.Core.Stores;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
-namespace WinUiTemplate.Services
+namespace WinUiTemplate.Core.Services
 {
     public class ThemeService : IThemeService
     {

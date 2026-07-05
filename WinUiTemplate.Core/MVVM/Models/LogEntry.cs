@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.Services;
+using WinUiTemplate.Core.Services.Interfaces;
 
-namespace WinUiTemplate.MVVM.Models
+namespace WinUiTemplate.Core.MVVM.Models
 {
     public record LogEntry {
         public DateTime Timestamp { get; init; } = DateTime.Now;

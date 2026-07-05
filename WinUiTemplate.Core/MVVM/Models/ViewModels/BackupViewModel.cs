@@ -8,10 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
-namespace WinUiTemplate.MVVM.Models.ViewModels
+namespace WinUiTemplate.Core.MVVM.Models.ViewModels
 {
     public partial class BackupViewModel : ObservableObject
     {

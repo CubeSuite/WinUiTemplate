@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using Windows.Gaming.Input.ForceFeedback;
 using Windows.Storage;
 using Windows.Storage.FileProperties;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
-namespace WinUiTemplate.Services
+namespace WinUiTemplate.Core.Services
 {
     public class ArchiveService : IArchiveService
     {

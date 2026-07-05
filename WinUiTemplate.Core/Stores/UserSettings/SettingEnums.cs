@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinUiTemplate.Core.Stores
+namespace WinUiTemplate.Core.Stores.Interfaces
 {
     public enum ThemeOption {
         Light,

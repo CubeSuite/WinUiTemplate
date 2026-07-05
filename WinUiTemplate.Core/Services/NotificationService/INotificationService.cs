@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WinUiTemplate.MVVM.ViewModels;
 
-namespace WinUiTemplate.Services.Interfaces
+namespace WinUiTemplate.Core.Services.Interfaces
 {
     /// <summary>
     /// Provides functionality for displaying in-app notifications.

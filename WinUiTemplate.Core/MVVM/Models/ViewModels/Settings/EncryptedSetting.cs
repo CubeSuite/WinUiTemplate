@@ -5,11 +5,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
-namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
+namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 {
     public class EncryptedSetting : SettingBase 
     {

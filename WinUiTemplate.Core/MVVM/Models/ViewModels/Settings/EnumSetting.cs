@@ -4,9 +4,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static WinUiTemplate.Core.Stores.EnumExtensions;
+using static WinUiTemplate.Core.Stores.Interfaces.EnumExtensions;
 
-namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
+namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 {
     public class EnumSetting<T> : SettingBase where T : struct, Enum
     {

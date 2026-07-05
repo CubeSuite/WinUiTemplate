@@ -5,12 +5,11 @@ using System.Linq;
 using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.Services;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
 namespace WinUiTemplate.Core.Stores
 {
-    public class ObjectCache<T, V> : IObjectCache<T, V>
+    public class ObjectCache<T, V> : IObjectCache<T, V> where T : struct
     {
         // Services & Stores
         private readonly ILoggerService logger;

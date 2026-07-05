@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
-namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
+namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 {
     public partial class FilePathSetting : GenericSetting<string>
     {

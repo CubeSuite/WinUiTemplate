@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinUiTemplate.Services.Interfaces
+namespace WinUiTemplate.Core.Services.Interfaces
 {
     /// <summary>
     /// Provides functionality for navigating between pages in the application.
@@ -13,6 +13,9 @@ namespace WinUiTemplate.Services.Interfaces
     public interface INavigationService
     {
         // Properties
+        /// <summary>
+        /// Gets or sets a value indicating whether navigation is allowed.
+        /// </summary>
         public bool AllowNavigation { get; set; }
 
         // Events

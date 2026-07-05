@@ -9,10 +9,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.UserDataAccounts.SystemAccess;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
-namespace WinUiTemplate.Services
+namespace WinUiTemplate.Core.Services
 {
     public class HttpService : IHttpService
     {

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using WinUiTemplate.Services.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
 
-namespace WinUiTemplate.MVVM.Models.ViewModels.Settings
+namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 {
     public class ComparableSetting<T> : SettingBase where T : IComparable
     {

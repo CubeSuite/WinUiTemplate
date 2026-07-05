@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace WinUiTemplate.Services.Interfaces
+namespace WinUiTemplate.Core.Services.Interfaces
 {
     public interface IBackupService
     {

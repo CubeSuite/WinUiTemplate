@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinUiTemplate.Services.Interfaces
+namespace WinUiTemplate.Core.Services.Interfaces
 {
     /// <summary>
     /// Provides functionality for managing application theme and backdrop settings.

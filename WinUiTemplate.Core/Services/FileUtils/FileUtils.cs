@@ -8,11 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
-using WinUiTemplate.Services.Interfaces;
-using WinUiTemplate.Stores;
-using WinUiTemplate.Stores.Interfaces;
+using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
-namespace WinUiTemplate.Services
+namespace WinUiTemplate.Core.Services
 {
     public class FileUtils : IFileUtils
     {
