@@ -65,11 +65,13 @@ namespace WinUiTemplate.Core.Stores
             return new OperationResult(true, null, false);
         }
 
-        public OperationResult TryGet(T key, out V value) {
+        public OperationResult TryGet(T key, out V? value, bool suppressErrors = false) {
             if (!cache.TryGetValue(key, out value)){
                 string errorMessage = $"Key '{key}' does not exist in cache";
-                logger.LogError(errorMessage);
-                return new OperationResult(false, errorMessage, false);
+                if (!suppressErrors) {
+                    logger.LogError(errorMessage);
+                }
+                return new OperationResult(false, errorMessage, suppressErrors);
             }
 
             return new OperationResult(true, null, false);

@@ -240,7 +240,7 @@ namespace WinUiTemplate.Core.Stores
             }
         }
 
-        public OperationResult TryGet(T key, out V value) {
+        public OperationResult TryGet(T key, out V? value, bool suppressErrors = false) {
             value = default(V);
 
             try {
@@ -260,9 +260,13 @@ namespace WinUiTemplate.Core.Stores
                 }
 
                 string errorMessage = $"Key '{key}' does not exist in repository";
-                logger.LogError(errorMessage);
-                return new OperationResult(false, errorMessage, false);
-            } catch (Exception ex) {
+                if (!suppressErrors) {
+                    logger.LogError(errorMessage);
+                }
+
+                return new OperationResult(false, errorMessage, suppressErrors);
+            } 
+            catch (Exception ex) {
                 string errorMessage = $"Error retrieving item from repository: {ex.Message}";
                 logger.LogError(errorMessage);
                 return new OperationResult(false, errorMessage, false);
