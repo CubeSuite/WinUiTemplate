@@ -12,8 +12,9 @@ namespace WinUiTemplate.Core.Stores
     {
         // Properties
         public string RootFolder => ApplicationData.Current.LocalFolder.Path;
+        public string CacheFolder => ApplicationData.Current.LocalCacheFolder.Path;
         public string DataFolder => $"{RootFolder}\\Data";
-        public string ImageCacheFolder => $"{RootFolder}\\ImageCache";
+        public string ImageCacheFolder => $"{CacheFolder}\\ImageCache";
         public string LogsFolder => $"{RootFolder}\\Logs";
         public string CrashReportsFolder => $"{RootFolder}\\CrashReports";
 
