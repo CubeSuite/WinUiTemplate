@@ -397,7 +397,7 @@ These instructions have been written using VS 2026 as a reference, but should be
 
 #### Program Data
 
-In `ProgramData.cs` there are ToDo several comments for settings for you to configure.
+In `ProgramData.cs` there are several ToDo comments for settings for you to configure.
 - `ProgramName`  
 This is the display name of the program. It is used in several UserSettings descriptions.
 - `EnableBackups`  
