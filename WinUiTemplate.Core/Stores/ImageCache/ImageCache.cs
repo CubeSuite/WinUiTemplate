@@ -74,7 +74,7 @@ namespace WinUiTemplate.Core.Stores
         public async Task<BitmapImage?> GetImage(string originalPath) {
             await WaitForLoad();
 
-            string cachedPath = "";
+            string? cachedPath = "";
             if (imageCache.ContainsKey(originalPath) && 
                 imageCache.TryGet(originalPath, out cachedPath) && 
                 File.Exists(cachedPath)
@@ -85,33 +85,45 @@ namespace WinUiTemplate.Core.Stores
             switch (GetPathType(originalPath)) {
                 case PathType.Local:
                 case PathType.Network:
-                    if (!await CacheLocalOrNetworkImage(originalPath)) {
-                        cachedPath = originalPath;
-                    }
-                    else {
-                        cachedPath = imageCache.TryGet(originalPath, out string newPath) ? newPath : originalPath;
-                        // Don't call TryGet unless cache was successful
-                        // ToDo: Refactor after Issue #111
+                    if (!File.Exists(originalPath)) {
+                        string error = $"Local/Network can't be cached as it does not exist: '{originalPath}'";
+                        logger.LogError(error);
+                        Debug.Assert(false, error);
+                        return null;
                     }
 
+                    cachedPath = imageCache.TryGet(originalPath, out cachedPath, true) ? cachedPath : originalPath;
                     break;
 
                 case PathType.Internet:
-                    if (!await CacheInternetImage(originalPath)) {
-                        return null;
-                    }
-                    else {
-                        cachedPath = imageCache.TryGet(originalPath, out string newPath) ? newPath : originalPath;
-                        // ToDo: Refactor after Issue #111
+                    if (await CacheInternetImage(originalPath)) {
+                        imageCache.TryGet(originalPath, out cachedPath, true);
                         break;
                     }
 
+                    else return null;
 
                 case PathType.Relative:
                 case PathType.Unknown:
                 default:
-                    logger.LogError($"Cannot cache image with unknown or relative path type: '{originalPath}'");
+                    string unknownPathError = $"Cannot cache image with unknown or relative path type: '{originalPath}'";
+                    logger.LogError(unknownPathError);
+                    Debug.Assert(false, unknownPathError);
                     return null;
+            }
+
+            if (string.IsNullOrEmpty(cachedPath)) {
+                string error = $"Cached path for: '{originalPath}' is null or empty";
+                logger.LogError(error);
+                Debug.Assert(false, error);
+                return null;
+            }
+
+            if (!File.Exists(cachedPath)) { 
+                string error = $"Cached file for: '{originalPath}' does not exist at path: '{cachedPath}'";
+                logger.LogError(error);
+                Debug.Assert(false, error);
+                return null;
             }
 
             return await LoadCachedImage(cachedPath);
@@ -121,21 +133,29 @@ namespace WinUiTemplate.Core.Stores
             try {
                 FileReadResult result = await fileUtils.TryReadFileAsync(SaveFile);
                 if (!result.Success || result.Content == null) {
-                    if (File.Exists(SaveFile)) logger.LogError($"Failed to load image cache save file: '{SaveFile}'");
+                    if (File.Exists(SaveFile)) {
+                        string error = $"Failed to load image cache save file: '{SaveFile}'";
+                        logger.LogError(error);
+                        Debug.Assert(false, error);
+                    }
                     loaded = true;
                     return;
                 }
 
                 Dictionary<string, string>? savedCache = JsonConvert.DeserializeObject<Dictionary<string, string>>(result.Content);
                 if (savedCache == null) {
-                    logger.LogError($"Failed to de-serialise image cache save file: '{SaveFile}'");
+                    string error = $"Failed to de-serialise image cache save file: '{SaveFile}'";
+                    logger.LogError(error);
+                    Debug.Assert(false, error);
                     loaded = true;
                     return;
                 }
 
                 foreach (KeyValuePair<string, string> pair in savedCache) {
                     if (!imageCache.TryAdd(pair.Key, pair.Value)) {
-                        logger.LogError($"Failed to add image cache entry during load: '{pair.Key}'");
+                        string error = $"Failed to add image cache entry during load: '{pair.Key}'";
+                        logger.LogError(error);
+                        Debug.Assert(false, error);
                     }
                 }
 
@@ -206,11 +226,15 @@ namespace WinUiTemplate.Core.Stores
                     logger.LogInfo("Saved ImageCache");
                 }
                 else {
-                    logger.LogError($"Failed to save image cache data: '{SaveFile}'");
+                    string error = $"Failed to save image cache data: '{SaveFile}'";
+                    logger.LogError(error);
+                    Debug.Assert(false, error);
                 }
             }
             catch (Exception e) {
-                logger.LogError($"Failed to save image cache data: '{e.Message}'");
+                string error = $"Failed to save image cache data: '{e.Message}'";
+                logger.LogError(error);
+                Debug.Assert(false, error);
             }
         }
 
@@ -236,7 +260,9 @@ namespace WinUiTemplate.Core.Stores
 
         private async Task<bool> CacheLocalOrNetworkImage(string path) {
             if (!File.Exists(path)) {
-                logger.LogError($"Failed to cache local/network image - file does not exist: '{path}'");
+                string error = $"Failed to cache local/network image - file does not exist: '{path}'";
+                logger.LogError(error);
+                Debug.Assert(false, error);
                 return false;
             }
 
@@ -313,7 +339,9 @@ namespace WinUiTemplate.Core.Stores
                 return true;
             }
             catch (Exception e) {
-                logger.LogError($"Failed to save image to cache folder: '{path}', Error: {e.Message}");
+                string error = $"Failed to save image to cache folder: '{path}', Error: {e.Message}";
+                logger.LogError(error);
+                Debug.Assert(false, error);
                 return false;
             }
         }

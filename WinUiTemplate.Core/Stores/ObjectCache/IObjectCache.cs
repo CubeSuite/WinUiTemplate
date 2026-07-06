@@ -65,7 +65,7 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         /// An <see cref="OperationResult"/> indicating success, or failure with an error message
         /// if the key is not found.
         /// </returns>
-        OperationResult TryGet(T key, out V value);
+        OperationResult TryGet(T key, out V? value, bool suppressErrors = false);
 
         /// <summary>
         /// Gets all values currently held in the cache.

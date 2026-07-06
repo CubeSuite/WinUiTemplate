@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using Moq;
 using Newtonsoft.Json;
 using System;
@@ -222,7 +223,7 @@ namespace WinUiTemplate.Tests
         public async Task GetImage_WithRelativePath_ReturnsNullAndLogsError() {
             ImageCache cache = await CreateLoadedCache();
 
-            var image = await cache.GetImage(@"images\icon.png");
+            BitmapImage? image = await cache.GetImage(@"images\icon.png");
 
             image.Should().BeNull();
             logger.Verify(l => l.LogError(It.Is<string>(s => s.Contains("unknown or relative"))), Times.Once);
@@ -232,7 +233,7 @@ namespace WinUiTemplate.Tests
         public async Task GetImage_WithUnsupportedScheme_ReturnsNullAndLogsError() {
             ImageCache cache = await CreateLoadedCache();
 
-            var image = await cache.GetImage("mailto:someone@example.com");
+            BitmapImage? image = await cache.GetImage("mailto:someone@example.com");
 
             image.Should().BeNull();
             logger.Verify(l => l.LogError(It.Is<string>(s => s.Contains("unknown or relative"))), Times.Once);
@@ -242,12 +243,10 @@ namespace WinUiTemplate.Tests
         public async Task GetImage_WithMissingLocalFile_LogsCacheFailure() {
             ImageCache cache = await CreateLoadedCache();
 
-            // Caching fails because the file doesn't exist, then GetImage falls back to
-            // loading the original path directly, which throws - current behaviour
-            Func<Task> act = () => cache.GetImage("file:///C:/definitely/not/here.png");
+            BitmapImage? image = await cache.GetImage("file:///C:/definitely/not/here.png");
 
-            await act.Should().ThrowAsync<Exception>();
-            logger.Verify(l => l.LogError(It.Is<string>(s => s.Contains("file does not exist"))), Times.Once);
+            image.Should().BeNull();
+            logger.Verify(l => l.LogError(It.Is<string>(s => s.Contains("does not exist"))), Times.Once);
         }
 
         // ClearCache
