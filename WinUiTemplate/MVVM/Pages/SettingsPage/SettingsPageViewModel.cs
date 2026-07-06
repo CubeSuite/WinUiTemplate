@@ -15,9 +15,7 @@ using Windows.Devices.Gpio.Provider;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.ViewManagement;
-using WinUiTemplate.Core.Stores;
 using WinUiTemplate.Core.MVVM.Models.ViewModels.Settings;
-using WinUiTemplate.Services;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
 
@@ -26,14 +24,15 @@ namespace WinUiTemplate.MVVM.Pages
     public partial class SettingsPageViewModel : ObservableObject
     {
         // Services & Stores
-        private readonly IUserSettings userSettings;
-        private readonly IProgramData programData;
-        private readonly IBackupService backupManager;
         private readonly INotificationService notificationService;
-        private readonly IDialogService dialogService;
-        private readonly IFileUtils fileUtils;
         private readonly IEncryptionService encryptionService;
         private readonly IArchiveService archiveService;
+        private readonly IBackupService backupManager;
+        private readonly IDialogService dialogService;
+        private readonly IUserSettings userSettings;
+        private readonly IProgramData programData;
+        private readonly IImageCache imageCache;
+        private readonly IFileUtils fileUtils;
 
         // Properties
         public List<SettingsCategoryList> SettingsCategories { get; }
@@ -41,14 +40,15 @@ namespace WinUiTemplate.MVVM.Pages
         // Constructors
 
         public SettingsPageViewModel(IServiceProvider serviceProvider) {
-            userSettings = serviceProvider.GetRequiredService<IUserSettings>();
-            programData = serviceProvider.GetRequiredService<IProgramData>();
-            backupManager = serviceProvider.GetRequiredService<IBackupService>();
             notificationService = serviceProvider.GetRequiredService<INotificationService>();
-            dialogService = serviceProvider.GetRequiredService<IDialogService>();
-            fileUtils = serviceProvider.GetRequiredService<IFileUtils>();
             encryptionService = serviceProvider.GetRequiredService<IEncryptionService>();
             archiveService = serviceProvider.GetRequiredService<IArchiveService>();
+            backupManager = serviceProvider.GetRequiredService<IBackupService>();
+            dialogService = serviceProvider.GetRequiredService<IDialogService>();
+            userSettings = serviceProvider.GetRequiredService<IUserSettings>();
+            programData = serviceProvider.GetRequiredService<IProgramData>();
+            imageCache = serviceProvider.GetRequiredService<IImageCache>();
+            fileUtils = serviceProvider.GetRequiredService<IFileUtils>();
 
             userSettings.SettingChanged += OnSettingChanged;
 
@@ -214,6 +214,35 @@ namespace WinUiTemplate.MVVM.Pages
                         icon: "\uE785",
                         buttonText: "Decrypt",
                         onClick: DecryptData
+                    )
+                ]),
+
+                new SettingsCategoryList("Image Cache", [
+                    new GenericSetting<bool>(
+                        name: "Cache Images",
+                        description: "Speed up image loading by caching them to disk",
+                        icon: "\uE78C",
+                        getValueFunc: () => userSettings.ImageCacheEnabled,
+                        setValueFunc: (value) => userSettings.ImageCacheEnabled = value
+                    ),
+                    new ComparableSetting<int>(
+                        name: "Image Cache Size Warning Limit",
+                        description: "You will see a warning notification if the image cache exceeds this size in GB",
+                        icon: "\uE7BA",
+                        getValueFunc: () => userSettings.ImageCacheWarnSizeGb,
+                        setValueFunc: (value) => userSettings.ImageCacheWarnSizeGb = value,
+                        min: 1,
+                        max: 1024,
+                        serviceProvider,
+                        isVisibleFunc: () => userSettings.ImageCacheEnabled
+                    ),
+                    new ButtonSetting(
+                        name: $"Clear Image Cache ({imageCache.CacheSize})",
+                        description: "Deletes all cached images",
+                        icon: "\uE74D",
+                        buttonText: "Clear",
+                        onClick: ClearImageCache,
+                        isVisibleFunc: () => userSettings.ImageCacheEnabled
                     )
                 ])
             };
@@ -453,6 +482,18 @@ namespace WinUiTemplate.MVVM.Pages
                     InfoBarSeverity.Success, "Decrypted Archive Created", 
                     "Your decrypted data archive has been created successfully"
                 );
+            }
+        }
+
+        private async Task ClearImageCache() {
+            OperationResult result = await imageCache.ClearCache();
+            if (!result.Notify) return;
+
+            if (result) {
+                notificationService.Notify(InfoBarSeverity.Success, "Image Cache Cleared");
+            }
+            else {
+                notificationService.Notify(InfoBarSeverity.Error, "Failed To Clear Image Cache", result.ErrorMessage ?? "An unknown error occurred");
             }
         }
     }

@@ -38,6 +38,7 @@
                                      Severity="{Binding Severity}">
                                 <InfoBar.ActionButton>
                                     <Button Content="{Binding ButtonText}"
+                                            HorizontalAlignment="Right"
                                             Command="{Binding ActionButtonClickedCommand}"
                                             Visibility="{Binding ActionButtonVisibility}" />
                                 </InfoBar.ActionButton>

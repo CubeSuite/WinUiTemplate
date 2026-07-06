@@ -55,6 +55,10 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         bool SearchCaseSensitive { get; set; }
         bool SearchSplitQuery { get; set; }
 
+        // Image Cache
+        bool ImageCacheEnabled { get; set; }
+        int ImageCacheWarnSizeGb { get; set; }
+
         #endregion
 
         // Events

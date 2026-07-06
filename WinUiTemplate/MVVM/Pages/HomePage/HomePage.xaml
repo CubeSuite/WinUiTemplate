@@ -9,8 +9,13 @@
 
     <Grid>
         <TextBlock Text="{Binding Title}"
+                   FontSize="50"
                    HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="50" />
+                   VerticalAlignment="Center" />
+        <Image Source="{Binding ImageSource}"
+               Width="200"
+               Height="200"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center" />
     </Grid>
 </Page>

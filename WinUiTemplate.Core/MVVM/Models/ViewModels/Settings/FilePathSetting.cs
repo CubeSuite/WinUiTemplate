@@ -26,10 +26,12 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         // Constructors
         public FilePathSetting(string name, string description, string icon,
                                Func<string> getValueFunc, Action<string> setValueFunc,
-                               IServiceProvider serviceProvider, PickerType type, string filter = "*")
+                               IServiceProvider serviceProvider, PickerType type, string filter = "*", 
+                               Func<bool>? isVisibleFunc = null)
                               : base(name, description, icon, getValueFunc, setValueFunc, "FilePath") {
             pickerType = type;
             this.filter = filter;
+            getIsVisibleFunc = isVisibleFunc;
 
             dialogService = serviceProvider.GetRequiredService<IDialogService>();
         }

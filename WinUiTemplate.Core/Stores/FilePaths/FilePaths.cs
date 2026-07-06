@@ -13,11 +13,13 @@ namespace WinUiTemplate.Core.Stores
         // Properties
         public string RootFolder => ApplicationData.Current.LocalFolder.Path;
         public string DataFolder => $"{RootFolder}\\Data";
+        public string ImageCacheFolder => $"{RootFolder}\\ImageCache";
         public string LogsFolder => $"{RootFolder}\\Logs";
         public string CrashReportsFolder => $"{RootFolder}\\CrashReports";
 
         public string TempMetadataFile => $"{RootFolder}\\metadata.json";
         public string SettingsFile => $"{DataFolder}\\Settings.json";
+        public string ImageCacheSaveFile => $"{DataFolder}\\ImageCache.json";
         public string KeyFile => $"{DataFolder}\\EncryptionKey.bin";
         public string Database => $"{DataFolder}\\Database.db";
     }

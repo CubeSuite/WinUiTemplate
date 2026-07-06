@@ -33,11 +33,12 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         // Constructors
 
         public ButtonSetting(string name, string description, string icon,
-                             string buttonText, Func<Task> onClick)
+                             string buttonText, Func<Task> onClick, Func<bool>? isVisibleFunc = null)
                             :base(name, description, icon, "Button")
         {
             ButtonText = buttonText;
             OnClick = onClick;
+            getIsVisibleFunc = isVisibleFunc;
 
             LoaderVisibility = Visibility.Collapsed;
         }

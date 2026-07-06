@@ -20,7 +20,7 @@ namespace WinUiTemplate.Core.Stores
                 #endif
             }
         }
-        public string ProgramName => "WinUiTemplate"; // ToDo: Set Program Name
+        public string ProgramName => "WinUiTemplate"; // ToDo: Set Program Display Name
         public string ProgramNameNoSpaces => ProgramName.Replace(" ", "");
         public Version ProgramVersion => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0, 0);
         public IFilePaths FilePaths { get; }
