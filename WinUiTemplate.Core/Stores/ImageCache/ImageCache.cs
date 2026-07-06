@@ -139,7 +139,7 @@ namespace WinUiTemplate.Core.Stores
                     }
                 }
 
-                if (cacheSize > userSettings.ImageCacheWarnSizeGb * 1_073_741_824) {
+                if (cacheSize > (long)userSettings.ImageCacheWarnSizeGb * 1_073_741_824) {
                     notificationService.Notify(
                         InfoBarSeverity.Warning, $"Image Cache > {userSettings.ImageCacheWarnSizeGb} GB", 
                         "The image cache has grown larger than your chosen warning limit. Either clear it or expand the limit.",

@@ -17,20 +17,11 @@ namespace WinUiTemplate.MVVM.Pages
         [ObservableProperty]
         public partial string Title { get; set; }
 
-        [ObservableProperty]
-        public partial BitmapImage? ImageSource { get; set; }
-
         // Constructors
 
         public HomePageViewModel(IServiceProvider serviceProvider) {
             IProgramData programData = serviceProvider.GetRequiredService<IProgramData>();
             Title = programData.ProgramName;
-            _ = LoadImage(serviceProvider);
-        }
-
-        private async Task LoadImage(IServiceProvider serviceProvider) {
-            IImageCache imageCache = serviceProvider.GetRequiredService<IImageCache>();
-            ImageSource = await imageCache.GetImage("https://raw.githubusercontent.com/CubeSuite/WinUiTemplate/refs/heads/main/Images/settings-page.png");
         }
     }
 }
