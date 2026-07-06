@@ -58,6 +58,8 @@ A base class to use with APIs, very untested
 Stores:
 - [FilePaths](#file-paths-store)  
   Stores paths of files and folders used by the application
+- [ImageCache](#image-cache)  
+  Caches local and online images the first time it sees them. Supports encryption
 - [ObjectCache](#object-cache)  
   Wrapper around a Dictionary with useful functions. Use as a base class
 - [LocalObjectRepository](#local-object-repository)  
@@ -143,7 +145,7 @@ This is service is used by the `NavigationView` in `MainPage.xaml` / `MainPageVi
 
 ### Notification Service
 
-Display notification banners above the current page. See [BackupService](#backup-service) for an example of a warning service. You can also pass in `string buttonText, Action onClick` to have a button displayed in the notification that invokes `onClick`. For good UX, use this instead of [DialogService](#dialog-service) unless the user has to acknowledge the message before continuing.
+Display notification banners above the current page. See [BackupService](#backup-service) for an example of a warning service. You can also pass in `string buttonText, Action onClick` to have a button displayed in the notification that invokes `onClick`. You can control whether this button also dismisses the notification with the argument `closeOnButtonClick` which defaults to `true`. For good UX, use this instead of [DialogService](#dialog-service) unless the user has to acknowledge the message before continuing.
 
 ### Search Service
 
@@ -200,6 +202,38 @@ This store contains all the paths of folders and files that are used by your app
 
 > [!IMPORTANT]
 > See [Configuring Your Application => The Root Folder](#the-root-folder) to make `RootFolder` easy to find. It's impossible if you don't.
+
+### Image Cache
+
+This store caches images from either:
+- Local / Network paths - In case the user deletes the original.
+- Online - To skip repeated downloads and speed up image rendering for common images.
+
+When you pass a path to GetImage for the first time, the image is saved to the cache and returned as a BitmapImage. Subsequent calls with the same path return a new instance of `BitmapImage` generated from the cached file's path. `ImageCache` does not store the generated instances of `BitmapImage` in memory, only a `Dictionary<string, string>` that maps the given path to the cached path.
+
+If the cache grows beyond a limit defined by `IUserSettings.ImageCacheWarnSizeGb` then the user will be shown a warning notification when they open your application, with a button to clear the cache. This button can also be found on the `SettingsPage` along with a toggle to disable image caching entirely.
+
+If you set `IProgramData.EncryptionLevel` to `Data` then the cached images will be encrypted.
+
+Example use:
+
+```xml
+<Image Source="{Binding UserChosenImage}" />
+```
+
+```csharp
+[ObservableProperty] public partial BitmapImage? UserChosenImage { get; set; }
+
+private async Task PickNewImage(){
+  StorageFile? image = dialogService.PickSingleFile("*.png");
+  if (image == null){
+    UserChosenImage = null;
+    return;
+  }
+
+  UserChosenImage = await imageCache.GetImage(result.Path);
+}
+```
 
 ### Object Cache
 
@@ -370,7 +404,7 @@ This is the display name of the program. It is used in several UserSettings desc
 This can be used to disable the automatic backups feature of this template. If you disable them, the 'Backups' category of settings in `SettingsPageViewModel` will be hidden from the user.
 - `EncryptionLevel`
   - Set to `Settings` to only encrypt the values of `EncryptedSetting` in `Settings.json`.
-  - Set to `Data` to encrypt everything in `IFilePaths.DataFolder`  
+  - Set to `Data` to encrypt everything in `IFilePaths.DataFolder` and images cached by `ImageCache`
   - See warning below
 - `UsesApi`
   - Sets whether your application communicates with any online HTTP APIs. If `false`, the 'Internet' category of settings in `SettingsPageViewModel` will be hidden from the user.

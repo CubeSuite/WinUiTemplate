@@ -156,6 +156,7 @@ namespace WinUiTemplate.Core.Services
             List<string> folders = [
                 programData.FilePaths.RootFolder,
                 programData.FilePaths.DataFolder,
+                programData.FilePaths.ImageCacheFolder,
                 programData.FilePaths.LogsFolder,
                 programData.FilePaths.CrashReportsFolder
             ];

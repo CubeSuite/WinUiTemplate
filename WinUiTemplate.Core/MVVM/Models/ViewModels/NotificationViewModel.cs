@@ -12,26 +12,30 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
 {
     public partial class NotificationViewModel : ObservableObject
     {
+        // Fields
+        private bool closeOnButtonClick = true;
+
         // Properties
         public InfoBarSeverity Severity { get; }
         public string Title { get; }
         public string Message { get; }
         public string ButtonText { get; }
-        public Action? OnButtonClicked { get; }
 
         [ObservableProperty] public partial bool IsOpen { get; set; }
 
+        public Action? OnButtonClicked { get; }
         public Visibility ActionButtonVisibility => ButtonText == "" ? Visibility.Collapsed : Visibility.Visible;
 
         // Constructors
 
-        public NotificationViewModel(InfoBarSeverity severity, string title, string message, string buttonText = "", Action? onClick = null) {
+        public NotificationViewModel(InfoBarSeverity severity, string title, string message, string buttonText = "", Action? onClick = null, bool closeOnButtonClick = true) {
             Severity = severity;
             Title = title;
             Message = message;
+            IsOpen = true;
             ButtonText = buttonText;
             OnButtonClicked = onClick;
-            IsOpen = true;
+            this.closeOnButtonClick = closeOnButtonClick;
 
             OnPropertyChanged(nameof(ActionButtonVisibility));
         }
@@ -39,8 +43,9 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
         // Commands
 
         [RelayCommand]
-        private void ActionButtonClicked() {
+        private async Task ActionButtonClicked() {
             OnButtonClicked?.Invoke();
+            IsOpen = !closeOnButtonClick;
         }
     }
 }

@@ -32,12 +32,13 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         // Constructors
 
         public EnumSetting(string name, string description, string icon, 
-                           Func<T> getValueFunc, Action<T> setValueFunc) 
+                           Func<T> getValueFunc, Action<T> setValueFunc, Func<bool>? isVisibleFunc = null) 
                           :base(name, description, icon, "Enum"
         ) {
             Names = valueToDescriptionMap.Keys.ToArray();
             getValue = getValueFunc;
             setValue = setValueFunc;
+            getIsVisibleFunc = isVisibleFunc;
         }
     }
 }

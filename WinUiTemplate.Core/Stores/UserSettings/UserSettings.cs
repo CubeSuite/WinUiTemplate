@@ -85,7 +85,11 @@ namespace WinUiTemplate.Core.Stores
 
             // Search
             bool? SearchCaseSensitive,
-            bool? SearchSplitQuery
+            bool? SearchSplitQuery,
+
+            // Image Cache
+            bool? ImageCacheEnabled,
+            int? ImageCacheWarnSizeGb
         );
 
         #region Setting Fields
@@ -133,6 +137,10 @@ namespace WinUiTemplate.Core.Stores
         // Search
         private bool _searchCaseSensitive = false;
         private bool _searchSplitQuery = true;
+
+        // Image Cache
+        private bool _imageCacheEnabled = true;
+        private int _imageCacheWarnSizeGb = 1;
 
         #endregion
 
@@ -298,6 +306,18 @@ namespace WinUiTemplate.Core.Stores
             set => SetSetting(ref _searchSplitQuery, value);
         }
 
+        // Image Cache
+
+        public bool ImageCacheEnabled {
+            get => _imageCacheEnabled;
+            set => SetSetting(ref _imageCacheEnabled, value);
+        }
+
+        public int ImageCacheWarnSizeGb {
+            get => _imageCacheWarnSizeGb;
+            set => SetSetting(ref _imageCacheWarnSizeGb, value);
+        }
+
         #endregion
 
         // Constructors
@@ -450,7 +470,11 @@ namespace WinUiTemplate.Core.Stores
 
             // Search
             _searchCaseSensitive,
-            _searchSplitQuery
+            _searchSplitQuery,
+
+            // Image Cache
+            _imageCacheEnabled,
+            _imageCacheWarnSizeGb
         );
 
         private void LoadFromDTO(SettingsDTO dto) {
@@ -496,6 +520,10 @@ namespace WinUiTemplate.Core.Stores
             // Search
             _searchCaseSensitive = dto.SearchCaseSensitive ?? false;
             _searchSplitQuery = dto.SearchSplitQuery ?? true;
+
+            // Image Cache
+            _imageCacheEnabled = dto.ImageCacheEnabled ?? true;
+            _imageCacheWarnSizeGb = dto.ImageCacheWarnSizeGb ?? 1;
         }
 
         private static Color GetWindowsAccentColour() {

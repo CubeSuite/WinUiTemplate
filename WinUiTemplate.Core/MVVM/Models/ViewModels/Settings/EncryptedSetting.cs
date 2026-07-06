@@ -34,13 +34,14 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 
         public EncryptedSetting(string name, string description, string icon,
                                 Func<string> getValueFunc, Action<string> setValueFunc,
-                                IServiceProvider serviceProvider)
+                                IServiceProvider serviceProvider, Func<bool>? isVisibleFunc = null)
                                :base(name, description, icon, "System.String") 
         {
             IProgramData programData = serviceProvider.GetRequiredService<IProgramData>();
             encryptionService = serviceProvider.GetRequiredService<IEncryptionService>();
             getValue = getValueFunc;
             setValue = setValueFunc;
+            getIsVisibleFunc = isVisibleFunc;
 
             GetDecryptedValueAsync();
         }

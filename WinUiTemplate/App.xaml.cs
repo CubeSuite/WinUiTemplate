@@ -108,6 +108,7 @@ namespace WinUiTemplate
             services.AddSingleton(typeof(IDialogService), testDialogService ? typeof(TestDialogService) : typeof(DialogService));
             services.AddSingleton(typeof(IEncryptionService), testEncryptionService ? typeof(TestEncryptionService) : typeof(EncryptionService));
             services.AddSingleton<IHttpService, HttpService>();
+            services.AddSingleton<IImageCache, ImageCache>();
             services.AddSingleton<ILoggerService, LoggerService>();
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<INotificationService, NotificationService>();
@@ -129,6 +130,7 @@ namespace WinUiTemplate
         private async Task InitialiseServices() {
             await serviceProvider.GetRequiredService<IFileUtils>().CreateProgramFolderStructure();
             await serviceProvider.GetRequiredService<IUserSettings>().Load();
+            await serviceProvider.GetRequiredService<IImageCache>().Load();
         }
 
         private void InitialiseUiServices(MainWindow mainWindow) {
