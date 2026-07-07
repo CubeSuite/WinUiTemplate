@@ -426,6 +426,7 @@ The first time you launch your application, Windows will create the folder that 
 5) Now when your program is run, it will generate the folder:  
    `%LocalAppData%/Packages/{Package name}_{Some random characters}/`
    1) `ProgramData.RootFolder` points to the 'LocalState' folder inside this one.
+   2) `ProgramData.CacheFolder` points to the 'LocalCache' folder inside this one.
 6) You can now ask your users to find the log file there if a bug is preventing them from using the button for opening `IFilePaths.LogsFolder` in File Explorer.
 
 ### Testing

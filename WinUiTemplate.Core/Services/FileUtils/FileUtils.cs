@@ -176,11 +176,15 @@ namespace WinUiTemplate.Core.Services
         }
 
         public string GetRelativePath(string rootPath, string fullPath) {
+            fullPath = fullPath.Replace("\\", "/");
+            rootPath = rootPath.Replace("\\", "/");
+            if (!rootPath.EndsWith("/")) rootPath += "/";
+
             if (!fullPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase)) {
                 return fullPath;
             }
 
-            return fullPath.Substring(rootPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return fullPath.Substring(rootPath.Length).TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Replace("\\", "/");
         }
 
         public string GetFileSafeTimestamp() {
