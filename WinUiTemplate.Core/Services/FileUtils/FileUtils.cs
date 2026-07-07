@@ -176,7 +176,9 @@ namespace WinUiTemplate.Core.Services
         }
 
         public string GetRelativePath(string rootPath, string fullPath) {
-            if (!rootPath.EndsWith("\\") && !rootPath.EndsWith("/")) rootPath += "/";
+            fullPath = fullPath.Replace("\\", "/");
+            rootPath = rootPath.Replace("\\", "/");
+            if (!rootPath.EndsWith("/")) rootPath += "/";
 
             if (!fullPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase)) {
                 return fullPath;

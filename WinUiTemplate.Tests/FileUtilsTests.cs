@@ -250,18 +250,18 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void GetRelativePath_ReturnsRelativePathWhenWithinRoot() {
-            string rootPath = "C:\\Root";
-            string fullPath = "C:\\Root\\Folder\\File.txt";
+            string rootPath = "C:/Root";
+            string fullPath = "C:/Root/Folder/File.txt";
 
             string result = fileUtils.GetRelativePath(rootPath, fullPath);
 
-            result.Should().Be("Folder\\File.txt");
+            result.Should().Be("Folder/File.txt");
         }
 
         [Fact]
         public void GetRelativePath_ReturnsFullPathWhenOutsideRoot() {
-            string rootPath = "C:\\Root";
-            string fullPath = "C:\\Other\\File.txt";
+            string rootPath = "C:/Root";
+            string fullPath = "C:/Other/File.txt";
 
             string result = fileUtils.GetRelativePath(rootPath, fullPath);
 
@@ -269,9 +269,18 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        public void GetRelativePath_GuardsAgainstPrefixMatch() {
+            string rootPath = "C:/Data";
+            string fullPath = "C:/Database/File.txt";
+
+            string result = fileUtils.GetRelativePath(rootPath, fullPath);
+            result.Should().Be(fullPath);
+        }
+
+        [Fact]
         public void GetRelativePath_HandlesDifferentCasing() {
-            string rootPath = "C:\\Root";
-            string fullPath = "c:\\root\\file.txt";
+            string rootPath = "C:/Root";
+            string fullPath = "c:/root/file.txt";
 
             string result = fileUtils.GetRelativePath(rootPath, fullPath);
 
@@ -280,8 +289,8 @@ namespace WinUiTemplate.Tests
 
         [Fact]
         public void GetRelativePath_HandlesTrailingSlashes() {
-            string rootPath = "C:\\Root\\";
-            string fullPath = "C:\\Root\\File.txt";
+            string rootPath = "C:/Root/";
+            string fullPath = "C:/Root/File.txt";
 
             string result = fileUtils.GetRelativePath(rootPath, fullPath);
 
