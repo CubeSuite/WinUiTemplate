@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.XPath;
 using Windows.Devices.Gpio.Provider;
+using Windows.Security.Authentication.Web.Provider;
 using Windows.Storage;
 using Windows.UI;
 using Windows.UI.ViewManagement;
@@ -261,7 +262,7 @@ namespace WinUiTemplate.MVVM.Pages
                         description: $"Where {programData.ProgramName} should store backups of its data",
                         icon: "\uE8B7",
                         getValueFunc: () => userSettings.BackupsFolder,
-                        setValueFunc: (value) => userSettings.BackupsFolder = value,
+                        setValueFunc: async (value) => await PickBackupsFolder(value),
                         serviceProvider,
                         type: FilePathSetting.PickerType.Folder
                     ),
@@ -385,6 +386,20 @@ namespace WinUiTemplate.MVVM.Pages
                 UseShellExecute = true,
                 Verb = "open"
             });
+        }
+
+        private async Task PickBackupsFolder(string folder) {
+            if (folder == null) return;
+
+            string appFolder = Path.GetDirectoryName(programData.FilePaths.RootFolder) ?? "";
+            if (folder.StartsWith(appFolder)) {
+                notificationService.Notify(InfoBarSeverity.Error, "Invalid Backups Folder", 
+                    "You cannot select a folder inside the application's data folder. Please select a different folder."
+                );
+            }
+            else {
+                userSettings.BackupsFolder = folder;
+            }
         }
 
         private async Task PerformBackup() {
