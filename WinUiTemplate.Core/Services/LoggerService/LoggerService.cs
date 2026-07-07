@@ -18,7 +18,7 @@ using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.Core.Services
 {
-    public class LoggerService : ILoggerService
+    public class LoggerService : ILoggerService, IDisposable
     {
         // Services & Stores
         private readonly IServiceProvider serviceProvider;
@@ -28,8 +28,12 @@ namespace WinUiTemplate.Core.Services
         // Fields
         private readonly ConcurrentQueue<string> queue = new ConcurrentQueue<string>();
         private readonly object consoleLock = new object();
+        private readonly object initialiseLock = new object();
+        private readonly SemaphoreSlim writerLock = new SemaphoreSlim(1, 1);
         private readonly CancellationTokenSource tokenSource = new CancellationTokenSource();
 
+        private Task? _workerTask;
+        private int _disposed = 0;
         private StreamWriter? logWriter;
         private string currentLog = "";
         private bool paused = false;
@@ -79,29 +83,56 @@ namespace WinUiTemplate.Core.Services
         }
         
         public void Pause() {
-            paused = true;
-
+            writerLock.Wait();
             try {
-                logWriter?.Dispose();
-                logWriter = null;
+                paused = true;
+                try {
+                    logWriter?.Dispose();
+                    logWriter = null;
+                }
+                catch (Exception e) {
+                    Debug.Assert(false, $"LoggerService.Pause failed: '{e.Message}'");
+                }
             }
-            catch (Exception e){
-                Debug.Assert(false, $"LoggerService.Pause failed: '{e.Message}'");
+            finally {
+                writerLock.Release();
             }
         }
 
         public void Resume() {
+            writerLock.Wait();
             try {
-                if (!string.IsNullOrWhiteSpace(currentLog)) {
-                    logWriter = new StreamWriter(currentLog, append: true, Encoding.UTF8) { AutoFlush = true };
+                try {
+                    if (!string.IsNullOrWhiteSpace(currentLog)) {
+                        logWriter = new StreamWriter(currentLog, append: true, Encoding.UTF8) { AutoFlush = true };
+                    }
+                    paused = false;
+                }
+                catch (Exception e) {
+                    Debug.Assert(false, $"LoggerService.Resume failed: '{e.Message}'");
                 }
             }
-            catch (Exception e) {
-                Debug.Assert(false, $"LoggerService.Resume failed: '{e.Message}'");
+            finally {
+                writerLock.Release();
             }
         }
 
+        public void Dispose() {
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+            tokenSource.Cancel();
+            _workerTask?.GetAwaiter().GetResult();
+            logWriter?.Dispose();
+            writerLock.Dispose();
+            tokenSource.Dispose();
+        }
+
         // Private Functions
+
+        private void EnsureInitialised() {
+            lock (initialiseLock) {
+                if (!initialised) Initialise();
+            }
+        }
 
         private void Initialise() {
             if (!Directory.Exists(programData.FilePaths.LogsFolder)) {
@@ -118,21 +149,37 @@ namespace WinUiTemplate.Core.Services
         }
 
         private void StartLoggingWorker() {
-            Task.Run(async () => {
-                while (!tokenSource.IsCancellationRequested) {
-                    await FlushQueueAsync();
-                    await Task.Delay(50, tokenSource.Token);
+            _workerTask = Task.Run(async () => {
+                try {
+                    while (!tokenSource.IsCancellationRequested) {
+                        await FlushQueueAsync();
+                        try {
+                            await Task.Delay(50, tokenSource.Token);
+                        }
+                        catch (OperationCanceledException) {
+                            break;
+                        }
+                    }
                 }
-
-                await FlushQueueAsync();
-            }, tokenSource.Token);
+                finally {
+                    await FlushQueueAsync();
+                }
+            });
         }
 
         private async Task FlushQueueAsync() {
-            if (paused || logWriter == null || queue.IsEmpty) return;
+            if (queue.IsEmpty) return;
 
-            while(queue.TryDequeue(out string? entry)) {
-                await logWriter.WriteLineAsync(entry);
+            await writerLock.WaitAsync();
+            try {
+                if (paused || logWriter == null) return;
+
+                while (queue.TryDequeue(out string? entry)) {
+                    await logWriter.WriteLineAsync(entry);
+                }
+            }
+            finally {
+                writerLock.Release();
             }
         }
 
@@ -167,8 +214,8 @@ namespace WinUiTemplate.Core.Services
         }
 
         private void LogMessage(LogLevel level, string message, bool shortenPaths, string[]? tags) {
-            if (!initialised) Initialise();
-            if (shortenPaths) message = message = message.Replace(programData.FilePaths.RootFolder, "");
+            EnsureInitialised();
+            if (shortenPaths) message = message.Replace(programData.FilePaths.RootFolder, "");
 
             string timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
             string thread = $"T{Environment.CurrentManagedThreadId}";

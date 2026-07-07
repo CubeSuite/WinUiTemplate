@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage;
 using WinUiTemplate.Core.Services.Interfaces;
@@ -67,12 +68,11 @@ namespace WinUiTemplate.Tests
         public void Dispose() {
             foreach (LoggerService logger in loggerInstances) {
                 try {
-                    logger.Pause();
+                    logger.Dispose();
                 }
                 catch { }
             }
 
-            System.Threading.Thread.Sleep(100);
             TestUtils.CleanupTempFolder(tempFolder).Wait();
         }
 
@@ -272,18 +272,34 @@ namespace WinUiTemplate.Tests
             logger.LogEntries.Should().HaveCount(2);
         }
 
+        [Fact]
+        public async Task Pause_CalledConcurrentlyWithFlush_DoesNotThrow() {
+            LoggerService logger = CreateLogger();
+            logger.LogInfo("Init");
+
+            Task logTask = Task.Run(() => {
+                for (int i = 0; i < 100; i++) {
+                    logger.LogInfo($"Concurrent {i}");
+                }
+            });
+
+            Task pauseTask = Task.Run(() => logger.Pause());
+
+            Func<Task> act = () => Task.WhenAll(logTask, pauseTask);
+
+            await act.Should().NotThrowAsync();
+        }
+
         #endregion
 
         #region File Creation Tests
 
         [Fact]
-        public async Task LogMessage_CreatesLogFile_OnFirstLog() {
+        public void LogMessage_CreatesLogFile_OnFirstLog() {
             LoggerService logger = CreateLogger();
 
             logger.LogInfo("First message");
-
-            await Task.Delay(200);
-            logger.Pause();
+            logger.Dispose();
 
             string expectedLogFile = Path.Combine(logsFolder, "2024-01-15 10-30-00.log");
             File.Exists(expectedLogFile).Should().BeTrue();
@@ -294,9 +310,7 @@ namespace WinUiTemplate.Tests
             LoggerService logger = CreateLogger();
 
             logger.LogInfo("Test message");
-
-            await Task.Delay(200);
-            logger.Pause();
+            logger.Dispose();
 
             string expectedLogFile = Path.Combine(logsFolder, "2024-01-15 10-30-00.log");
             string content = await File.ReadAllTextAsync(expectedLogFile);
@@ -309,9 +323,7 @@ namespace WinUiTemplate.Tests
             logger.LogDebugToFile = true;
 
             logger.LogDebug("Debug message");
-
-            await Task.Delay(200);
-            logger.Pause();
+            logger.Dispose();
 
             string expectedLogFile = Path.Combine(logsFolder, "2024-01-15 10-30-00.log");
             string content = await File.ReadAllTextAsync(expectedLogFile);
@@ -326,9 +338,7 @@ namespace WinUiTemplate.Tests
 
             logger.LogDebug("Debug message");
             logger.LogInfo("Info message");
-
-            await Task.Delay(200);
-            logger.Pause();
+            logger.Dispose();
 
             string expectedLogFile = Path.Combine(logsFolder, "2024-01-15 10-30-00.log");
             string content = await File.ReadAllTextAsync(expectedLogFile);
@@ -343,15 +353,29 @@ namespace WinUiTemplate.Tests
             logger.LogInfo("Message 1");
             logger.LogWarning("Message 2");
             logger.LogError("Message 3");
-
-            await Task.Delay(200);
-            logger.Pause();
+            logger.Dispose();
 
             string expectedLogFile = Path.Combine(logsFolder, "2024-01-15 10-30-00.log");
             string content = await File.ReadAllTextAsync(expectedLogFile);
             content.Should().Contain("Message 1");
             content.Should().Contain("Message 2");
             content.Should().Contain("Message 3");
+        }
+
+        [Fact]
+        public async Task LogMessage_AfterPauseAndResume_WritesToFile() {
+            LoggerService logger = CreateLogger();
+            logger.LogInfo("Before pause");
+            logger.Pause();
+
+            logger.Resume();
+            logger.LogInfo("After resume");
+            logger.Dispose();
+
+            string expectedLogFile = Path.Combine(logsFolder, "2024-01-15 10-30-00.log");
+            string content = await File.ReadAllTextAsync(expectedLogFile);
+            content.Should().Contain("Before pause");
+            content.Should().Contain("After resume");
         }
 
         #endregion
@@ -374,6 +398,46 @@ namespace WinUiTemplate.Tests
             Action act = () => new LoggerService(mockServiceProvider.Object);
 
             act.Should().NotThrow();
+        }
+
+        [Fact]
+        public async Task Initialise_ConcurrentFirstLogs_DoNotThrow() {
+            LoggerService logger = CreateLogger();
+            int threadCount = 5;
+            using Barrier barrier = new Barrier(threadCount);
+
+            Task[] tasks = Enumerable.Range(0, threadCount)
+                .Select(i => Task.Run(() => {
+                    barrier.SignalAndWait();
+                    logger.LogInfo($"Thread {i}");
+                }))
+                .ToArray();
+
+            Func<Task> act = () => Task.WhenAll(tasks);
+
+            await act.Should().NotThrowAsync();
+            File.Exists(Path.Combine(logsFolder, "2024-01-15 10-30-00.log")).Should().BeTrue();
+        }
+
+        #endregion
+
+        #region Lifecycle Tests
+
+        [Fact]
+        public async Task Dispose_FlushesRemainingQueuedEntries() {
+            LoggerService logger = CreateLogger();
+
+            for (int i = 0; i < 20; i++) {
+                logger.LogInfo($"Message {i}");
+            }
+
+            logger.Dispose();
+
+            string expectedLogFile = Path.Combine(logsFolder, "2024-01-15 10-30-00.log");
+            string content = await File.ReadAllTextAsync(expectedLogFile);
+            for (int i = 0; i < 20; i++) {
+                content.Should().Contain($"Message {i}");
+            }
         }
 
         #endregion
