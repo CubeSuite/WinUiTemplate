@@ -16,8 +16,8 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
         public string[] Tags { get; }
 
         public LogEntryViewModel(LogEntry entry) {
-            Timestamp = entry.Timestamp.ToString("yyyyMMddThhmmss");
-            TimestampPretty = entry.Timestamp.ToString("dd-MMM hh:mm:ss");
+            Timestamp = entry.Timestamp.ToString("yyyyMMddTHHmmss");
+            TimestampPretty = entry.Timestamp.ToString("dd-MMM hh:mm:ss tt");
             Level = entry.LogLevel.ToString();
             Message = entry.Message;
             Tags = entry.Tags;
