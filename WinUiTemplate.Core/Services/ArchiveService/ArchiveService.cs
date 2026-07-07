@@ -60,7 +60,7 @@ namespace WinUiTemplate.Core.Services
 
             try {
                 FilesResult filesResult = await fileUtils.TryGetAllFilesAsync(sourceFolder, cancellationToken);
-                if (!filesResult.Success || filesResult.Files == null) return new OperationResult(false, "Failed to get files in source folder", false);
+                if (!filesResult.Success || filesResult.Files == null) return new OperationResult(false, "Failed to get files in source folder", true);
 
                 ulong totalBytes = 0;
                 ulong processedBytes = 0;

@@ -80,8 +80,8 @@ namespace WinUiTemplate.Core.Services
                     BackupCreated?.Invoke();
                     notificationService.Notify(InfoBarSeverity.Success, "Successfully backed up data");
                 }
-                else if (!zipResult.ErrorMessage.Contains("cancel")) {
-                    string error = $"Failed to create backup: {zipResult.ErrorMessage}";
+                else if (zipResult.Notify) {
+                    string error = $"Failed to create backup: {zipResult.ErrorMessage ?? "Unknown error"}";
                     logger.LogError(error);
                     notificationService.Notify(InfoBarSeverity.Error, error);
                 }
