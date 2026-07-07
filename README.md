@@ -13,6 +13,7 @@ This project provides a Visual Studio template that can be used to kickstart a W
 - [Available Services](#available-services)
 - [Solution Structure](#solution-structure)
 - [How To Use](#how-to-use)
+  - [Testing](#testing)
 - [UI Components](#ui-components)
   - [Pages And Views](#pages-and-views)
   - [Custom Controls](#custom-controls)
@@ -465,6 +466,10 @@ The workflow does the following:
 4) Builds in `Release` configuration
 5) Runs tests with the filter `Category!=RequiresPostgreSQL`
 6) Publishes `.trx` test results to the workflow summary
+
+#### UI Testing
+
+In 'Main Project => Services => UITesting' there are some implementations of service interfaces that intentionally return `false` / errors. You can use these test services to test how your UI reacts to certain situations, like `IFileUtils.TryReadFileAsync` failing to read a file. To use them, open 'App.xaml.cs' and look for the `// Testing` comment. Enable the bool for the service you want to test.  
 
 ### Test Configuration
 
