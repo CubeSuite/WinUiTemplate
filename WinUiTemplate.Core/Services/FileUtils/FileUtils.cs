@@ -66,7 +66,7 @@ namespace WinUiTemplate.Core.Services
         public async Task<FileWriteResult> TryWriteFileAsync(string path, string content, bool? encrypt = null) {
             if(encrypt == null) {
                 encrypt = programData.EncryptionLevel == EncryptionLevel.Data &&
-                          path.Contains(programData.FilePaths.DataFolder);
+                          path.Contains(programData.FilePaths.DataFolder, StringComparison.OrdinalIgnoreCase);
             }
             
             if (encrypt == true) content = _encryptedFileHeader + await encryptionService.EncryptToBase64Async(content);

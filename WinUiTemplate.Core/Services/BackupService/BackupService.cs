@@ -193,7 +193,7 @@ namespace WinUiTemplate.Core.Services
             IReadOnlyList<StorageFile> files = await backupsFolder.GetFilesAsync();
             foreach(StorageFile file in files) {
                 cancellationToken.ThrowIfCancellationRequested();
-                if (!file.Path.EndsWith(".zip")) continue;
+                if (!file.Path.EndsWith(".zip", StringComparison.OrdinalIgnoreCase)) continue;
 
                 try {
                     BackupInfo? info = await ReadBackupInfoAsync(file, cancellationToken);
