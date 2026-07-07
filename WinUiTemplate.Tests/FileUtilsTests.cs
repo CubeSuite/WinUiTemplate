@@ -237,11 +237,11 @@ namespace WinUiTemplate.Tests
         #region CreateProgramFolderStructure Tests
 
         [Fact]
-        public void CreateProgramFolderStructure_RequiresValidPaths() {
+        public async Task CreateProgramFolderStructure_RequiresValidPaths() {
             // This test verifies the method exists and can be called
             Func<Task> act = async () => await fileUtils.CreateProgramFolderStructure();
 
-            act.Should().NotThrowAsync();
+            await act.Should().NotThrowAsync();
         }
 
         #endregion
