@@ -765,6 +765,12 @@ namespace WinUiTemplate.Tests
             return zipPath;
         }
 
+        private async Task<string> CreateCorruptedZip(StorageFolder folder, string zipFileName = "corrupt.zip") {
+            string zipPath = Path.Combine(folder.Path, zipFileName);
+            await File.WriteAllBytesAsync(zipPath, new byte[] { 0x00, 0x01, 0x02, 0x03 });
+            return zipPath;
+        }
+
         private async Task<string> CreateZipWithCustomContent(StorageFolder folder, string fileName, string content, string zipFileName = "backup.zip") {
             string zipPath = Path.Combine(folder.Path, zipFileName);
 
@@ -1009,11 +1015,11 @@ namespace WinUiTemplate.Tests
                 .ReturnsAsync(new FolderResult(true, "", resources.TempFolder));
 
             await CreateZipWithMetadata(resources.TempFolder, new Version("1.0.0"), "backup1.zip");
-            await CreateZipWithMetadata(resources.TempFolder, new Version("1.0.0"), "backup2.zip");
+            await CreateCorruptedZip(resources.TempFolder, "backup2.zip");
 
             IReadOnlyList<BackupInfo> backups = await backupService.GetBackupsAsync();
 
-            backups.Count.Should().BeGreaterThanOrEqualTo(1);
+            backups.Count.Should().Be(1);
         }
 
         [Fact]
