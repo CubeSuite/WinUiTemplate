@@ -28,6 +28,22 @@ namespace WinUiTemplate.Tests
         public Color BackgroundColor { get => backgroundColor; set => this.backgroundColor = value; }
     }
 
+    // Test model using auto-implemented properties, which generate backing fields
+    // like "<Value>k__BackingField" that are not valid SQL identifiers on their own
+    public class AutoPropertyTestItem
+    {
+        public int Value { get; set; }
+        public string Name { get; set; }
+    }
+
+    // Test model for verifying decimal precision is preserved across storage round-trips
+    public class DecimalTestItem
+    {
+        private decimal amount;
+
+        public decimal Amount { get => amount; set => amount = value; }
+    }
+
     // Base test class for IObjectCache<T, V>
     public abstract class ObjectStoreTestsBase<TKey, TValue> : IDisposable
     {
@@ -413,6 +429,32 @@ namespace WinUiTemplate.Tests
             Assert.True(store3.ContainsKey("key2"));
         }
 
+        [Fact]
+        public void AutoImplementedProperties_CanBeUsedAsColumns() {
+            var autoStore = new LocalObjectRepository<string, AutoPropertyTestItem>(mockServiceProvider.Object);
+
+            OperationResult addResult = autoStore.TryAdd("key1", new AutoPropertyTestItem { Value = 42, Name = "Auto" });
+
+            Assert.True(addResult.Success, addResult.ErrorMessage);
+            OperationResult getResult = autoStore.TryGet("key1", out AutoPropertyTestItem retrieved);
+            Assert.True(getResult.Success);
+            Assert.Equal(42, retrieved.Value);
+            Assert.Equal("Auto", retrieved.Name);
+        }
+
+        [Fact]
+        public void DecimalField_DoesNotLosePrecision() {
+            var decimalStore = new LocalObjectRepository<string, DecimalTestItem>(mockServiceProvider.Object);
+            decimal preciseAmount = 12345.6789012345m;
+
+            decimalStore.TryAdd("key1", new DecimalTestItem { Amount = preciseAmount });
+
+            OperationResult result = decimalStore.TryGet("key1", out DecimalTestItem retrieved);
+
+            Assert.True(result.Success);
+            Assert.Equal(preciseAmount, retrieved.Amount);
+        }
+
         public override void Dispose() {
             try {
                 SqliteConnection.ClearAllPools();
@@ -755,6 +797,32 @@ namespace WinUiTemplate.Tests
 
             List<string> allKeys = store.Keys.ToList();
             Assert.Equal(100, allKeys.Count);
+        }
+
+        [Fact]
+        public void AutoImplementedProperties_CanBeUsedAsColumns() {
+            var autoStore = new RemoteObjectRepository<string, AutoPropertyTestItem>(mockServiceProvider.Object);
+
+            OperationResult addResult = autoStore.TryAdd("key1", new AutoPropertyTestItem { Value = 42, Name = "Auto" });
+
+            Assert.True(addResult.Success, addResult.ErrorMessage);
+            OperationResult getResult = autoStore.TryGet("key1", out AutoPropertyTestItem retrieved);
+            Assert.True(getResult.Success);
+            Assert.Equal(42, retrieved.Value);
+            Assert.Equal("Auto", retrieved.Name);
+        }
+
+        [Fact]
+        public void DecimalField_DoesNotLosePrecision() {
+            var decimalStore = new RemoteObjectRepository<string, DecimalTestItem>(mockServiceProvider.Object);
+            decimal preciseAmount = 12345.6789012345m;
+
+            decimalStore.TryAdd("key1", new DecimalTestItem { Amount = preciseAmount });
+
+            OperationResult result = decimalStore.TryGet("key1", out DecimalTestItem retrieved);
+
+            Assert.True(result.Success);
+            Assert.Equal(preciseAmount, retrieved.Amount);
         }
 
         public override void Dispose() {

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.UI;
 using WinUiTemplate.Core.Services.Interfaces;
@@ -23,7 +24,9 @@ namespace WinUiTemplate.Core.Stores
         // Fields
         private readonly string databasePath;
         private readonly FieldInfo[] fields;
-        
+
+        private static readonly Regex AutoPropertyBackingFieldRegex = new Regex(@"^<(.+)>k__BackingField$", RegexOptions.Compiled);
+
         protected readonly string _tableName;
 
         // Properties
@@ -107,8 +110,8 @@ namespace WinUiTemplate.Core.Stores
             databasePath = programData.FilePaths.Database;
             _tableName = $"{typeof(V).Name}s";
             fields = typeof(V).GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(f => !f.IsInitOnly)
-                .ToArray();
+                              .Where(f => !f.IsInitOnly)
+                              .ToArray();
 
             ValidatePropertyTypes();
             EnsureDatabaseExists();
@@ -130,8 +133,9 @@ namespace WinUiTemplate.Core.Stores
                 StringBuilder values = new StringBuilder("@key");
 
                 foreach (FieldInfo field in fields) {
-                    columns.Append($", {field.Name}");
-                    values.Append($", @{field.Name}");
+                    string columnName = GetColumnName(field);
+                    columns.Append($", {columnName}");
+                    values.Append($", @{columnName}");
                 }
 
                 command.CommandText = $"INSERT INTO {_tableName} ({columns}) VALUES ({values})";
@@ -140,16 +144,20 @@ namespace WinUiTemplate.Core.Stores
                 foreach (FieldInfo field in fields) {
                     object? value = field.GetValue(instance);
                     Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
+                    string columnName = GetColumnName(field);
 
                     if (targetType == typeof(Color) && value is Color colorValue) {
-                        command.Parameters.AddWithValue($"@{field.Name}", colorValue.ToHex());
+                        command.Parameters.AddWithValue($"@{columnName}", colorValue.ToHex());
+                    }
+                    else if (targetType == typeof(decimal) && value is decimal decimalValue) {
+                        command.Parameters.AddWithValue($"@{columnName}", decimalValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
                     }
                     else if (IsCollectionType(targetType) && value != null) {
                         string jsonValue = JsonConvert.SerializeObject(value);
-                        command.Parameters.AddWithValue($"@{field.Name}", jsonValue);
+                        command.Parameters.AddWithValue($"@{columnName}", jsonValue);
                     }
                     else {
-                        command.Parameters.AddWithValue($"@{field.Name}", value ?? DBNull.Value);
+                        command.Parameters.AddWithValue($"@{columnName}", value ?? DBNull.Value);
                     }
                 }
 
@@ -181,7 +189,8 @@ namespace WinUiTemplate.Core.Stores
                 StringBuilder setClause = new StringBuilder();
                 for (int i = 0; i < fields.Length; i++) {
                     if (i > 0) setClause.Append(", ");
-                    setClause.Append($"{fields[i].Name} = @{fields[i].Name}");
+                    string columnName = GetColumnName(fields[i]);
+                    setClause.Append($"{columnName} = @{columnName}");
                 }
 
                 command.CommandText = $"UPDATE {_tableName} SET {setClause} WHERE Key = @key";
@@ -190,16 +199,20 @@ namespace WinUiTemplate.Core.Stores
                 foreach (FieldInfo field in fields) {
                     object value = field.GetValue(instance);
                     Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
+                    string columnName = GetColumnName(field);
 
                     if (targetType == typeof(Color) && value is Color colorValue) {
-                        command.Parameters.AddWithValue($"@{field.Name}", colorValue.ToHex());
+                        command.Parameters.AddWithValue($"@{columnName}", colorValue.ToHex());
+                    }
+                    else if (targetType == typeof(decimal) && value is decimal decimalValue) {
+                        command.Parameters.AddWithValue($"@{columnName}", decimalValue.ToString(System.Globalization.CultureInfo.InvariantCulture));
                     }
                     else if (IsCollectionType(targetType) && value != null) {
                         string jsonValue = JsonConvert.SerializeObject(value);
-                        command.Parameters.AddWithValue($"@{field.Name}", jsonValue);
+                        command.Parameters.AddWithValue($"@{columnName}", jsonValue);
                     }
                     else {
-                        command.Parameters.AddWithValue($"@{field.Name}", value ?? DBNull.Value);
+                        command.Parameters.AddWithValue($"@{columnName}", value ?? DBNull.Value);
                     }
                 }
 
@@ -447,7 +460,7 @@ namespace WinUiTemplate.Core.Stores
 
                 foreach (FieldInfo field in fields) {
                     string sqlType = GetSqliteType(field.FieldType);
-                    createTableSql.AppendLine($",   {field.Name} {sqlType}");
+                    createTableSql.AppendLine($",   {GetColumnName(field)} {sqlType}");
                 }
 
                 createTableSql.Append(")");
@@ -469,8 +482,7 @@ namespace WinUiTemplate.Core.Stores
                 underlyingType == typeof(bool)) {
                 return "INTEGER";
             }
-            if (underlyingType == typeof(float) || underlyingType == typeof(double) ||
-                underlyingType == typeof(decimal)) {
+            if (underlyingType == typeof(float) || underlyingType == typeof(double)) {
                 return "REAL";
             }
             if (underlyingType == typeof(byte[])) {
@@ -479,6 +491,7 @@ namespace WinUiTemplate.Core.Stores
             if (underlyingType == typeof(DateTime) ||
                 underlyingType == typeof(Guid) ||
                 underlyingType == typeof(Color) ||
+                underlyingType == typeof(decimal) ||
                 underlyingType == typeof(string) ||
                 underlyingType.IsEnum) {
                 return "TEXT";
@@ -487,12 +500,27 @@ namespace WinUiTemplate.Core.Stores
             return "TEXT";
         }
 
+        
+
+        private string GetColumnName(FieldInfo field) {
+            Match match = AutoPropertyBackingFieldRegex.Match(field.Name);
+            string name = match.Success ? match.Groups[1].Value : field.Name;
+
+            // Sanitize any remaining characters that are not valid in an unquoted SQLite identifier
+            name = Regex.Replace(name, @"[^A-Za-z0-9_]", "_");
+            if (name.Length == 0 || char.IsDigit(name[0])) {
+                name = "_" + name;
+            }
+
+            return name;
+        }
+
         private V CreateInstanceFromReader(SqliteDataReader reader) {
             V instance = Activator.CreateInstance<V>();
 
             foreach (FieldInfo field in fields) {
                 try {
-                    int ordinal = reader.GetOrdinal(field.Name);
+                    int ordinal = reader.GetOrdinal(GetColumnName(field));
 
                     if (!reader.IsDBNull(ordinal)) {
                         object value = reader.GetValue(ordinal);
@@ -506,6 +534,9 @@ namespace WinUiTemplate.Core.Stores
                         }
                         else if (targetType == typeof(Color) && value is string colorString) {
                             field.SetValue(instance, colorString.ToColor());
+                        }
+                        else if (targetType == typeof(decimal) && value is string decimalString) {
+                            field.SetValue(instance, decimal.Parse(decimalString, System.Globalization.CultureInfo.InvariantCulture));
                         }
                         else if (targetType == typeof(bool) && value is long boolValue) {
                             field.SetValue(instance, boolValue != 0);
