@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.UI;
 using WinUiTemplate.Core.Services.Interfaces;
@@ -22,6 +23,9 @@ namespace WinUiTemplate.Core.Stores
         private readonly string _tableName;
         private readonly FieldInfo[] fields;
         private readonly string connectionString;
+
+        // Fields
+        private static readonly Regex AutoPropertyBackingFieldRegex = new Regex(@"^<(.+)>k__BackingField$", RegexOptions.Compiled);
 
         // Properties
         public string TableName => _tableName;
@@ -124,7 +128,7 @@ namespace WinUiTemplate.Core.Stores
                 int parameterIndex = 2;
 
                 foreach (FieldInfo field in fields) {
-                    columns.Append($", \"{field.Name}\"");
+                    columns.Append($", \"{GetColumnName(field)}\"");
                     placeholders.Append($", ${parameterIndex}");
                     parameterIndex++;
                 }
@@ -175,7 +179,7 @@ namespace WinUiTemplate.Core.Stores
 
                 for (int i = 0; i < fields.Length; i++) {
                     if (i > 0) setClause.Append(", ");
-                    setClause.Append($"\"{fields[i].Name}\" = ${parameterIndex}");
+                    setClause.Append($"\"{GetColumnName(fields[i])}\" = ${parameterIndex}");
                     parameterIndex++;
                 }
 
@@ -376,7 +380,7 @@ namespace WinUiTemplate.Core.Stores
 
                 foreach (FieldInfo prop in fields) {
                     string sqlType = GetPostgresType(prop.FieldType);
-                    createTableSql.AppendLine($",   \"{prop.Name}\" {sqlType}");
+                    createTableSql.AppendLine($",   \"{GetColumnName(prop)}\" {sqlType}");
                 }
 
                 createTableSql.Append(")");
@@ -425,12 +429,25 @@ namespace WinUiTemplate.Core.Stores
             return false;
         }
 
+        private string GetColumnName(FieldInfo field) {
+            Match match = AutoPropertyBackingFieldRegex.Match(field.Name);
+            string name = match.Success ? match.Groups[1].Value : field.Name;
+
+            // Sanitize any remaining characters that are not valid in a Postgres identifier
+            name = Regex.Replace(name, @"[^A-Za-z0-9_]", "_");
+            if (name.Length == 0 || char.IsDigit(name[0])) {
+                name = "_" + name;
+            }
+
+            return name;
+        }
+
         private V CreateInstanceFromReader(NpgsqlDataReader reader) {
             V instance = Activator.CreateInstance<V>();
 
             foreach (FieldInfo field in fields) {
                 try {
-                    int ordinal = reader.GetOrdinal(field.Name);
+                    int ordinal = reader.GetOrdinal(GetColumnName(field));
 
                     if (!reader.IsDBNull(ordinal)) {
                         object value = reader.GetValue(ordinal);
