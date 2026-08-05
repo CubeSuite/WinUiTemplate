@@ -193,14 +193,13 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
-        public async Task CreateBackupAsync_RespectsBackupsDisabledViaUserSettings() {
+        public async Task CreateBackupAsync_IgnoresBackupsDisabledViaUserSettings() {
             mockProgramData.Setup(x => x.EnableBackups).Returns(true);
             mockUserSettings.Setup(x => x.AutomaticBackups).Returns(false);
 
             OperationResult result = await backupService.CreateBackupAsync();
 
-            result.Success.Should().BeFalse();
-            result.ErrorMessage.Should().Be("Backups are disabled");
+            result.ErrorMessage.Should().NotBe("Backups are disabled");
         }
 
         [Fact]

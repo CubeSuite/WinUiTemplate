@@ -58,7 +58,6 @@ namespace WinUiTemplate.Core.Services
             }
             
             if (!programData.EnableBackups) return new OperationResult(false, "Backups are disabled", false);
-            if (!userSettings.AutomaticBackups) return new OperationResult(false, "Backups are disabled", false);
             if (string.IsNullOrWhiteSpace(userSettings.BackupsFolder)) return new OperationResult(false, "Backups folder not configured", false);
 
             try {
