@@ -48,7 +48,9 @@ namespace WinUiTemplate.Core.Stores
                         }
                     }
                 } catch (Exception ex) {
-                    logger.LogError($"Error retrieving values: {ex.Message}");
+                    string errorMessage = $"Error retrieving values from table '{_tableName}': {ex.Message}";
+                    logger.LogError(errorMessage);
+                    throw new InvalidOperationException(errorMessage, ex);
                 }
                 return values;
             }
@@ -71,7 +73,9 @@ namespace WinUiTemplate.Core.Stores
                         keys.Add(key);
                     }
                 } catch (Exception ex) {
-                    logger.LogError($"Error retrieving keys: {ex.Message}");
+                    string errorMessage = $"Error retrieving keys from table '{_tableName}': {ex.Message}";
+                    logger.LogError(errorMessage);
+                    throw new InvalidOperationException(errorMessage, ex);
                 }
                 return keys;
             }
@@ -89,8 +93,9 @@ namespace WinUiTemplate.Core.Stores
                     object result = command.ExecuteScalar();
                     return Convert.ToInt32(result);
                 } catch (Exception ex) {
-                    logger.LogError($"Error retrieving count: {ex.Message}");
-                    return 0;
+                    string errorMessage = $"Error retrieving count from table '{_tableName}': {ex.Message}";
+                    logger.LogError(errorMessage);
+                    throw new InvalidOperationException(errorMessage, ex);
                 }
             }
         }
@@ -474,7 +479,9 @@ namespace WinUiTemplate.Core.Stores
                         }
                     }
                 } catch (Exception ex) {
-                    logger.LogWarning($"Error setting property {field.Name}: {ex.Message}");
+                    string errorMessage = $"Error parsing field '{field.Name}' ({field.FieldType.Name}) for type '{typeof(V).Name}' from table '{_tableName}': {ex.Message}";
+                    logger.LogError(errorMessage);
+                    throw new InvalidOperationException(errorMessage, ex);
                 }
             }
 
@@ -530,7 +537,9 @@ namespace WinUiTemplate.Core.Stores
                     }
                 }
             } catch (Exception ex) {
-                logger.LogError($"Error executing query: {ex.Message}");
+                string errorMessage = $"Error executing query '{sql}' against table '{_tableName}': {ex.Message}";
+                logger.LogError(errorMessage);
+                throw new InvalidOperationException(errorMessage, ex);
             }
             return results;
         }
