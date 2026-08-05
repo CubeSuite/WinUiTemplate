@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -47,6 +49,7 @@ namespace WinUiTemplate
 
         // Fields
         private Window? _window;
+        private Mutex? singleInstanceMutex;
 
         // Testing
         const bool testArchiveService = false;
@@ -63,6 +66,11 @@ namespace WinUiTemplate
         /// </summary>
         public App()
         {
+            if (!EnsureSingleInstance()) {
+                Environment.Exit(1);
+                return;
+            }
+
             ConfigureServiceProvider();
             InitializeComponent();
 
@@ -99,6 +107,23 @@ namespace WinUiTemplate
         }
 
         // Private Functions
+
+        private bool EnsureSingleInstance() {
+            IProgramData tempProgramData = new ProgramData();
+            if (!tempProgramData.EnableSingleInstance) return true;
+
+            singleInstanceMutex = new Mutex(initiallyOwned: true, $"{tempProgramData.ProgramNameNoSpaces}_SingleInstanceMutex", out bool createdNew);
+            if (createdNew) return true;
+
+            MessageBox(IntPtr.Zero,
+                $"Another instance of {tempProgramData.ProgramName} is already running. This instance will now close.",
+                "Already Running", 0);
+
+            return false;
+        }
+
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+        private static extern int MessageBox(IntPtr hWnd, string text, string caption, uint type);
 
         private void ConfigureServiceProvider() {
             ServiceCollection services = new ServiceCollection();
