@@ -25,6 +25,7 @@ namespace WinUiTemplate.Core.Stores
         public Version ProgramVersion => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0, 0);
         public IFilePaths FilePaths { get; }
         public bool EnableBackups { get; } = true; // ToDo: Set EnableBackups
+        public bool EnableSingleInstance { get; } = true; // ToDo: Set EnableSingleInstance
         public EncryptionLevel EncryptionLevel { get; } = EncryptionLevel.Settings; // ToDo: Set EncryptionLevel
         public bool UsesApi { get; } = false; // ToDo: Set UsesApi
         public bool UsesRemoteDatabase { get; } = false; // ToDo: Set UsesRemoteDatabase
