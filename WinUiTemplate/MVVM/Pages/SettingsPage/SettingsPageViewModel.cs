@@ -1,4 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Composition;
@@ -374,6 +375,25 @@ namespace WinUiTemplate.MVVM.Pages
             foreach(SettingsCategoryList category in SettingsCategories) {
                 foreach(SettingBase setting in category.Settings) {
                     setting.NotifyIsVisibilityChanged();
+                    
+                }
+            }
+        }
+
+        // Commands
+
+        [RelayCommand]
+        private async Task RestoreDefaults() {
+            if (await dialogService.Confirm(
+                "Restore Default Settings?", 
+                "Are you sure you want to restore the default settings?")
+            ) {
+                userSettings.RestoreDefaults();
+
+                foreach (SettingsCategoryList category in SettingsCategories) {
+                    foreach (SettingBase setting in category.Settings) {
+                        setting.NotifyValueChanged();
+                    }
                 }
             }
         }

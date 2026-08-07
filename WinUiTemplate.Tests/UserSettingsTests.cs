@@ -494,14 +494,14 @@ namespace WinUiTemplate.Tests
         #region RestoreDefaults Tests
 
         [Fact]
-        public void RestoreDefaults_ResetsLogDebugMessagesToTrue()
+        public void RestoreDefaults_ResetsLogDebugMessagesToFalse()
         {
             UserSettings settings = CreateUserSettings();
             settings.LogDebugMessages = false;
 
             settings.RestoreDefaults();
 
-            settings.LogDebugMessages.Should().BeTrue();
+            settings.LogDebugMessages.Should().BeFalse();
         }
 
         [Fact]
@@ -535,6 +535,248 @@ namespace WinUiTemplate.Tests
             settings.RestoreDefaults();
 
             settings.MaxBackups.Should().Be(5);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsThemeToMatchWindows()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.Theme = ThemeOption.Dark;
+
+            settings.RestoreDefaults();
+
+            settings.Theme.Should().Be(ThemeOption.MatchWindows);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsBackdropToAcrylicBase()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.Backdrop = BackdropOption.MicaAlt;
+
+            settings.RestoreDefaults();
+
+            settings.Backdrop.Should().Be(BackdropOption.AcrylicBase);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsAccentSourceToMatchWindows()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.AccentSource = AccentSourceOption.Custom;
+
+            settings.RestoreDefaults();
+
+            settings.AccentSource.Should().Be(AccentSourceOption.MatchWindows);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsCustomAccentColourToWindowsAccentColour()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.CustomAccentColour = red;
+
+            settings.RestoreDefaults();
+
+            settings.CustomAccentColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsWindowTintSourceToNone()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.WindowTintSource = WindowTintSourceOption.Custom;
+
+            settings.RestoreDefaults();
+
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.None);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsCustomWindowTintColourToWindowsAccentColour()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.CustomWindowTintColour = blue;
+
+            settings.RestoreDefaults();
+
+            settings.CustomWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsWindowTintOpacityToPoint5()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.WindowTintOpacity = 0.9;
+
+            settings.RestoreDefaults();
+
+            settings.WindowTintOpacity.Should().Be(0.5);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsRememberLayoutToTrue()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.RememberLayout = false;
+
+            settings.RestoreDefaults();
+
+            settings.RememberLayout.Should().BeTrue();
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDefaultWidthTo1600()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DefaultWidth = 800;
+
+            settings.RestoreDefaults();
+
+            settings.DefaultWidth.Should().Be(1600);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDefaultHeightTo900()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DefaultHeight = 500;
+
+            settings.RestoreDefaults();
+
+            settings.DefaultHeight.Should().Be(900);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsApiTimeoutTo30()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.ApiTimeout = 90;
+
+            settings.RestoreDefaults();
+
+            settings.ApiTimeout.Should().Be(30);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsApiMaxRetriesTo3()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.ApiMaxRetries = 10;
+
+            settings.RestoreDefaults();
+
+            settings.ApiMaxRetries.Should().Be(3);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDatabaseHostToLocalhost()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DatabaseHost = "db.example.com";
+
+            settings.RestoreDefaults();
+
+            settings.DatabaseHost.Should().Be("localhost");
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDatabasePortTo5432()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DatabasePort = 1234;
+
+            settings.RestoreDefaults();
+
+            settings.DatabasePort.Should().Be(5432);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDatabaseNameToEmpty()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DatabaseName = "mydb";
+
+            settings.RestoreDefaults();
+
+            settings.DatabaseName.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDatabaseUsernameToEmpty()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DatabaseUsername = "admin";
+
+            settings.RestoreDefaults();
+
+            settings.DatabaseUsername.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDatabasePasswordToEmpty()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DatabasePassword = "secret123";
+
+            settings.RestoreDefaults();
+
+            settings.DatabasePassword.Should().BeEmpty();
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsDatabaseConnectionTimeoutTo30()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.DatabaseConnectionTimeout = 90;
+
+            settings.RestoreDefaults();
+
+            settings.DatabaseConnectionTimeout.Should().Be(30);
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsSearchCaseSensitiveToFalse()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.SearchCaseSensitive = true;
+
+            settings.RestoreDefaults();
+
+            settings.SearchCaseSensitive.Should().BeFalse();
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsSearchSplitQueryToTrue()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.SearchSplitQuery = false;
+
+            settings.RestoreDefaults();
+
+            settings.SearchSplitQuery.Should().BeTrue();
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsImageCacheEnabledToTrue()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.ImageCacheEnabled = false;
+
+            settings.RestoreDefaults();
+
+            settings.ImageCacheEnabled.Should().BeTrue();
+        }
+
+        [Fact]
+        public void RestoreDefaults_ResetsImageCacheWarnSizeGbTo1()
+        {
+            UserSettings settings = CreateUserSettings();
+            settings.ImageCacheWarnSizeGb = 50;
+
+            settings.RestoreDefaults();
+
+            settings.ImageCacheWarnSizeGb.Should().Be(1);
         }
 
         [Fact]

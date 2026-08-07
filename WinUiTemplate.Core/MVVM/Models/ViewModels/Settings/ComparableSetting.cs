@@ -57,5 +57,11 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
             Min = min;
             Max = max;
         }
+
+        // Public Functions
+
+        public override void NotifyValueChanged() {
+            OnPropertyChanged(nameof(Value));
+        }
     }
 }

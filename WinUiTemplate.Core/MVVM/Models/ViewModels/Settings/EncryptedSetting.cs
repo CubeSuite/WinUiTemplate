@@ -56,5 +56,11 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         private async void SetEncryptedValueAsync(string newValue) {
             setValue(await encryptionService.EncryptToBase64Async(newValue));
         }
+
+        // Public Functions
+
+        public override void NotifyValueChanged() {
+            GetDecryptedValueAsync();
+        }
     }
 }

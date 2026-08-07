@@ -31,5 +31,11 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 
             Type = type == "" ? typeof(T).ToString() : type;
         }
+
+        // Public Functions
+
+        public override void NotifyValueChanged() {
+            OnPropertyChanged(nameof(Value));
+        }
     }
 }

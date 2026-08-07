@@ -40,5 +40,11 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
             setValue = setValueFunc;
             getIsVisibleFunc = isVisibleFunc;
         }
+
+        // Public Functions
+
+        public override void NotifyValueChanged() {
+            OnPropertyChanged(nameof(SelectedOption));
+        }
     }
 }
