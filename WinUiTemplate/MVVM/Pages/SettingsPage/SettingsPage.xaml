@@ -15,6 +15,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition />
+            <RowDefinition Height="9" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <ScrollViewer>
@@ -94,9 +95,15 @@
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
+        <Rectangle Height="1"
+                   Grid.Row="1"
+                   Margin="16,8,16,0"
+                   VerticalAlignment="Bottom"
+                   Fill="Gray" />
         <Button Content="Restore Defaults"
-                Grid.Row="1"
-                Margin="8"
+                Grid.Row="2"
+                Margin="16,8"
+                HorizontalAlignment="Right"
                 Command="{Binding RestoreDefaultsCommand}" />
     </Grid>
 </Page>

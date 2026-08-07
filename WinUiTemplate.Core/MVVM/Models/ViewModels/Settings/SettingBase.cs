@@ -45,5 +45,7 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         public void NotifyIsVisibilityChanged() {
             OnPropertyChanged(nameof(IsVisible));
         }
+
+        public virtual void NotifyValueChanged() { }
     }
 }

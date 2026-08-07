@@ -375,6 +375,7 @@ namespace WinUiTemplate.MVVM.Pages
             foreach(SettingsCategoryList category in SettingsCategories) {
                 foreach(SettingBase setting in category.Settings) {
                     setting.NotifyIsVisibilityChanged();
+                    
                 }
             }
         }
@@ -388,6 +389,12 @@ namespace WinUiTemplate.MVVM.Pages
                 "Are you sure you want to restore the default settings?")
             ) {
                 userSettings.RestoreDefaults();
+
+                foreach (SettingsCategoryList category in SettingsCategories) {
+                    foreach (SettingBase setting in category.Settings) {
+                        setting.NotifyValueChanged();
+                    }
+                }
             }
         }
 
