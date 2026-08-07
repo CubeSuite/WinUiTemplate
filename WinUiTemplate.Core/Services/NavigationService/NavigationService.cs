@@ -37,9 +37,10 @@ namespace WinUiTemplate.Core.Services
         public void Navigate(ObservableObject pageViewModel) {
             Type type = pageViewModel.GetType();
             if (!AllowNavigation || currentPageType == type) return;
-            
+            if (NavigationRequested == null) return;
+
             currentPageType = type;
-            NavigationRequested?.Invoke(pageViewModel);
+            NavigationRequested.Invoke(pageViewModel);
         }
     }
 }
