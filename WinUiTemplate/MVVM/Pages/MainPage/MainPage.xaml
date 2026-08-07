@@ -16,10 +16,12 @@
                         ItemInvoked="OnNavigationViewItemInvoked">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Home Page"
+                                    Tag="HomePage"
                                     Icon="Home" />
             </NavigationView.MenuItems>
             <NavigationView.FooterMenuItems>
                 <NavigationViewItem Content="Backups"
+                                    Tag="Backups"
                                     Icon="Save"
                                     Visibility="{Binding BackupsButtonVisibility}" />
             </NavigationView.FooterMenuItems>

@@ -32,6 +32,9 @@ public sealed partial class MainPage : Page
     IServiceProvider serviceProvider;
     INavigationService navigationService;
 
+    // Fields
+    private Type? currentPageViewModelType;
+
     public MainPage(IServiceProvider serviceProvider)
     {
         InitializeComponent();
@@ -44,6 +47,10 @@ public sealed partial class MainPage : Page
     // Listeners
 
     private void OnNavigationRequested(ObservableObject pageViewModel) {
+        if (pageFrame.DataContext is IDisposable disposableViewModel) {
+            disposableViewModel.Dispose();
+        }
+
         if(pageViewModel is HomePageViewModel homePageViewModel) {
             pageFrame.Navigate(typeof(HomePage));
         }
@@ -54,16 +61,30 @@ public sealed partial class MainPage : Page
             pageFrame.Navigate(typeof(SettingsPage));
         }
 
+        currentPageViewModelType = pageViewModel.GetType();
+
         if (pageFrame.Content is FrameworkElement element) {
             element.DataContext = pageViewModel;
         }
     }
 
     private void OnNavigationViewItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args) {
-        switch (args.InvokedItem.ToString()) {
-            case "Home Page": navigationService.Navigate(new HomePageViewModel(serviceProvider)); break;
-            case "Backups": navigationService.Navigate(new BackupsPageViewModel(serviceProvider)); break;
-            case "Settings": navigationService.Navigate(new SettingsPageViewModel(serviceProvider)); break;
+        if (args.IsSettingsInvoked) {
+            NavigateIfNeeded(typeof(SettingsPageViewModel), () => new SettingsPageViewModel(serviceProvider));
+            return;
         }
+
+        string? tag = (args.InvokedItemContainer as NavigationViewItem)?.Tag as string;
+        switch (tag) {
+            case "HomePage": NavigateIfNeeded(typeof(HomePageViewModel), () => new HomePageViewModel(serviceProvider)); break;
+            case "Backups": NavigateIfNeeded(typeof(BackupsPageViewModel), () => new BackupsPageViewModel(serviceProvider)); break;
+        }
+    }
+
+    // Private Functions
+
+    private void NavigateIfNeeded(Type pageViewModelType, Func<ObservableObject> createViewModel) {
+        if (currentPageViewModelType == pageViewModelType) return;
+        navigationService.Navigate(createViewModel());
     }
 }

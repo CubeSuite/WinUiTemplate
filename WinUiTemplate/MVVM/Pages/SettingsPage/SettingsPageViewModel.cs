@@ -22,7 +22,7 @@ using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.MVVM.Pages
 {
-    public partial class SettingsPageViewModel : ObservableObject
+    public partial class SettingsPageViewModel : ObservableObject, IDisposable
     {
         // Services & Stores
         private readonly INotificationService notificationService;
@@ -510,6 +510,12 @@ namespace WinUiTemplate.MVVM.Pages
             else {
                 notificationService.Notify(InfoBarSeverity.Error, "Failed To Clear Image Cache", result.ErrorMessage ?? "An unknown error occurred");
             }
+        }
+
+        // IDisposable
+
+        public void Dispose() {
+            userSettings.SettingChanged -= OnSettingChanged;
         }
     }
 }
