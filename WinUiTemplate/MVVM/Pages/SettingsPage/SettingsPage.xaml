@@ -13,6 +13,10 @@
         <converters:TrueToVisibleConverter x:Key="trueToVisibleConverter" />
     </Page.Resources>
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
         <ScrollViewer>
             <ItemsRepeater x:Name="expandersContainer"
                            ItemsSource="{Binding SettingsCategories}"
@@ -90,5 +94,9 @@
                 </ItemsRepeater.ItemTemplate>
             </ItemsRepeater>
         </ScrollViewer>
+        <Button Content="Restore Defaults"
+                Grid.Row="1"
+                Margin="8"
+                Command="{Binding RestoreDefaultsCommand}" />
     </Grid>
 </Page>

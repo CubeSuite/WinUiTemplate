@@ -370,11 +370,48 @@ namespace WinUiTemplate.Core.Stores
         }
 
         public void RestoreDefaults() {
-            LogDebugMessages = true;
+            // Logging
+            LogDebugMessages = false;
             MaxLogs = 5;
+
+            // Appearance
+            Theme = ThemeOption.MatchWindows;
+            Backdrop = BackdropOption.AcrylicBase;
+            AccentSource = AccentSourceOption.MatchWindows;
+            CustomAccentColour = GetWindowsAccentColour();
+            WindowTintSource = WindowTintSourceOption.None;
+            CustomWindowTintColour = GetWindowsAccentColour();
+            WindowTintOpacity = 0.5;
+
+            // Layout
+            RememberLayout = true;
             OpenMaximised = false;
+            DefaultWidth = 1600;
+            DefaultHeight = 900;
+
+            // Backups
             MaxBackups = 5;
             // Don't restore BackupsFolder and AutomaticBackups
+
+            // API
+            ApiTimeout = 30;
+            ApiMaxRetries = 3;
+
+            // Remote Database
+            DatabaseHost = "localhost";
+            DatabasePort = 5432;
+            DatabaseName = "";
+            DatabaseUsername = "";
+            DatabasePassword = "";
+            DatabaseConnectionTimeout = 30;
+
+            // Search
+            SearchCaseSensitive = false;
+            SearchSplitQuery = true;
+
+            // Image Cache
+            ImageCacheEnabled = true;
+            ImageCacheWarnSizeGb = 1;
         }
 
         // Private Functions
