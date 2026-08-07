@@ -100,10 +100,20 @@ namespace WinUiTemplate
         }
 
         private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e) {
+            // Mark as handled only so the runtime doesn't tear the process down before the
+            // crash log finishes writing; we still terminate the process ourselves afterwards.
+            e.Handled = true;
+
             string timestamp = fileUtils.GetFileSafeTimestamp();
             string path = Path.Combine(programData.FilePaths.CrashReportsFolder, $"{timestamp}.log");
             string crashlog = $"{e.Message}\n\n{e.Exception.StackTrace}";
-            fileUtils.TryWriteFileAsync(path, crashlog);
+
+            // The process may tear down as soon as this handler returns, so the write must complete
+            // synchronously rather than being fired-and-forgotten as a Task.
+            Task.Run(() => fileUtils.TryWriteFileAsync(path, crashlog)).GetAwaiter().GetResult();
+
+            // The exception is still fatal - terminate the process now that the log is written.
+            Environment.Exit(1);
         }
 
         // Private Functions
