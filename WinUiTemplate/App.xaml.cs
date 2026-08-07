@@ -100,10 +100,14 @@ namespace WinUiTemplate
         }
 
         private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e) {
+            e.Handled = true;
+
             string timestamp = fileUtils.GetFileSafeTimestamp();
             string path = Path.Combine(programData.FilePaths.CrashReportsFolder, $"{timestamp}.log");
             string crashlog = $"{e.Message}\n\n{e.Exception.StackTrace}";
-            fileUtils.TryWriteFileAsync(path, crashlog);
+
+            Task.Run(() => fileUtils.TryWriteFileAsync(path, crashlog)).GetAwaiter().GetResult();
+            Environment.Exit(1);
         }
 
         // Private Functions
