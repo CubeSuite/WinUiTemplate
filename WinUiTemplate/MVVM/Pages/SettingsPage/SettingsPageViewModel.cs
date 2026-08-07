@@ -81,7 +81,8 @@ namespace WinUiTemplate.MVVM.Pages
                         onClick: () => {
                             OpenExplorer(programData.FilePaths.LogsFolder);
                             return Task.CompletedTask;
-                        }
+                        },
+                        serviceProvider
                     ),
                     new ButtonSetting(
                         name: "Show Crash Logs In Explorer",
@@ -91,7 +92,8 @@ namespace WinUiTemplate.MVVM.Pages
                         onClick: () => {
                             OpenExplorer(programData.FilePaths.CrashReportsFolder);
                             return Task.CompletedTask;
-                        }
+                        },
+                        serviceProvider
                     )
                 ]),
 
@@ -215,7 +217,8 @@ namespace WinUiTemplate.MVVM.Pages
                         description: "Creates a .zip with your decrypted data to send to the developer for debugging.",
                         icon: "\uE785",
                         buttonText: "Decrypt",
-                        onClick: DecryptData
+                        onClick: DecryptData,
+                        serviceProvider
                     )
                 ]),
 
@@ -244,6 +247,7 @@ namespace WinUiTemplate.MVVM.Pages
                         icon: "\uE74D",
                         buttonText: "Clear",
                         onClick: ClearImageCache,
+                        serviceProvider,
                         isVisibleFunc: () => userSettings.ImageCacheEnabled
                     )
                 ])
@@ -282,7 +286,8 @@ namespace WinUiTemplate.MVVM.Pages
                         description: "Backup your data now",
                         icon: "\uE78C",
                         buttonText: "Perform Backup",
-                        onClick: PerformBackup
+                        onClick: PerformBackup,
+                        serviceProvider
                     )
                 ]));
             }
