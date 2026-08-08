@@ -54,6 +54,7 @@ namespace WinUiTemplate
         private readonly IThemeService themeService;
 
         // Fields
+        private bool isClosing = false;
         private DesktopAcrylicController? acrylicController;
         private SystemBackdropConfiguration? acrylicConfiguration;
         private FrameworkElement? acrylicThemeRoot;
@@ -85,7 +86,9 @@ namespace WinUiTemplate
         }
 
         private async void OnMainWindowClosing(AppWindow sender, AppWindowClosingEventArgs args) {
-            if (args.Cancel) return;
+            if (isClosing) return;
+            
+            isClosing = true;
             args.Cancel = true;
 
             if (userSettings.RememberLayout) {

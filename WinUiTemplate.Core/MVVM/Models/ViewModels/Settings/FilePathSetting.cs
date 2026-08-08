@@ -41,8 +41,8 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         [RelayCommand]
         private void ExecuteButtonAction() {
             switch (pickerType) {
-                case PickerType.File: PickFile(); break;
-                case PickerType.Folder: PickFolder(); break;
+                case PickerType.File: _ = PickFile(); break;
+                case PickerType.Folder: _ = PickFolder(); break;
                 default:
                     Debug.Assert(false, $"Unknown picker type: '{pickerType}'");
                     break;
@@ -57,7 +57,7 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 
         // Private Functions
 
-        private async void PickFile() {
+        private async Task PickFile() {
             StorageFile? file = await dialogService.PickSingleFile();
             if (file != null) {
                 Value = file.Path;
@@ -65,7 +65,7 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
             }
         }
 
-        private async void PickFolder() {
+        private async Task PickFolder() {
             StorageFolder? folder = await dialogService.PickSingleFolder();
             if (folder != null) {
                 Value = folder.Path;

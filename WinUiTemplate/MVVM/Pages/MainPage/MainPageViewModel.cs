@@ -33,7 +33,7 @@ namespace WinUiTemplate.MVVM.Pages
 
             Notifications = new ObservableCollection<NotificationViewModel>();
 
-            CheckForBackups();
+            _ = CheckForBackups();
         }
 
         // Properties
@@ -60,7 +60,7 @@ namespace WinUiTemplate.MVVM.Pages
         }
 
         private void OnBackupCreatedOrDeleted() {
-            CheckForBackups();
+            _ = CheckForBackups();
         }
 
         private void OnNavigationAllowedChanged(bool allowed) {
@@ -69,7 +69,7 @@ namespace WinUiTemplate.MVVM.Pages
 
         // Private Functions
 
-        private async void CheckForBackups() {
+        private async Task CheckForBackups() {
             bool backupsExist = (await backupService.GetBackupsAsync()).Count != 0;
             BackupsButtonVisibility = backupsExist ? Visibility.Visible : Visibility.Collapsed;
         }
