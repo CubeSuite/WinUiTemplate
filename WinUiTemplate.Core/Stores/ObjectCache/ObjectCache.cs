@@ -16,13 +16,34 @@ namespace WinUiTemplate.Core.Stores
         private readonly ILoggerService logger;
 
         // Fields
-        private Dictionary<T, V> cache = new Dictionary<T, V>();
+        private readonly Dictionary<T, V> cache = new Dictionary<T, V>();
+        private readonly object cacheLock = new object();
 
         // Properties
 
-        public IEnumerable<V> Values => cache.Values;
-        public IEnumerable<T> Keys => cache.Keys;
-        public int Count => cache.Count;
+        public IEnumerable<V> Values {
+            get {
+                lock (cacheLock) {
+                    return cache.Values.ToList();
+                }
+            }
+        }
+
+        public IEnumerable<T> Keys {
+            get {
+                lock (cacheLock) {
+                    return cache.Keys.ToList();
+                }
+            }
+        }
+
+        public int Count {
+            get {
+                lock (cacheLock) {
+                    return cache.Count;
+                }
+            }
+        }
 
         // Constructors
 
@@ -33,57 +54,69 @@ namespace WinUiTemplate.Core.Stores
         // Public Functions
 
         public OperationResult TryAdd(T key, V instance) {
-            if (cache.ContainsKey(key)) {
-                string errorMessage = $"Key '{key}' already exists in cache";
-                logger.LogWarning(errorMessage);
-                return new OperationResult(false, errorMessage, false);
-            }
+            lock (cacheLock) {
+                if (cache.ContainsKey(key)) {
+                    string errorMessage = $"Key '{key}' already exists in cache";
+                    logger.LogWarning(errorMessage);
+                    return new OperationResult(false, errorMessage, false);
+                }
 
-            cache.Add(key, instance);
-            return new OperationResult(true, null, false);
+                cache.Add(key, instance);
+                return new OperationResult(true, null, false);
+            }
         }
 
         public OperationResult TryUpdate(T key, V instance) {
-            if (!cache.ContainsKey(key)) {
-                string errorMessage = $"Key '{key}' does not exist in cache";
-                logger.LogWarning(errorMessage);
-                return new OperationResult(false, errorMessage, false);
-            }
+            lock (cacheLock) {
+                if (!cache.ContainsKey(key)) {
+                    string errorMessage = $"Key '{key}' does not exist in cache";
+                    logger.LogWarning(errorMessage);
+                    return new OperationResult(false, errorMessage, false);
+                }
 
-            cache[key] = instance;
-            return new OperationResult(true, null, false);
+                cache[key] = instance;
+                return new OperationResult(true, null, false);
+            }
         }
 
         public OperationResult TryDelete(T key) {
-            if (!cache.ContainsKey(key)) {
-                string errorMessage = $"Key '{key}' does not exist in cache";
-                logger.LogError(errorMessage);
-                return new OperationResult(false, errorMessage, false);
-            }
+            lock (cacheLock) {
+                if (!cache.ContainsKey(key)) {
+                    string errorMessage = $"Key '{key}' does not exist in cache";
+                    logger.LogError(errorMessage);
+                    return new OperationResult(false, errorMessage, false);
+                }
 
-            cache.Remove(key);
-            return new OperationResult(true, null, false);
+                cache.Remove(key);
+                return new OperationResult(true, null, false);
+            }
         }
 
         public OperationResult TryGet(T key, out V? value, bool suppressErrors = false) {
-            if (!cache.TryGetValue(key, out value)){
-                string errorMessage = $"Key '{key}' does not exist in cache";
-                if (!suppressErrors) {
-                    logger.LogError(errorMessage);
+            lock (cacheLock) {
+                if (!cache.TryGetValue(key, out value)) {
+                    string errorMessage = $"Key '{key}' does not exist in cache";
+                    if (!suppressErrors) {
+                        logger.LogError(errorMessage);
+                    }
+                    return new OperationResult(false, errorMessage, suppressErrors);
                 }
-                return new OperationResult(false, errorMessage, suppressErrors);
-            }
 
-            return new OperationResult(true, null, false);
+                return new OperationResult(true, null, false);
+            }
         }
 
         public bool ContainsKey(T key) {
-            return cache.ContainsKey(key);
+            lock (cacheLock) {
+                return cache.ContainsKey(key);
+            }
         }
 
         public virtual OperationResult Clear() {
-            cache.Clear();
-            return new OperationResult(true, null, false);
+            lock (cacheLock) {
+                cache.Clear();
+                return new OperationResult(true, null, false);
+            }
         }
     }
 }
