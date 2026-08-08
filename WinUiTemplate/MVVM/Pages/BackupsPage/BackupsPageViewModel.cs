@@ -35,7 +35,7 @@ namespace WinUiTemplate.MVVM.Pages
             tokenSource = new CancellationTokenSource();
 
             Backups = new ObservableCollection<BackupViewModel>();
-            LoadBackups();
+            _ = LoadBackups();
         }
 
         // Listeners
@@ -46,7 +46,7 @@ namespace WinUiTemplate.MVVM.Pages
 
         // Private Functions
 
-        private async void LoadBackups() {
+        private async Task LoadBackups() {
             IReadOnlyList<BackupInfo> backups = await backupService.GetBackupsAsync(tokenSource.Token);
             if (backups == null) return;
 

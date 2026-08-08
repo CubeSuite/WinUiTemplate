@@ -26,7 +26,7 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
             get => _decrypted;
             set {
                 _decrypted = value;
-                SetEncryptedValueAsync(value);
+                _ = SetEncryptedValueAsync(value);
             }
         }
 
@@ -43,24 +43,24 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
             setValue = setValueFunc;
             getIsVisibleFunc = isVisibleFunc;
 
-            GetDecryptedValueAsync();
+            _ = GetDecryptedValueAsync();
         }
 
         // Private Functions
 
-        private async void GetDecryptedValueAsync() {
+        private async Task GetDecryptedValueAsync() {
             _decrypted = await encryptionService.DecryptFromBase64Async(getValue());
             OnPropertyChanged(nameof(Value));
         }
 
-        private async void SetEncryptedValueAsync(string newValue) {
+        private async Task SetEncryptedValueAsync(string newValue) {
             setValue(await encryptionService.EncryptToBase64Async(newValue));
         }
 
         // Public Functions
 
         public override void NotifyValueChanged() {
-            GetDecryptedValueAsync();
+            _ = GetDecryptedValueAsync();
         }
     }
 }
