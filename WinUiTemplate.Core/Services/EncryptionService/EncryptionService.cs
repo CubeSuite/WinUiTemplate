@@ -94,7 +94,10 @@ namespace WinUiTemplate.Services
                 RandomNumberGenerator.Fill(key);
 
                 byte[] protectedKey = await ProtectKeyAsync(key);
-                File.WriteAllBytes(programData.FilePaths.KeyFile, protectedKey);
+
+                string tempFile = programData.FilePaths.KeyFile + ".tmp";
+                File.WriteAllBytes(tempFile, protectedKey);
+                File.Move(tempFile, programData.FilePaths.KeyFile, overwrite: true);
             }
             
             return key;
@@ -121,6 +124,10 @@ namespace WinUiTemplate.Services
         }
                 
         private async Task<byte[]> DoDecryption(byte[] blob) {
+            if (blob == null || blob.Length < ivSizeBytes + tagSizeBytes) {
+                throw new ArgumentException("Cipher data is too short to be valid.", nameof(blob));
+            }
+
             byte[] key = await GetOrCreateKey();
             byte[] iv = new byte[ivSizeBytes];
             byte[] tag = new byte[tagSizeBytes];
