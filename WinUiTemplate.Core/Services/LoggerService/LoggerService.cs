@@ -193,7 +193,7 @@ namespace WinUiTemplate.Core.Services
 
                 while(result.Files.Count > userSettings.MaxLogs) {
                     StorageFile? oldestLog = null;
-                    DateTimeOffset oldestCreation = DateTime.MaxValue;
+                    DateTimeOffset oldestCreation = DateTimeOffset.MaxValue;
 
                     foreach(StorageFile file in result.Files) {
                         if (file.DateCreated < oldestCreation) {
