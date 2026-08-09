@@ -61,7 +61,7 @@ namespace WinUiTemplate.Core.Services
                     }
 
                     return true;
-                });
+                }).ToList();
             });
         }
 
