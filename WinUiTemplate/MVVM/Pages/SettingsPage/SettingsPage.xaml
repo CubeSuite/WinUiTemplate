@@ -11,6 +11,7 @@
       mc:Ignorable="d">
     <Page.Resources>
         <converters:TrueToVisibleConverter x:Key="trueToVisibleConverter" />
+        <converters:BoolToRevealConverter x:Key="boolToRevealConverter" />
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -46,6 +47,17 @@
 
                                             <community:Case Value="System.String">
                                                 <TextBox Text="{Binding Value, Mode=TwoWay}" />
+                                            </community:Case>
+
+                                            <community:Case Value="Encrypted">
+                                                <StackPanel Orientation="Horizontal"
+                                                            Spacing="8">
+                                                    <PasswordBox Password="{Binding Value, Mode=TwoWay}"
+                                                                 PasswordRevealMode="{Binding ShowDecrypted, Converter={StaticResource boolToRevealConverter}, UpdateSourceTrigger=PropertyChanged}" />
+                                                    <ToggleButton IsChecked="{Binding ShowDecrypted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                                        <FontIcon Glyph="&#xE890;" />
+                                                    </ToggleButton>
+                                                </StackPanel>
                                             </community:Case>
 
                                             <community:Case Value="Windows.UI.Color">
