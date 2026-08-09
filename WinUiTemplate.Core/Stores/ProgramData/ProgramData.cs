@@ -28,7 +28,7 @@ namespace WinUiTemplate.Core.Stores
         public bool EnableSingleInstance { get; } = true; // ToDo: Set EnableSingleInstance
         public EncryptionLevel EncryptionLevel { get; } = EncryptionLevel.Settings; // ToDo: Set EncryptionLevel
         public bool UsesApi { get; } = false; // ToDo: Set UsesApi
-        public bool UsesRemoteDatabase { get; } = true; // ToDo: Set UsesRemoteDatabase
+        public bool UsesRemoteDatabase { get; } = false; // ToDo: Set UsesRemoteDatabase
 
         // Constructors 
 
