@@ -11,6 +11,7 @@ using Windows.UI;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
 using WinUiTemplate.Core.Stores;
+using WinUiTemplate.Services;
 
 namespace WinUiTemplate.Tests
 {
@@ -517,8 +518,12 @@ namespace WinUiTemplate.Tests
     public class RemoteObjectRepositoryTests : ObjectStoreTestsBase<string, TestItem>
     {
         private readonly Mock<IUserSettings> mockUserSettings;
+        private readonly Mock<IProgramData> mockProgramData;
+        private readonly Mock<IFilePaths> mockFilePaths;
+        private readonly EncryptionService encryptionService;
         private readonly string testDatabaseName;
         private readonly string connectionString;
+        private readonly string keyFilePath;
         private readonly TestConfig.PostgreSQLConfig pgConfig;
 
         public RemoteObjectRepositoryTests() : base() {
@@ -526,17 +531,38 @@ namespace WinUiTemplate.Tests
             pgConfig = TestConfig.Instance.PostgreSQL;
             testDatabaseName = $"{pgConfig.Database}_test_{Guid.NewGuid():N}";
 
+            // Set up a real EncryptionService so the encrypted values stored in
+            // UserSettings can be decrypted by RemoteObjectRepository.BuildConnectionString
+            keyFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.key");
+            mockFilePaths = new Mock<IFilePaths>();
+            mockFilePaths.Setup(x => x.KeyFile).Returns(keyFilePath);
+            mockProgramData = new Mock<IProgramData>();
+            mockProgramData.Setup(x => x.FilePaths).Returns(mockFilePaths.Object);
+
+            Mock<IServiceProvider> encryptionServiceProvider = new Mock<IServiceProvider>();
+            encryptionServiceProvider
+                .Setup(x => x.GetService(typeof(IProgramData)))
+                .Returns(mockProgramData.Object);
+            encryptionService = new EncryptionService(encryptionServiceProvider.Object);
+
+            string encryptedHost = encryptionService.EncryptToBase64Async(pgConfig.Host).Result;
+            string encryptedUsername = encryptionService.EncryptToBase64Async(pgConfig.Username).Result;
+            string encryptedPassword = encryptionService.EncryptToBase64Async(pgConfig.Password).Result;
+
             mockUserSettings = new Mock<IUserSettings>();
-            mockUserSettings.Setup(x => x.DatabaseHost).Returns(pgConfig.Host);
+            mockUserSettings.Setup(x => x.DatabaseHost).Returns(encryptedHost);
             mockUserSettings.Setup(x => x.DatabasePort).Returns(pgConfig.Port);
             mockUserSettings.Setup(x => x.DatabaseName).Returns(testDatabaseName);
-            mockUserSettings.Setup(x => x.DatabaseUsername).Returns(pgConfig.Username);
-            mockUserSettings.Setup(x => x.DatabasePassword).Returns(pgConfig.Password);
+            mockUserSettings.Setup(x => x.DatabaseUsername).Returns(encryptedUsername);
+            mockUserSettings.Setup(x => x.DatabasePassword).Returns(encryptedPassword);
             mockUserSettings.Setup(x => x.DatabaseConnectionTimeout).Returns(30);
 
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(IUserSettings)))
                 .Returns(mockUserSettings.Object);
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IEncryptionService)))
+                .Returns(encryptionService);
 
             connectionString = $"Host={pgConfig.Host};Port={pgConfig.Port};Database={testDatabaseName};Username={pgConfig.Username};Password={pgConfig.Password};Timeout=30;MaxPoolSize=20;SslMode=Disable";
 
@@ -830,6 +856,12 @@ namespace WinUiTemplate.Tests
                 DropTestDatabase();
             } catch { }
 
+            try {
+                if (File.Exists(keyFilePath)) {
+                    File.Delete(keyFilePath);
+                }
+            } catch { }
+
             base.Dispose();
         }
     }
@@ -881,6 +913,9 @@ namespace WinUiTemplate.Tests
             mockServiceProvider
                 .Setup(x => x.GetService(typeof(IUserSettings)))
                 .Returns(mockUserSettings.Object);
+            mockServiceProvider
+                .Setup(x => x.GetService(typeof(IEncryptionService)))
+                .Returns(new EncryptionService(mockServiceProvider.Object));
         }
 
         [Fact]
