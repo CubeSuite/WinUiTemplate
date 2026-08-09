@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Npgsql;
 using Windows.UI;
 
 namespace WinUiTemplate.Core.Stores.Interfaces
@@ -50,6 +51,7 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         string DatabaseUsername { get; set; }
         string DatabasePassword { get; set; }
         int DatabaseConnectionTimeout { get; set; }
+        SslMode DatabaseSslMode { get; set; }
 
         // Search
         bool SearchCaseSensitive { get; set; }

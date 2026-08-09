@@ -374,7 +374,7 @@ namespace WinUiTemplate.Core.Stores
                 Password = password,
                 Timeout = userSettings.DatabaseConnectionTimeout,
                 MaxPoolSize = 20,
-                SslMode = SslMode.Disable
+                SslMode = userSettings.DatabaseSslMode
             };
 
             return builder.ToString();
