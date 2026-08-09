@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,7 +11,7 @@ using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
 {
-    public class EncryptedSetting : SettingBase 
+    public partial class EncryptedSetting : SettingBase 
     {
         // Services & Stores
         IEncryptionService encryptionService;
@@ -21,6 +22,9 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         private string _decrypted = "";
 
         // Properties
+
+        [ObservableProperty]
+        public partial bool ShowDecrypted { get; set; }
 
         public string Value {
             get => _decrypted;
@@ -35,7 +39,7 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels.Settings
         public EncryptedSetting(string name, string description, string icon,
                                 Func<string> getValueFunc, Action<string> setValueFunc,
                                 IServiceProvider serviceProvider, Func<bool>? isVisibleFunc = null)
-                               :base(name, description, icon, "System.String") 
+                               :base(name, description, icon, "Encrypted") 
         {
             IProgramData programData = serviceProvider.GetRequiredService<IProgramData>();
             encryptionService = serviceProvider.GetRequiredService<IEncryptionService>();
