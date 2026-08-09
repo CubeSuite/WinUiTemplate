@@ -20,6 +20,7 @@ using Windows.UI.ViewManagement;
 using WinUiTemplate.Core.MVVM.Models.ViewModels.Settings;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
+using Npgsql;
 
 namespace WinUiTemplate.MVVM.Pages
 {
@@ -369,6 +370,13 @@ namespace WinUiTemplate.MVVM.Pages
                         min: 5,
                         max: 120,
                         serviceProvider
+                    ),
+                    new EnumSetting<SslMode>(
+                        name: "SSL Mode",
+                        description: "The SSL/TLS mode to use when connecting to the database",
+                        icon: "\uE72E",
+                        getValueFunc: () => userSettings.DatabaseSslMode,
+                        setValueFunc: (value) => userSettings.DatabaseSslMode = value
                     )
                 ]));
             }

@@ -20,6 +20,7 @@ namespace WinUiTemplate.Core.Stores
         // Services & Stores
         private readonly ILoggerService logger;
         private readonly IUserSettings userSettings;
+        private readonly IEncryptionService encryptionService;
         private readonly string _tableName;
         private readonly FieldInfo[] fields;
         private readonly string connectionString;
@@ -105,6 +106,7 @@ namespace WinUiTemplate.Core.Stores
         public RemoteObjectRepository(IServiceProvider serviceProvider) {
             logger = serviceProvider.GetRequiredService<ILoggerService>();
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
+            encryptionService = serviceProvider.GetRequiredService<IEncryptionService>();
 
             _tableName = $"\"{typeof(V).Name}s\"";
             fields = typeof(V).GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
@@ -358,15 +360,21 @@ namespace WinUiTemplate.Core.Stores
         }
 
         private string BuildConnectionString() {
+            // Database host, username and password are stored encrypted, so they must be
+            // decrypted before being used to connect to the database.
+            string host = encryptionService.DecryptFromBase64Async(userSettings.DatabaseHost).GetAwaiter().GetResult();
+            string username = encryptionService.DecryptFromBase64Async(userSettings.DatabaseUsername).GetAwaiter().GetResult();
+            string password = encryptionService.DecryptFromBase64Async(userSettings.DatabasePassword).GetAwaiter().GetResult();
+
             NpgsqlConnectionStringBuilder builder = new NpgsqlConnectionStringBuilder {
-                Host = userSettings.DatabaseHost,
+                Host = host,
                 Port = userSettings.DatabasePort,
                 Database = userSettings.DatabaseName,
-                Username = userSettings.DatabaseUsername,
-                Password = userSettings.DatabasePassword,
+                Username = username,
+                Password = password,
                 Timeout = userSettings.DatabaseConnectionTimeout,
                 MaxPoolSize = 20,
-                SslMode = SslMode.Disable
+                SslMode = userSettings.DatabaseSslMode
             };
 
             return builder.ToString();

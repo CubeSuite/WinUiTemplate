@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Newtonsoft.Json;
+using Npgsql;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -82,6 +83,7 @@ namespace WinUiTemplate.Core.Stores
             string? DatabaseUsername,
             string? DatabasePassword,
             int? DatabaseConnectionTimeout,
+            SslMode? DatabaseSslMode,
 
             // Search
             bool? SearchCaseSensitive,
@@ -133,6 +135,7 @@ namespace WinUiTemplate.Core.Stores
         private string _databaseUsername = "";
         private string _databasePassword = "";
         private int _databaseConnectionTimeout = 30;
+        private SslMode _databaseSslMode = SslMode.Disable;
 
         // Search
         private bool _searchCaseSensitive = false;
@@ -294,6 +297,11 @@ namespace WinUiTemplate.Core.Stores
             set => SetSetting(ref _databaseConnectionTimeout, value);
         }
 
+        public SslMode DatabaseSslMode {
+            get => _databaseSslMode;
+            set => SetSetting(ref _databaseSslMode, value);
+        }
+
         // Search
 
         public bool SearchCaseSensitive {
@@ -404,6 +412,7 @@ namespace WinUiTemplate.Core.Stores
             DatabaseUsername = "";
             DatabasePassword = "";
             DatabaseConnectionTimeout = 30;
+            DatabaseSslMode = SslMode.Disable;
 
             // Search
             SearchCaseSensitive = false;
@@ -504,6 +513,7 @@ namespace WinUiTemplate.Core.Stores
             _databaseUsername,
             _databasePassword,
             _databaseConnectionTimeout,
+            _databaseSslMode,
 
             // Search
             _searchCaseSensitive,
@@ -553,6 +563,7 @@ namespace WinUiTemplate.Core.Stores
             _databaseUsername = dto.DatabaseUsername ?? "";
             _databasePassword = dto.DatabasePassword ?? "";
             _databaseConnectionTimeout = dto.DatabaseConnectionTimeout ?? 30;
+            _databaseSslMode = dto.DatabaseSslMode ?? SslMode.Disable;
 
             // Search
             _searchCaseSensitive = dto.SearchCaseSensitive ?? false;
