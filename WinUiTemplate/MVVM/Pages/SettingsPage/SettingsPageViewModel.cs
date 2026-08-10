@@ -388,7 +388,7 @@ namespace WinUiTemplate.MVVM.Pages
             foreach(SettingsCategoryList category in SettingsCategories) {
                 foreach(SettingBase setting in category.Settings) {
                     setting.NotifyIsVisibilityChanged();
-                    
+                    setting.NotifyValueChanged();
                 }
             }
         }
