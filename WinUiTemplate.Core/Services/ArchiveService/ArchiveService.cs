@@ -117,12 +117,21 @@ namespace WinUiTemplate.Core.Services
             }
 
             try {
+                string normalizedDestinationRoot = Path.GetFullPath(destinationFolder);
+                if (!normalizedDestinationRoot.EndsWith(Path.DirectorySeparatorChar.ToString())) {
+                    normalizedDestinationRoot += Path.DirectorySeparatorChar;
+                }
+
                 using (Stream zipStream = await zipResult.File.OpenStreamForReadAsync()) {
                     using (ZipArchive archive = new ZipArchive(zipStream, ZipArchiveMode.Read, false, Encoding.UTF8)) {
                         foreach(ZipArchiveEntry entry in archive.Entries) {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            string destinationPath = Path.Combine(destinationFolder, entry.FullName);
+                            string destinationPath = Path.GetFullPath(Path.Combine(destinationFolder, entry.FullName));
+                            if (!destinationPath.StartsWith(normalizedDestinationRoot, StringComparison.OrdinalIgnoreCase)) {
+                                return new OperationResult(false, $"Zip entry is outside of the destination folder: '{entry.FullName}'", true);
+                            }
+
                             string? destinationDirectory = Path.GetDirectoryName(destinationPath);
                             if (destinationDirectory == null) return new OperationResult(false, $"Invalid parent directory of file: '{entry.FullName}'", true);
 
