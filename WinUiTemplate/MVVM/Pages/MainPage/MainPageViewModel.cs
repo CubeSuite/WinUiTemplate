@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using System;
 using System.Collections.Generic;
@@ -18,9 +19,14 @@ namespace WinUiTemplate.MVVM.Pages
         // Services & Stores
         private readonly IBackupService backupService;
 
+        // Fields
+        private readonly DispatcherQueue uiThreadDispatcher;
+
         // Constructors
 
         public MainPageViewModel(IServiceProvider serviceProvider) {
+            uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
+
             serviceProvider.GetRequiredService<INotificationService>().NotificationRequested += OnNotificationRequested;
 
             INavigationService navigationService = serviceProvider.GetRequiredService<INavigationService>();
@@ -47,7 +53,7 @@ namespace WinUiTemplate.MVVM.Pages
 
         private void OnNotificationRequested(NotificationViewModel notification) {
             notification.PropertyChanged += OnNotificationPropertyChanged;
-            Notifications.Add(notification);
+            uiThreadDispatcher.TryEnqueue(() => Notifications.Add(notification));
         }
 
         private void OnNotificationPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e) {
@@ -55,7 +61,7 @@ namespace WinUiTemplate.MVVM.Pages
                 && sender is NotificationViewModel notification
                 && !notification.IsOpen) {
                 notification.PropertyChanged -= OnNotificationPropertyChanged;
-                Notifications.Remove(notification);
+                uiThreadDispatcher.TryEnqueue(() => Notifications.Remove(notification));
             }
         }
 
