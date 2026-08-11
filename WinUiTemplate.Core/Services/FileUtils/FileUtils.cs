@@ -226,7 +226,7 @@ namespace WinUiTemplate.Core.Services
 
                 StorageFolder? picked = await dialogService.PickSingleFolder();
                 if (picked == null) return null;
-                if (picked.Path != null) return null;
+                if (picked.Path == null) return null;
 
                 StorageApplicationPermissions.FutureAccessList.Add(picked, picked.Path);
                 return picked;
