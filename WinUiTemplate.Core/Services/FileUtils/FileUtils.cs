@@ -192,7 +192,7 @@ namespace WinUiTemplate.Core.Services
         }
 
         public DateTime ParseFileSafeTimestamp(string timestamp) {
-            if (timestamp.Contains(".")) timestamp.Split('.').First();
+            if (timestamp.Contains(".")) timestamp = timestamp.Split('.').First();
             return DateTime.ParseExact(timestamp, timestampFormat, System.Globalization.CultureInfo.InvariantCulture);
         }
         
