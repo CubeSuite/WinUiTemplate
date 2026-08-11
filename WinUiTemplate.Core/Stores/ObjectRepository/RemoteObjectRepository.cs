@@ -150,6 +150,12 @@ namespace WinUiTemplate.Core.Stores
                     if (targetType == typeof(Color) && value is Color colorValue) {
                         command.Parameters.AddWithValue(colorValue.ToHex());
                     }
+                    else if (targetType.IsEnum && value != null) {
+                        command.Parameters.AddWithValue(value.ToString());
+                    }
+                    else if (targetType == typeof(DateTime) && value is DateTime dateTimeValue) {
+                        command.Parameters.AddWithValue(DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc));
+                    }
                     else if (IsCollectionType(targetType) && value != null) {
                         command.Parameters.AddWithValue(JsonConvert.SerializeObject(value));
                     }
@@ -198,6 +204,12 @@ namespace WinUiTemplate.Core.Stores
 
                     if (targetType == typeof(Color) && value is Color colorValue) {
                         command.Parameters.AddWithValue(colorValue.ToHex());
+                    }
+                    else if (targetType.IsEnum && value != null) {
+                        command.Parameters.AddWithValue(value.ToString());
+                    }
+                    else if (targetType == typeof(DateTime) && value is DateTime dateTimeValue) {
+                        command.Parameters.AddWithValue(DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc));
                     }
                     else if (IsCollectionType(targetType) && value != null) {
                         command.Parameters.AddWithValue(JsonConvert.SerializeObject(value));
@@ -418,7 +430,7 @@ namespace WinUiTemplate.Core.Stores
             if (underlyingType == typeof(double)) return "DOUBLE PRECISION";
             if (underlyingType == typeof(decimal)) return "NUMERIC";
             if (underlyingType == typeof(byte[])) return "BYTEA";
-            if (underlyingType == typeof(DateTime)) return "TIMESTAMP";
+            if (underlyingType == typeof(DateTime)) return "TIMESTAMPTZ";
             if (underlyingType == typeof(Guid)) return "UUID";
             if (underlyingType == typeof(Color)) return "TEXT";
             if (underlyingType == typeof(string)) return "TEXT";
@@ -534,7 +546,7 @@ namespace WinUiTemplate.Core.Stores
                 command.CommandText = sql;
 
                 for (int i = 0; i < parameters.Length; i++) {
-                    command.Parameters.AddWithValue(parameters[i] ?? DBNull.Value);
+                    command.Parameters.AddWithValue($"@p{i}", parameters[i] ?? DBNull.Value);
                 }
 
                 using NpgsqlDataReader reader = command.ExecuteReader();
@@ -561,7 +573,7 @@ namespace WinUiTemplate.Core.Stores
                 command.CommandText = sql;
 
                 for (int i = 0; i < parameters.Length; i++) {
-                    command.Parameters.AddWithValue(parameters[i] ?? DBNull.Value);
+                    command.Parameters.AddWithValue($"@p{i}", parameters[i] ?? DBNull.Value);
                 }
 
                 int rowsAffected = command.ExecuteNonQuery();

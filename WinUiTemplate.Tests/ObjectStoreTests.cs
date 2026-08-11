@@ -710,7 +710,7 @@ namespace WinUiTemplate.Tests
             store.TryAdd("key2", new TestItem { Value = 200, Name = "Item 2", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 0, 255, 0) });
             store.TryAdd("key3", new TestItem { Value = 300, Name = "Item 3", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 0, 0, 255) });
 
-            IEnumerable<TestItem> results = repo.Query("SELECT * FROM \"TestItems\" WHERE \"value\" > $1", 150);
+            IEnumerable<TestItem> results = repo.Query("SELECT * FROM \"TestItems\" WHERE \"value\" > @p0", 150);
 
             List<TestItem> resultList = results.ToList();
             Assert.Equal(2, resultList.Count);
@@ -728,7 +728,7 @@ namespace WinUiTemplate.Tests
             store.TryAdd("key1", new TestItem { Value = 100, Name = "Item 1", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 255, 0, 0) });
             store.TryAdd("key2", new TestItem { Value = 200, Name = "Item 2", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 0, 255, 0) });
 
-            OperationResult result = repo.ExecuteCommand("UPDATE \"TestItems\" SET \"value\" = $1 WHERE \"Key\" = $2", 999, "key1");
+            OperationResult result = repo.ExecuteCommand("UPDATE \"TestItems\" SET \"value\" = @p0 WHERE \"Key\" = @p1", 999, "key1");
 
             Assert.True(result.Success);
             Assert.Contains("1 row(s) affected", result.ErrorMessage);
