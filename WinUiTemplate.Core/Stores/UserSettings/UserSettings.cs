@@ -359,7 +359,16 @@ namespace WinUiTemplate.Core.Stores
                     return;
                 }
 
-                SettingsDTO? dto = JsonConvert.DeserializeObject<SettingsDTO>(result.Content ?? "{}");
+                SettingsDTO? dto;
+                try {
+                    dto = JsonConvert.DeserializeObject<SettingsDTO>(result.Content ?? "{}");
+                }
+                catch (JsonException e) {
+                    await HandleCorruptedSettingsAsync(result.Content ?? "", e.Message);
+                    Loaded = true;
+                    return;
+                }
+
                 if (dto == null) {
                     string error = $"Parsed Settings.json is null";
                     Debug.Assert(false, error);
@@ -439,6 +448,39 @@ namespace WinUiTemplate.Core.Stores
         }
 
         // Private Functions
+
+        private async Task HandleCorruptedSettingsAsync(string corruptedContent, string parseError) {
+            string error = $"Settings.json is corrupted and could not be parsed - '{parseError}'";
+            logger.LogError(error);
+
+            string corruptedFilePath = Path.Combine(programData.FilePaths.DataFolder, "SettingsCorrupted.json");
+
+            try {
+                await fileUtils.TryWriteFileAsync(corruptedFilePath, corruptedContent);
+            }
+            catch (Exception e) {
+                Debug.Assert(false, $"UserSettings.HandleCorruptedSettingsAsync failed to write corrupted settings backup: '{e.Message}'");
+            }
+
+            notificationService.Notify(
+                InfoBarSeverity.Error,
+                "Settings File Corrupted",
+                $"{programData.ProgramName}'s settings file was corrupted and default settings have been loaded. A copy of the corrupted file has been saved.",
+                "Show In Explorer",
+                () => {
+                    try {
+                        Process.Start(new ProcessStartInfo() {
+                            FileName = "explorer.exe",
+                            Arguments = $"/select,\"{corruptedFilePath}\"",
+                            UseShellExecute = true
+                        });
+                    }
+                    catch (Exception e) {
+                        Debug.Assert(false, $"UserSettings.HandleCorruptedSettingsAsync failed to open Explorer: '{e.Message}'");
+                    }
+                }
+            );
+        }
 
         private void SetSetting<T>(ref T field, T value, [CallerMemberName] string name = "") {
             if (EqualityComparer<T>.Default.Equals(field, value)) return;

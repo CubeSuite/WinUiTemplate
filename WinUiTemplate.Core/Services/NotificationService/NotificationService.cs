@@ -16,6 +16,11 @@ namespace WinUiTemplate.Core.Services
         // Services & Stores
         private readonly ILoggerService logger;
 
+        // Fields
+        private readonly object subscriberLock = new object();
+        private readonly Queue<NotificationViewModel> pendingNotifications = new Queue<NotificationViewModel>();
+        private Action<NotificationViewModel>? notificationRequested;
+
         // Constructors
 
         public NotificationService(IServiceProvider serviceProvider) {
@@ -23,7 +28,27 @@ namespace WinUiTemplate.Core.Services
         }
 
         // Events
-        public event Action<NotificationViewModel>? NotificationRequested;
+        public event Action<NotificationViewModel>? NotificationRequested {
+            add {
+                if (value == null) return;
+
+                List<NotificationViewModel> backlog;
+                lock (subscriberLock) {
+                    notificationRequested += value;
+                    backlog = pendingNotifications.ToList();
+                    pendingNotifications.Clear();
+                }
+
+                foreach (NotificationViewModel notification in backlog) {
+                    value.Invoke(notification);
+                }
+            }
+            remove {
+                lock (subscriberLock) {
+                    notificationRequested -= value;
+                }
+            }
+        }
 
         // Public Functions
 
@@ -34,7 +59,17 @@ namespace WinUiTemplate.Core.Services
             }
 
             LogNotification(level, title, message);
-            NotificationRequested?.Invoke(new NotificationViewModel(level, title, message, buttonText, onClick));
+
+            NotificationViewModel notification = new NotificationViewModel(level, title, message, buttonText, onClick);
+
+            lock (subscriberLock) {
+                if (notificationRequested == null) {
+                    pendingNotifications.Enqueue(notification);
+                    return;
+                }
+            }
+
+            notificationRequested?.Invoke(notification);
         }
 
         // Private Functions
