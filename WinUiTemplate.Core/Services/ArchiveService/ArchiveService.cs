@@ -35,16 +35,12 @@ namespace WinUiTemplate.Core.Services
         // Public Functions
 
         public async Task<OperationResult> ZipFolderAsync(string sourceFolder, string zipFilePath, CancellationToken cancellationToken = default) {
-            FileResult zipFileResult = await fileUtils.TryGetFileAsync(zipFilePath);
-            if (zipFileResult.Success && zipFileResult.File != null) {
-                await zipFileResult.File.DeleteAsync();
-            }
-
             FolderResult sourceFolderResult = await fileUtils.TryGetOrCreateFolderAsync(sourceFolder);
             if (!sourceFolderResult.Success || sourceFolderResult.Folder == null) {
                 return new OperationResult(false, $"Failed to access sourceFolder: '{sourceFolder}'", true);
             }
 
+            string tempZipFilePath = zipFilePath + ".tmp";
             StorageFile? zipFile = null;
             string? parent = Path.GetDirectoryName(zipFilePath);
             if (parent != null) {
@@ -53,7 +49,7 @@ namespace WinUiTemplate.Core.Services
                     return new OperationResult(false, "Failed to create zip parent directory", true);
                 }
 
-                zipFile = await parentResult.Folder.CreateFileAsync(Path.GetFileName(zipFilePath));
+                zipFile = await parentResult.Folder.CreateFileAsync(Path.GetFileName(tempZipFilePath), CreationCollisionOption.ReplaceExisting);
             }
 
             if (zipFile == null) return new OperationResult(false, "Failed to create zip file", true);
@@ -93,15 +89,31 @@ namespace WinUiTemplate.Core.Services
                     }
                 }
 
+                await zipFile.RenameAsync(Path.GetFileName(zipFilePath), NameCollisionOption.ReplaceExisting);
+
                 return new OperationResult(true, "", false);
             }
             catch (OperationCanceledException) {
+                await TryDeleteTempZip(zipFile);
                 return new OperationResult(false, "Backup cancelled", false);
             }
             catch (Exception e) {
+                await TryDeleteTempZip(zipFile);
                 string error = $"Archive failed - {e.Message}";
                 logger.LogError(error);
                 return new OperationResult(false, error, true);
+            }
+        }
+
+        private async Task TryDeleteTempZip(StorageFile? tempZipFile) {
+            if (tempZipFile == null) return;
+
+            try {
+                await tempZipFile.DeleteAsync();
+            }
+            catch (Exception e){
+                logger.LogWarning($"Failed to delete temp zip: '{e.Message}'");
+                // Best effort cleanup; leaving the temp file behind is not data loss.
             }
         }
 

@@ -295,7 +295,7 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
-        public async Task ZipFolderAsync_DeletesExistingZipFile_WhenZipAlreadyExists() {
+        public async Task ZipFolderAsync_PreservesExistingZipFile_WhenSourceFolderAccessFails() {
             await using TempTestResources resources = await CreateZipTestResourcesAsync();
 
             SetupSuccessfulFileAccess(resources.ZipFile!.Path, resources.ZipFile);
@@ -303,7 +303,7 @@ namespace WinUiTemplate.Tests
 
             await archiveService.ZipFolderAsync(resources.SourceFolder.Path, resources.ZipFile.Path);
 
-            File.Exists(resources.ZipFile.Path).Should().BeFalse();
+            File.Exists(resources.ZipFile.Path).Should().BeTrue();
         }
 
         [Fact]
