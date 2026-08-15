@@ -22,13 +22,14 @@ namespace WinUiTemplate.Core.Services
         
         // Fields
         private readonly HttpClient client;
-        private const string baseUrl = "";
+        private readonly string baseUrl;
 
         // Constructors
-        public HttpService(IServiceProvider serviceProvider) {
+        public HttpService(IServiceProvider serviceProvider, string baseUrl) {
             logger = serviceProvider.GetRequiredService<ILoggerService>();
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
             
+            this.baseUrl = baseUrl;
             client = new HttpClient();
         }
 

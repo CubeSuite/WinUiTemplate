@@ -324,7 +324,7 @@ namespace WinUiTemplate.Tests
         }
 
         private HttpService CreateHttpService(Mock<HttpMessageHandler> mockHandler) {
-            HttpService httpService = new HttpService(mockServiceProvider.Object);
+            HttpService httpService = new HttpService(mockServiceProvider.Object, "https://api.example.com");
 
             // Replace the HttpClient with one using our mock handler
             System.Reflection.FieldInfo? clientField = typeof(HttpService).GetField("client", 

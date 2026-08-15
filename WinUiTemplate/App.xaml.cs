@@ -136,7 +136,6 @@ namespace WinUiTemplate
             services.AddSingleton(typeof(IBackupService), testBackupService ? typeof(TestBackupService) : typeof(BackupService));
             services.AddSingleton(typeof(IDialogService), testDialogService ? typeof(TestDialogService) : typeof(DialogService));
             services.AddSingleton(typeof(IEncryptionService), testEncryptionService ? typeof(TestEncryptionService) : typeof(EncryptionService));
-            services.AddSingleton<IHttpService, HttpService>();
             services.AddSingleton<IImageCache, ImageCache>();
             services.AddSingleton<ILoggerService, LoggerService>();
             services.AddSingleton<INavigationService, NavigationService>();
