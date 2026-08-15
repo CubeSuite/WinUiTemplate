@@ -292,6 +292,90 @@ namespace WinUiTemplate.Tests
 
         #endregion
 
+        #region Debounced Save Tests
+
+        [Fact]
+        public async Task SettingChange_TriggersDebouncedSave_AfterDelay()
+        {
+            UserSettings settings = CreateUserSettings();
+            SetupSuccessfulFileRead("{}");
+            await settings.Load();
+
+            SetupSuccessfulFileWrite();
+
+            settings.LogDebugMessages = true;
+
+            await Task.Delay(500);
+
+            mockFileUtils.Verify(
+                x => x.TryWriteFileAsync(settingsFilePath, It.IsAny<string>(), It.IsAny<bool?>()),
+                Times.Once
+            );
+        }
+
+        [Fact]
+        public async Task RapidSettingChanges_OnlyTriggerOneDebouncedSave()
+        {
+            UserSettings settings = CreateUserSettings();
+            SetupSuccessfulFileRead("{}");
+            await settings.Load();
+
+            SetupSuccessfulFileWrite();
+
+            settings.LogDebugMessages = true;
+            settings.MaxLogs = 20;
+            settings.SearchCaseSensitive = true;
+
+            await Task.Delay(500);
+
+            mockFileUtils.Verify(
+                x => x.TryWriteFileAsync(settingsFilePath, It.IsAny<string>(), It.IsAny<bool?>()),
+                Times.Once
+            );
+        }
+
+        [Fact]
+        public void SettingChange_DoesNotSave_WhenNotLoaded()
+        {
+            UserSettings settings = CreateUserSettings();
+            SetupSuccessfulFileWrite();
+
+            settings.LogDebugMessages = true;
+
+            mockFileUtils.Verify(
+                x => x.TryWriteFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool?>()),
+                Times.Never
+            );
+        }
+
+        [Fact]
+        public async Task SaveNowAsync_CancelsPendingDebouncedSave_AndSavesImmediately()
+        {
+            UserSettings settings = CreateUserSettings();
+            SetupSuccessfulFileRead("{}");
+            await settings.Load();
+
+            SetupSuccessfulFileWrite();
+
+            settings.LogDebugMessages = true;
+            await settings.SaveNowAsync();
+
+            mockFileUtils.Verify(
+                x => x.TryWriteFileAsync(settingsFilePath, It.IsAny<string>(), It.IsAny<bool?>()),
+                Times.Once
+            );
+
+            // Confirm the debounced task (if it fires later) doesn't cause a second write
+            await Task.Delay(500);
+
+            mockFileUtils.Verify(
+                x => x.TryWriteFileAsync(settingsFilePath, It.IsAny<string>(), It.IsAny<bool?>()),
+                Times.Once
+            );
+        }
+
+        #endregion
+
         #region Database Settings Tests
 
         [Fact]

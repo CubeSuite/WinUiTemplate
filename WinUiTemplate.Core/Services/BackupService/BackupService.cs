@@ -223,11 +223,18 @@ namespace WinUiTemplate.Core.Services
 
                 foreach (BackupInfo info in backups) {
                     string zip = info.Path;
+                    if (!File.Exists(zip)) continue;
+
                     DateTime created = File.GetCreationTime(zip);
                     if (created < oldestTime) {
                         oldestTime = created;
                         oldestBackup = zip;
                     }
+                }
+
+                if (string.IsNullOrEmpty(oldestBackup)) {
+                    logger.LogWarning("Could not check max backups, no valid backup files found on disk");
+                    return;
                 }
 
                 try {
@@ -317,7 +324,12 @@ namespace WinUiTemplate.Core.Services
                             using (MemoryStream ms = new MemoryStream()) {
                                 await metaStream.CopyToAsync(ms, bufferSize, cancellationToken);
                                 string json = Encoding.UTF8.GetString(ms.ToArray());
-                                return JsonConvert.DeserializeObject<BackupInfo>(json);
+                                BackupInfo? info = JsonConvert.DeserializeObject<BackupInfo>(json);
+                                if (info == null) return null;
+
+                                // Use the zip file's current path rather than the path baked into the
+                                // metadata at creation time, which may be stale if the file was moved/renamed.
+                                return info with { Path = zipFile.Path };
                             }
                         }
                     }

@@ -101,6 +101,9 @@ namespace WinUiTemplate
             }
 
             userSettings.IsFirstLaunch = false;
+
+            await userSettings.SaveNowAsync();
+
             OperationResult result = await backupService.CreateBackupAsync();
             if (!result.Success && result.Notify) {
                 await dialogService.ShowMessage(MessageType.Warning, "Backup Failed", result.ErrorMessage ?? "");                

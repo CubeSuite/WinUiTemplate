@@ -235,6 +235,41 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        public async Task SendAsync_RetriesAndSucceedsOnSecondAttempt() {
+            TestModel testData = new TestModel { Id = 1, Name = "Test" };
+            string json = JsonConvert.SerializeObject(testData);
+
+            Mock<HttpMessageHandler> mockHandler = new Mock<HttpMessageHandler>();
+            mockHandler
+                .Protected()
+                .SetupSequence<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(),
+                    ItExpr.IsAny<CancellationToken>()
+                )
+                .ThrowsAsync(new HttpRequestException("Connection failed"))
+                .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK) {
+                    Content = new StringContent(json, Encoding.UTF8, "application/json")
+                });
+
+            HttpService httpService = CreateHttpService(mockHandler);
+
+            TestModel? result = await httpService.GetAsync<TestModel>("/api/test");
+
+            result.Should().NotBeNull();
+            result!.Id.Should().Be(1);
+
+            mockHandler.Protected().Verify(
+                "SendAsync",
+                Times.Exactly(2),
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            );
+
+            mockLogger.Verify(x => x.LogWarning(It.Is<string>(s => s.Contains("caused exception"))), Times.Once);
+        }
+
+        [Fact]
         public async Task SendAsync_LogsApiErrors() {
             Mock<HttpMessageHandler> mockHandler = CreateMockHandler(HttpStatusCode.BadRequest, "Invalid request");
             HttpService httpService = CreateHttpService(mockHandler);
@@ -324,7 +359,7 @@ namespace WinUiTemplate.Tests
         }
 
         private HttpService CreateHttpService(Mock<HttpMessageHandler> mockHandler) {
-            HttpService httpService = new HttpService(mockServiceProvider.Object);
+            HttpService httpService = new HttpService(mockServiceProvider.Object, "https://api.example.com");
 
             // Replace the HttpClient with one using our mock handler
             System.Reflection.FieldInfo? clientField = typeof(HttpService).GetField("client", 

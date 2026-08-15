@@ -40,7 +40,7 @@ namespace WinUiTemplate.Core.Services
 
         // Properties
 
-        public bool DarkMode => userSettings.Theme == ThemeOption.Dark || Application.Current.RequestedTheme == ApplicationTheme.Dark;
+        public bool DarkMode => userSettings.Theme == ThemeOption.Dark || (userSettings.Theme == ThemeOption.MatchWindows && Application.Current.RequestedTheme == ApplicationTheme.Dark);
 
         // Constructors
 

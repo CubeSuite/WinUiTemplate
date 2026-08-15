@@ -51,16 +51,15 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
         [RelayCommand]
         private async Task Restore() {
             if (!isRestoring) {
-                await backupService.RestoreBackupAsync(zipFile, tokenSource.Token);
                 isRestoring = true;
                 OnPropertyChanged(nameof(RestoreButtonText));
+                await backupService.RestoreBackupAsync(zipFile, tokenSource.Token);
             }
             else {
                 tokenSource.Cancel();
                 isRestoring = false;
                 OnPropertyChanged(nameof(RestoreButtonText));
             }
-
         }
 
         [RelayCommand]

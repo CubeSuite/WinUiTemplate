@@ -22,13 +22,14 @@ namespace WinUiTemplate.Core.Services
         
         // Fields
         private readonly HttpClient client;
-        private const string baseUrl = "";
+        private readonly string baseUrl;
 
         // Constructors
-        public HttpService(IServiceProvider serviceProvider) {
+        public HttpService(IServiceProvider serviceProvider, string baseUrl) {
             logger = serviceProvider.GetRequiredService<ILoggerService>();
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
             
+            this.baseUrl = baseUrl;
             client = new HttpClient();
         }
 
@@ -54,16 +55,17 @@ namespace WinUiTemplate.Core.Services
 
         private async Task<T?> SendAsync<T>(HttpMethod method, string endpoint, object? body, CancellationToken token) {
             string url = baseUrl + endpoint;
-            HttpRequestMessage request = new HttpRequestMessage(method, url);
-            if (body != null) {
-                string json = JsonConvert.SerializeObject(body);
-                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
-            }
 
             int attempts = 0;
             while(attempts <= userSettings.ApiMaxRetries) {
                 attempts++;
                 try {
+                    HttpRequestMessage request = new HttpRequestMessage(method, url);
+                    if (body != null) {
+                        string json = JsonConvert.SerializeObject(body);
+                        request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                    }
+
                     CancellationTokenSource timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(userSettings.ApiTimeout));
                     CancellationTokenSource linkedToken = CancellationTokenSource.CreateLinkedTokenSource(token, timeoutToken.Token);
 

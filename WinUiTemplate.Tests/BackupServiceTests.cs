@@ -183,6 +183,84 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        public async Task CreateBackupAsync_RotatesOldBackups_WhenExceedingMaxBackups() {
+            await using TempTestResources resources = new TempTestResources
+            {
+                BackupsFolder = await TestUtils.GetTempFolder(),
+                DataFolder = await TestUtils.GetTempFolder()
+            };
+            string metadataPath = Path.Combine(resources.DataFolder.Path, "metadata.json");
+
+            mockFilePaths.SetupGet(x => x.RootFolder).Returns(resources.DataFolder.Path);
+            mockFilePaths.SetupGet(x => x.TempMetadataFile).Returns(metadataPath);
+
+            mockProgramData.SetupGet(x => x.EnableBackups).Returns(true);
+            mockProgramData.Setup(x => x.ProgramVersion).Returns(new Version("3.2.1"));
+
+            mockUserSettings.SetupGet(x => x.AutomaticBackups).Returns(true);
+            mockUserSettings.SetupGet(x => x.BackupsFolder).Returns(resources.BackupsFolder.Path);
+            mockUserSettings.SetupGet(x => x.MaxBackups).Returns(2);
+
+            // Create 2 existing backups with different creation times, older than the new one about to be created
+            string oldestZipPath = await CreateZipWithMetadata(resources.BackupsFolder, new Version("3.2.1"), "oldest.zip");
+            File.SetCreationTime(oldestZipPath, DateTime.Now.AddDays(-3));
+
+            string middleZipPath = await CreateZipWithMetadata(resources.BackupsFolder, new Version("3.2.1"), "middle.zip");
+            File.SetCreationTime(middleZipPath, DateTime.Now.AddDays(-2));
+
+            mockFileUtils
+                .Setup(x => x.EnsureFolderAccessAsync(resources.BackupsFolder.Path))
+                .ReturnsAsync(true);
+
+            mockFileUtils
+                .Setup(x => x.TryGetOrCreateFolderAsync(It.IsAny<string>()))
+                .Returns(async (string path) => {
+                    Directory.CreateDirectory(path);
+                    StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(path);
+                    return new FolderResult(true, "", folder);
+                });
+
+            mockFileUtils
+                .Setup(x => x.TryGetAllFilesAsync(resources.DataFolder.Path, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new FilesResult(true, "", new List<StorageFile>()));
+
+            mockFileUtils
+                .Setup(x => x.TryWriteFileAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+                .ReturnsAsync((string path, string content, bool? encrypt) => {
+                    try {
+                        string? directory = Path.GetDirectoryName(path);
+                        if (!string.IsNullOrEmpty(directory)) {
+                            Directory.CreateDirectory(directory);
+                        }
+                        File.WriteAllText(path, content);
+                        return new FileWriteResult(true, "");
+                    }
+                    catch (Exception ex) {
+                        return new FileWriteResult(false, ex.Message);
+                    }
+                });
+
+            mockArchiveService
+                .Setup(x => x.ZipFolderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((string sourceFolder, string destinationZip, CancellationToken token) => {
+                    string? directory = Path.GetDirectoryName(destinationZip);
+                    if (!string.IsNullOrEmpty(directory)) {
+                        Directory.CreateDirectory(directory);
+                    }
+                    System.IO.Compression.ZipFile.CreateFromDirectory(sourceFolder, destinationZip);
+                    return new OperationResult(true, "", false);
+                });
+
+            OperationResult result = await backupService.CreateBackupAsync();
+
+            result.Success.Should().BeTrue();
+
+            string[] remainingZips = Directory.GetFiles(resources.BackupsFolder.Path, "*.zip");
+            remainingZips.Count().Should().Be(2);
+            remainingZips.Should().NotContain(z => Path.GetFileName(z) == "oldest.zip");
+        }
+
+        [Fact]
         public async Task CreateBackupAsync_RespectsBackupsDisabledViaProgramData() {
             mockProgramData.Setup(x => x.EnableBackups).Returns(false);
 

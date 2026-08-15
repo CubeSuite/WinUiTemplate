@@ -70,5 +70,6 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         // Public Functions
         Task Load();
         void RestoreDefaults();
+        Task SaveNowAsync();
     }
 }
