@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Security.Cryptography;
 using Windows.Security.Cryptography.DataProtection;
@@ -24,6 +25,7 @@ namespace WinUiTemplate.Services
         private const int ivSizeBytes = 12;
         private const int tagSizeBytes = 16;
         private byte[]? key;
+        private readonly SemaphoreSlim keySemaphore = new SemaphoreSlim(1, 1);
 
         // Constructors
 
@@ -82,25 +84,33 @@ namespace WinUiTemplate.Services
         private async Task<byte[]> GetOrCreateKey() {
             if (key != null) return key;
 
-            if (File.Exists(programData.FilePaths.KeyFile)) {
-                byte[] protectedKey = File.ReadAllBytes(programData.FilePaths.KeyFile);
-                key = await UnprotectKeyAsync(protectedKey);
-                if (key.Length != keySizeBytes) {
-                    throw new CryptographicException("Invalid key length.");
+            await keySemaphore.WaitAsync();
+            try {
+                if (key != null) return key;
+
+                if (File.Exists(programData.FilePaths.KeyFile)) {
+                    byte[] protectedKey = File.ReadAllBytes(programData.FilePaths.KeyFile);
+                    key = await UnprotectKeyAsync(protectedKey);
+                    if (key.Length != keySizeBytes) {
+                        throw new CryptographicException("Invalid key length.");
+                    }
                 }
-            }
-            else {
-                key = new byte[keySizeBytes];
-                RandomNumberGenerator.Fill(key);
+                else {
+                    key = new byte[keySizeBytes];
+                    RandomNumberGenerator.Fill(key);
 
-                byte[] protectedKey = await ProtectKeyAsync(key);
+                    byte[] protectedKey = await ProtectKeyAsync(key);
 
-                string tempFile = programData.FilePaths.KeyFile + ".tmp";
-                File.WriteAllBytes(tempFile, protectedKey);
-                File.Move(tempFile, programData.FilePaths.KeyFile, overwrite: true);
+                    string tempFile = programData.FilePaths.KeyFile + ".tmp";
+                    File.WriteAllBytes(tempFile, protectedKey);
+                    File.Move(tempFile, programData.FilePaths.KeyFile, overwrite: true);
+                }
+
+                return key;
             }
-            
-            return key;
+            finally {
+                keySemaphore.Release();
+            }
         }
 
         private async Task<byte[]> DoEncryption(byte[] plainBytes) {
