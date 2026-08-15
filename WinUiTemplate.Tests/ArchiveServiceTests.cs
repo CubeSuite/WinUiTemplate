@@ -430,6 +430,40 @@ namespace WinUiTemplate.Tests
             mockLogger.Verify(x => x.LogError(It.IsAny<string>(), null, true), Times.Once);
         }
 
+        [Fact]
+        public async Task ExtractZip_ZipSlipEntryOutsideDestination_ReturnsFailure() {
+            await using TempTestResources resources = new TempTestResources
+            {
+                ParentFolder = await TestUtils.GetTempFolder(),
+                DestinationFolder = await TestUtils.GetTempFolder()
+            };
+
+            string zipPath = Path.Combine(resources.ParentFolder!.Path, "malicious.zip");
+            using (FileStream fs = new FileStream(zipPath, FileMode.Create))
+            using (ZipArchive archive = new ZipArchive(fs, ZipArchiveMode.Create)) {
+                ZipArchiveEntry entry = archive.CreateEntry("../../evil.txt");
+                using (StreamWriter writer = new StreamWriter(entry.Open())) {
+                    await writer.WriteAsync("malicious content");
+                }
+            }
+
+            resources.ZipFile = await StorageFile.GetFileFromPathAsync(zipPath);
+
+            SetupSuccessfulFileAccess(resources.ZipFile.Path, resources.ZipFile);
+            SetupSuccessfulFolderAccess(resources.DestinationFolder!.Path, resources.DestinationFolder);
+
+            OperationResult result = await archiveService.ExtractZip(
+                resources.ZipFile.Path,
+                resources.DestinationFolder.Path
+            );
+
+            result.Success.Should().BeFalse();
+            result.ErrorMessage.Should().Contain("outside of the destination folder");
+
+            string escapedPath = Path.Combine(Path.GetDirectoryName(resources.DestinationFolder.Path)!, "evil.txt");
+            File.Exists(escapedPath).Should().BeFalse();
+        }
+
         #endregion
     }
 }

@@ -2,6 +2,7 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -111,6 +112,40 @@ namespace WinUiTemplate.Tests
             byte[] decrypted = await encryptionService.DecryptAsync(encrypted);
 
             decrypted.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task DecryptAsync_ThrowsArgumentException_WhenBlobIsTooShort() {
+            byte[] tooShort = new byte[10]; // less than ivSizeBytes (12) + tagSizeBytes (16)
+
+            Func<Task> act = async () => await encryptionService.DecryptAsync(tooShort);
+
+            await act.Should().ThrowAsync<ArgumentException>();
+        }
+
+        [Fact]
+        public async Task EncryptAsync_HandlesConcurrentCallsWithoutCorruptingKey() {
+            byte[][] plainBytesArray = Enumerable.Range(0, 20)
+                .Select(i => Encoding.UTF8.GetBytes($"Message {i}"))
+                .ToArray();
+
+            Task<byte[]>[] encryptTasks = plainBytesArray
+                .Select(pb => encryptionService.EncryptAsync(pb))
+                .ToArray();
+
+            byte[][] encryptedResults = await Task.WhenAll(encryptTasks);
+
+            Task<byte[]>[] decryptTasks = encryptedResults
+                .Select(eb => encryptionService.DecryptAsync(eb))
+                .ToArray();
+
+            byte[][] decryptedResults = await Task.WhenAll(decryptTasks);
+
+            for (int i = 0; i < plainBytesArray.Length; i++) {
+                decryptedResults[i].Should().Equal(plainBytesArray[i]);
+            }
+
+            File.Exists(keyFilePath).Should().BeTrue();
         }
 
         [Fact]
