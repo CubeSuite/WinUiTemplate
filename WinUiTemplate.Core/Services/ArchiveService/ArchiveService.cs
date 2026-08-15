@@ -144,6 +144,15 @@ namespace WinUiTemplate.Core.Services
                                 return new OperationResult(false, $"Zip entry is outside of the destination folder: '{entry.FullName}'", true);
                             }
 
+                            if (string.IsNullOrEmpty(entry.Name)) {
+                                FolderResult directoryEntryResult = await fileUtils.TryGetOrCreateFolderAsync(destinationPath);
+                                if (!directoryEntryResult.Success || directoryEntryResult.Folder == null) {
+                                    return new OperationResult(false, $"Failed to get or create destination folder: '{destinationPath}'", true);
+                                }
+
+                                continue;
+                            }
+
                             string? destinationDirectory = Path.GetDirectoryName(destinationPath);
                             if (destinationDirectory == null) return new OperationResult(false, $"Invalid parent directory of file: '{entry.FullName}'", true);
 
