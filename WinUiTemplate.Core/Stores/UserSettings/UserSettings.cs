@@ -40,6 +40,7 @@ namespace WinUiTemplate.Core.Stores
 
         // Fields
         private readonly object saveLock = new object();
+        private readonly SemaphoreSlim saveSemaphore = new SemaphoreSlim(1, 1);
         private CancellationTokenSource? tokenSource;
 
         private const int saveDebounceDelayMs = 200;
@@ -423,6 +424,20 @@ namespace WinUiTemplate.Core.Stores
             ImageCacheWarnSizeGb = 1;
         }
 
+        public async Task SaveNowAsync() {
+            try {
+                lock (saveLock) {
+                    tokenSource?.Cancel();
+                    tokenSource = null;
+                }
+
+                await SaveAsync();
+            }
+            catch (Exception e) {
+                Debug.Assert(false, $"UserSettings.SaveNowAsync failed: '{e.Message}'");
+            }
+        }
+
         // Private Functions
 
         private void SetSetting<T>(ref T field, T value, [CallerMemberName] string name = "") {
@@ -457,6 +472,7 @@ namespace WinUiTemplate.Core.Stores
         }
 
         private async Task SaveAsync() {
+            await saveSemaphore.WaitAsync();
             try {
                 string json = JsonConvert.SerializeObject(ToDTO(), Formatting.Indented);
                 FileWriteResult result = await fileUtils.TryWriteFileAsync(programData.FilePaths.SettingsFile, json);
@@ -471,6 +487,9 @@ namespace WinUiTemplate.Core.Stores
             }
             catch (Exception e) {
                 Debug.Assert(false, $"UserSettings.SaveAsync failed: '{e.Message}'");
+            }
+            finally {
+                saveSemaphore.Release();
             }
         }
 
