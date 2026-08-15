@@ -323,9 +323,7 @@ namespace WinUiTemplate.Tests
             SetupSuccessfulFileWrite();
 
             settings.LogDebugMessages = true;
-            await Task.Delay(50);
             settings.MaxLogs = 20;
-            await Task.Delay(50);
             settings.SearchCaseSensitive = true;
 
             await Task.Delay(500);
