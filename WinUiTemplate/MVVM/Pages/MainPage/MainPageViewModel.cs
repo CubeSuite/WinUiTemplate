@@ -34,13 +34,6 @@ namespace WinUiTemplate.MVVM.Pages
             navigationService.AllowNavigationChanged += OnNavigationAllowedChanged;
             NavMenuEnabled = navigationService.AllowNavigation;
 
-            // ToDo: Remove if not work
-            serviceProvider.GetRequiredService<IUserSettings>().SettingChanged += (settingName) => {
-                if (settingName == nameof(IUserSettings.Language)) {
-                    navigationService.ReloadPage();
-                }
-            };
-
             backupService = serviceProvider.GetRequiredService<IBackupService>();
             backupService.BackupCreated += OnBackupCreatedOrDeleted;
             backupService.BackupDeleted += OnBackupCreatedOrDeleted;
