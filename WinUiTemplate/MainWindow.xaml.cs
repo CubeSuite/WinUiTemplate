@@ -33,6 +33,7 @@ using WinUiTemplate.MVVM.Views.CustomTitleBar;
 using WinUiTemplate.Services;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
+using WinUiTemplate.Core.Services;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -48,6 +49,7 @@ namespace WinUiTemplate
         private readonly IServiceProvider serviceProvider;
         private readonly INotificationService notificationService;
         private readonly INavigationService navigationService;
+        private readonly ILanguageService lang;
         private readonly IBackupService backupService;
         private readonly IDialogService dialogService;
         private readonly IUserSettings userSettings;
@@ -71,10 +73,16 @@ namespace WinUiTemplate
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
             themeService = serviceProvider.GetRequiredService<IThemeService>();
 
+            lang = new LanguageService("MainWindow");
+
             userSettings.SettingsLoaded += OnSettingsLoaded;
             themeService.ThemeChangeRequested += OnThemeChangeRequested;
 
             AppWindow.Closing += OnMainWindowClosing;
+
+            if (userSettings.Loaded) {
+                OnSettingsLoaded();
+            }
         }
 
         // Listeners
@@ -106,7 +114,7 @@ namespace WinUiTemplate
 
             OperationResult result = await backupService.CreateBackupAsync();
             if (!result.Success && result.Notify) {
-                await dialogService.ShowMessage(MessageType.Warning, "Backup Failed", result.ErrorMessage ?? "");                
+                await dialogService.ShowMessage(MessageType.Warning, lang.Get("BackupFailed"), result.ErrorMessage ?? "");                
             }
 
             DisposeAcrylicBackdrop();
@@ -185,7 +193,7 @@ namespace WinUiTemplate
             DisposeAcrylicBackdrop();
             
             if (!DesktopAcrylicController.IsSupported()) {
-                notificationService.Notify(InfoBarSeverity.Warning, "Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.");
+                notificationService.Notify(InfoBarSeverity.Warning, lang.Get("AcrylicWarningTitle"), lang.Get("AcrylicWarningMessage"));
                 SystemBackdrop = new MicaBackdrop();
                 return;
             }
@@ -205,7 +213,7 @@ namespace WinUiTemplate
 
             object backdropHost = this;
             if (backdropHost is not ICompositionSupportsSystemBackdrop backdropTarget) {
-                notificationService.Notify(InfoBarSeverity.Warning, "Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.");
+                notificationService.Notify(InfoBarSeverity.Warning, lang.Get("AcrylicWarningTitle"), lang.Get("AcrylicWarningMessage"));
                 SystemBackdrop = new MicaBackdrop();
                 return;
             }

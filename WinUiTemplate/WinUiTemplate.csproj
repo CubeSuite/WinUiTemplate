@@ -93,6 +93,7 @@
     <Folder Include="MVVM\Pages\HomePage\" />
     <Folder Include="MVVM\Pages\BackupsPage\" />
     <Folder Include="MVVM\Pages\SettingsPage\" />
+    <Folder Include="Strings\en-US\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WinUiTemplate.Core\WinUiTemplate.Core.csproj" />
@@ -107,6 +108,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+
+    <ItemGroup>
+        <PRIResource Update="Strings\en-GB\Resources.resw">
+          <Generator>PublicResXFileCodeGenerator</Generator>
+        </PRIResource>
+        <PRIResource Update="Strings\en-US\Resources.resw">
+          <Generator>PublicResXFileCodeGenerator</Generator>
+        </PRIResource>
+        <PRIResource Update="Strings\fr-FR\Resources.resw">
+          <Generator>PublicResXFileCodeGenerator</Generator>
+        </PRIResource>
+    </ItemGroup>
 
   <!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution

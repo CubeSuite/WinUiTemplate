@@ -8,7 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using WinUiTemplate.Core.Services;
 using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.Core.MVVM.Models.ViewModels
 {
@@ -16,6 +18,8 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
     {
         // Services & Stores
         private readonly IBackupService backupService;
+        private readonly IUserSettings userSettings;
+        private readonly ILanguageService lang;
 
         // Fields
         private string zipFile;
@@ -24,7 +28,7 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
 
         // Properties
 
-        public string RestoreButtonText => isRestoring ? "Cancel" : "Restore";
+        public string RestoreButtonText => isRestoring ? lang.Get("CancelButtonText") : lang.Get("RestoreButtonText");
         public string Timestamp { get; set; }
         public string CreatedWith { get; set; }
         public string Size { get; set; }
@@ -33,11 +37,13 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
 
         public BackupViewModel(BackupInfo info, IServiceProvider serviceProvider) {
             backupService = serviceProvider.GetRequiredService<IBackupService>();
+            userSettings = serviceProvider.GetRequiredService<IUserSettings>();
+            lang = new LanguageService("BackupViewModel");
 
             tokenSource = new CancellationTokenSource();
             zipFile = info.Path;
 
-            Timestamp = info.Created.ToString("dd/MM/yy hh:mm:ss tt");
+            Timestamp = info.Created.ToString("g", lang.GetCulture(userSettings.Language));
             CreatedWith = info.CreatedWith.ToString();
             Size = SizeToString(info.Size);
         }
@@ -82,5 +88,6 @@ namespace WinUiTemplate.Core.MVVM.Models.ViewModels
 
             return $"{len:0.##} {sizes[order]}";
         }
+
     }
 }

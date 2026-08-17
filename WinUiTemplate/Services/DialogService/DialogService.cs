@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,9 @@ using Windows.Storage.Pickers;
 using Windows.System;
 using WinRT.Interop;
 using WinUiTemplate.MVVM.Views.MessageView;
+using WinUiTemplate.Core.Services;
 using WinUiTemplate.Core.Services.Interfaces;
+using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.Services
 {
@@ -25,11 +28,16 @@ namespace WinUiTemplate.Services
         private nint windowId;
         private XamlRoot? xamlRoot;
         private readonly SemaphoreSlim dialogLock = new SemaphoreSlim(1, 1);
+        private readonly ILanguageService lang;
 
         // Properties
         private bool Initialised => xamlRoot != null;
 
         // Public Functions
+
+        public DialogService(IServiceProvider serviceProvider) {
+            lang = new LanguageService("DialogService");
+        }
 
         public void Initialise(Window window) {
             windowId = WindowNative.GetWindowHandle(window);
@@ -52,7 +60,7 @@ namespace WinUiTemplate.Services
                 Message: message,
                 PrimaryText: "",
                 SecondaryText: "",
-                CloseText: "Close",
+                CloseText: lang.Get("CloseButtonText"),
                 DefaultButton: ContentDialogButton.Close)
              );
         }
@@ -85,8 +93,8 @@ namespace WinUiTemplate.Services
                 Type: MessageType.Info,
                 Title: title,
                 Message: message,
-                PrimaryText: "Yes",
-                SecondaryText: "No",
+                PrimaryText: lang.Get("YesButtonText"),
+                SecondaryText: lang.Get("NoButtonText"),
                 CloseText: "",
                 DefaultButton: ContentDialogButton.Primary
             ), cancellationToken);
@@ -106,8 +114,8 @@ namespace WinUiTemplate.Services
             ContentDialog dialog = new ContentDialog() {
                 XamlRoot = xamlRoot,
                 Content = messageView,
-                PrimaryButtonText = options.PrimaryText ?? "Yes",
-                SecondaryButtonText = options.SecondaryText ?? "No",
+                PrimaryButtonText = options.PrimaryText ?? lang.Get("YesButtonText"),
+                SecondaryButtonText = options.SecondaryText ?? lang.Get("NoButtonText"),
                 CloseButtonText = "",
                 DefaultButton = options.DefaultButton
             };

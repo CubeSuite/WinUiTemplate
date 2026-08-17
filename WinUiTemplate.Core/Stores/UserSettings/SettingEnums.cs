@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace WinUiTemplate.Core.Stores.Interfaces
 {
+    public enum LanguageOption
+    {
+        [Description("British English")] en_GB,
+        [Description("American English")] en_US,
+        [Description("Français")] fr_FR,
+    }
+
     public enum ThemeOption {
         Light,
         Dark,
@@ -35,6 +42,10 @@ namespace WinUiTemplate.Core.Stores.Interfaces
 
     public static class EnumExtensions 
     {
+        public static string ToLanguageCode(this LanguageOption language) {
+            return language.ToString().Replace("_", "-");
+        }
+
         public static string GetDescription<T>(this T enumValue) where T : Enum {
             FieldInfo? field = enumValue.GetType().GetField(enumValue.ToString());
             DescriptionAttribute? attribute = field?.GetCustomAttribute<DescriptionAttribute>();

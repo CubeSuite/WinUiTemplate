@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.MVVM.Models.ViewModels;
+using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.MVVM.Pages
 {
@@ -32,6 +33,13 @@ namespace WinUiTemplate.MVVM.Pages
             INavigationService navigationService = serviceProvider.GetRequiredService<INavigationService>();
             navigationService.AllowNavigationChanged += OnNavigationAllowedChanged;
             NavMenuEnabled = navigationService.AllowNavigation;
+
+            // ToDo: Remove if not work
+            serviceProvider.GetRequiredService<IUserSettings>().SettingChanged += (settingName) => {
+                if (settingName == nameof(IUserSettings.Language)) {
+                    navigationService.ReloadPage();
+                }
+            };
 
             backupService = serviceProvider.GetRequiredService<IBackupService>();
             backupService.BackupCreated += OnBackupCreatedOrDeleted;

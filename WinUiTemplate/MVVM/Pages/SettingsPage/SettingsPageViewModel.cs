@@ -21,6 +21,7 @@ using WinUiTemplate.Core.MVVM.Models.ViewModels.Settings;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
 using Npgsql;
+using WinUiTemplate.Core.Services;
 
 namespace WinUiTemplate.MVVM.Pages
 {
@@ -36,6 +37,8 @@ namespace WinUiTemplate.MVVM.Pages
         private readonly IProgramData programData;
         private readonly IImageCache imageCache;
         private readonly IFileUtils fileUtils;
+
+        private readonly ILanguageService lang;
 
         // Properties
         public List<SettingsCategoryList> SettingsCategories { get; }
@@ -53,20 +56,22 @@ namespace WinUiTemplate.MVVM.Pages
             imageCache = serviceProvider.GetRequiredService<IImageCache>();
             fileUtils = serviceProvider.GetRequiredService<IFileUtils>();
 
+            lang = new LanguageService("SettingsPageViewModel");
+
             userSettings.SettingChanged += OnSettingChanged;
 
             SettingsCategories = new List<SettingsCategoryList>() {
-                new SettingsCategoryList("Logging", [
+                new SettingsCategoryList(lang.Get("LoggingCategory"), [
                     new GenericSetting<bool>(
-                        name: "Log Debug Messages",
-                        description: "Whether debug messages should be logged to file. Enable to gather info for a bug report",
+                        name: lang.Get("LogDebugMessagesName"),
+                        description: lang.Get("LogDebugMessagesDescription"),
                         icon: "\uEBE8",
                         getValueFunc: () => userSettings.LogDebugMessages,
                         setValueFunc: (value) => userSettings.LogDebugMessages = value
                     ),
                     new ComparableSetting<int>(
-                        name: "Max Logs",
-                        description: "The maximum number of logs to keep",
+                        name: lang.Get("MaxLogsName"),
+                        description: lang.Get("MaxLogsDescription"),
                         icon: "\uEA37",
                         getValueFunc: () => userSettings.MaxLogs,
                         setValueFunc: (value) => userSettings.MaxLogs = value,
@@ -75,10 +80,10 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     ),
                     new ButtonSetting(
-                        name: "Show Logs In Explorer",
-                        description: $"Opens the folder that contains {programData.ProgramName}'s log files",
+                        name: lang.Get("ShowLogsInExplorerName"),
+                        description: string.Format(lang.Get("ShowLogsInExplorerDescription"), programData.ProgramName),
                         icon: "\uE8B7",
-                        buttonText: "Show In Explorer",
+                        buttonText: lang.Get("ShowInExplorerButtonText"),
                         onClick: () => {
                             OpenExplorer(programData.FilePaths.LogsFolder);
                             return Task.CompletedTask;
@@ -86,10 +91,10 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     ),
                     new ButtonSetting(
-                        name: "Show Crash Logs In Explorer",
-                        description: $"Opens the folder that contains {programData.ProgramName}'s crashlog files",
+                        name: lang.Get("ShowCrashLogsInExplorerName"),
+                        description: string.Format(lang.Get("ShowCrashLogsInExplorerDescription"), programData.ProgramName),
                         icon: "\uE7BA",
-                        buttonText: "Show In Explorer",
+                        buttonText: lang.Get("ShowInExplorerButtonText"),
                         onClick: () => {
                             OpenExplorer(programData.FilePaths.CrashReportsFolder);
                             return Task.CompletedTask;
@@ -98,31 +103,45 @@ namespace WinUiTemplate.MVVM.Pages
                     )
                 ]),
 
-                new SettingsCategoryList("Appearance", [
+                new SettingsCategoryList(lang.Get("AppearanceCategory"), [
+                    new EnumSetting<LanguageOption>(
+                        name: lang.Get("LanguageName"),
+                        description: lang.Get("LanguageDescription"),
+                        icon: "\uF2B7",
+                        getValueFunc: () => userSettings.Language,
+                        setValueFunc: LanguageChanged
+                    ),
+                    new GenericSetting<bool>(
+                        name: lang.Get("EasyLanguageSwitchingName"),
+                        description: string.Format(lang.Get("EasyLanguageSwitchingDescription"), programData.ProgramName),
+                        icon: "\uF2B7",
+                        getValueFunc: () => userSettings.EasyLanguageSwitching,
+                        setValueFunc: (value) => userSettings.EasyLanguageSwitching = value
+                    ),
                     new EnumSetting<ThemeOption>(
-                        name: "Theme",
-                        description: "Use to force light or dark mode, or match Windows.",
+                        name: lang.Get("ThemeName"),
+                        description: lang.Get("ThemeDescription"),
                         icon: "\uF0CE",
                         getValueFunc: () => userSettings.Theme,
                         setValueFunc: (value) => userSettings.Theme = value
                     ),
                     new EnumSetting<BackdropOption>(
-                        name: "Backdrop",
-                        description: "Acrylic uses softer colours and is more transparent than Mica.",
+                        name: lang.Get("BackdropName"),
+                        description: lang.Get("BackdropDescription"),
                         icon: "\uEB9F",
                         getValueFunc: () => userSettings.Backdrop,
                         setValueFunc: (value) => userSettings.Backdrop = value
                     ),
                     new EnumSetting<AccentSourceOption>(
-                        name: "Accent Colour Source",
-                        description: "Choose whether to use the Windows accent colour or a custom one",
+                        name: lang.Get("AccentColourSourceName"),
+                        description: lang.Get("AccentColourSourceDescription"),
                         icon: "\uE790",
                         getValueFunc: () => userSettings.AccentSource,
                         setValueFunc: (value) => userSettings.AccentSource = value
                     ),
                     new GenericSetting<Color>(
-                        name: "Custom Accent Colour",
-                        description: $"The accent colour to use for {programData.ProgramName}",
+                        name: lang.Get("CustomAccentColourName"),
+                        description: string.Format(lang.Get("CustomAccentColourDescription"), programData.ProgramName),
                         icon: "\uE73C",
                         getValueFunc: () => userSettings.CustomAccentColour,
                         setValueFunc: (value) => userSettings.CustomAccentColour = value,
@@ -130,15 +149,15 @@ namespace WinUiTemplate.MVVM.Pages
                         isVisibleFunc: () => userSettings.AccentSource == AccentSourceOption.Custom
                     ),
                     new EnumSetting<WindowTintSourceOption>(
-                        name: "Window Tint Source",
-                        description: "Choose whether to use no tint, a custom colour, or match the Windows accent colour",
+                        name: lang.Get("WindowTintSourceName"),
+                        description: lang.Get("WindowTintSourceDescription"),
                         icon: "\uEF3C",
                         getValueFunc: () => userSettings.WindowTintSource,
                         setValueFunc: (value) => userSettings.WindowTintSource = value
                     ),
                     new GenericSetting<Color>(
-                        name: "Custom Window Tint Colour",
-                        description: $"The window tint colour to use for {programData.ProgramName}",
+                        name: lang.Get("CustomWindowTintColourName"),
+                        description: string.Format(lang.Get("CustomWindowTintColourDescription"), programData.ProgramName),
                         icon: "\uE73C",
                         getValueFunc: () => userSettings.CustomWindowTintColour,
                         setValueFunc: (value) => userSettings.CustomWindowTintColour = value,
@@ -146,8 +165,8 @@ namespace WinUiTemplate.MVVM.Pages
                         isVisibleFunc: () => userSettings.WindowTintSource == WindowTintSourceOption.Custom
                     ),
                     new ComparableSetting<double>(
-                        name: "Window Tint Opacity",
-                        description: "The opacity of the window tint colour",
+                        name: lang.Get("WindowTintOpacityName"),
+                        description: lang.Get("WindowTintOpacityDescription"),
                         icon: "\uE793",
                         getValueFunc: () => userSettings.WindowTintOpacity * 100.0,
                         setValueFunc: (value) => userSettings.WindowTintOpacity = value / 100.0,
@@ -158,24 +177,24 @@ namespace WinUiTemplate.MVVM.Pages
                     )
                 ]),
 
-                new SettingsCategoryList("Layout", [
+                new SettingsCategoryList(lang.Get("LayoutCategory"), [
                     new GenericSetting<bool>(
-                        name: "Remember Layout",
-                        description: $"If enabled, when you open {programData.ProgramName} it will restore your last size / maximised state",
+                        name: lang.Get("RememberLayoutName"),
+                        description: string.Format(lang.Get("RememberLayoutDescription"), programData.ProgramName),
                         icon: "\uE9A6",
                         getValueFunc: () => userSettings.RememberLayout,
                         setValueFunc: (value) => userSettings.RememberLayout = value
                     ),
                     new GenericSetting<bool>(
-                        name: "Open Maximised",
-                        description: $"Whether {programData.ProgramName} should open in a maximised state",
+                        name: lang.Get("OpenMaximisedName"),
+                        description: string.Format(lang.Get("OpenMaximisedDescription"), programData.ProgramName),
                         icon: "\uE922",
                         getValueFunc: () => userSettings.OpenMaximised,
                         setValueFunc: (value) => userSettings.OpenMaximised = value
                     ),
                     new ComparableSetting<int>(
-                        name: "Default Width",
-                        description: $"The width to set {programData.ProgramName} on launch",
+                        name: lang.Get("DefaultWidthName"),
+                        description: string.Format(lang.Get("DefaultWidthDescription"), programData.ProgramName),
                         icon: "\uE72A",
                         getValueFunc: () => userSettings.DefaultWidth,
                         setValueFunc: (value) => userSettings.DefaultWidth = value,
@@ -184,8 +203,8 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     ),
                     new ComparableSetting<int>(
-                        name: "Default Height",
-                        description: $"The height to set {programData.ProgramName} on launch",
+                        name: lang.Get("DefaultHeightName"),
+                        description: string.Format(lang.Get("DefaultHeightDescription"), programData.ProgramName),
                         icon: "\uE74B",
                         getValueFunc: () => userSettings.DefaultHeight,
                         setValueFunc: (value) => userSettings.DefaultHeight = value,
@@ -195,45 +214,45 @@ namespace WinUiTemplate.MVVM.Pages
                     ),
                 ]),
 
-                new SettingsCategoryList("Search", [
+                new SettingsCategoryList(lang.Get("SearchCategory"), [
                     new GenericSetting<bool>(
-                    name: "Case Sensitive",
-                    description: "Whether search queries should be case sensitive",
+                    name: lang.Get("CaseSensitiveName"),
+                    description: lang.Get("CaseSensitiveDescription"),
                     icon: "\uE84A",
                     getValueFunc: () => userSettings.SearchCaseSensitive,
                     setValueFunc: (value) => userSettings.SearchCaseSensitive = value
                 ),
                 new GenericSetting<bool>(
-                    name: "Split Search Query",
-                    description: "When enabled, searches for each word in the query separately",
+                    name: lang.Get("SplitSearchQueryName"),
+                    description: lang.Get("SplitSearchQueryDescription"),
                     icon: "\uE8C6",
                     getValueFunc: () => userSettings.SearchSplitQuery,
                     setValueFunc: (value) => userSettings.SearchSplitQuery = value
                 )
                 ]),
 
-                new SettingsCategoryList("Encryption", [
+                new SettingsCategoryList(lang.Get("EncryptionCategory"), [
                     new ButtonSetting(
-                        name: "Decrypt Data",
-                        description: "Creates a .zip with your decrypted data to send to the developer for debugging.",
+                        name: lang.Get("DecryptDataName"),
+                        description: lang.Get("DecryptDataDescription"),
                         icon: "\uE785",
-                        buttonText: "Decrypt",
+                        buttonText: lang.Get("DecryptButtonText"),
                         onClick: DecryptData,
                         serviceProvider
                     )
                 ]),
 
-                new SettingsCategoryList("Image Cache", [
+                new SettingsCategoryList(lang.Get("ImageCacheCategory"), [
                     new GenericSetting<bool>(
-                        name: "Cache Images",
-                        description: "Speed up image loading by caching them to disk",
+                        name: lang.Get("CacheImagesName"),
+                        description: lang.Get("CacheImagesDescription"),
                         icon: "\uE78C",
                         getValueFunc: () => userSettings.ImageCacheEnabled,
                         setValueFunc: (value) => userSettings.ImageCacheEnabled = value
                     ),
                     new ComparableSetting<int>(
-                        name: "Image Cache Size Warning Limit",
-                        description: "You will see a warning notification if the image cache exceeds this size in GB",
+                        name: lang.Get("ImageCacheSizeWarningLimitName"),
+                        description: lang.Get("ImageCacheSizeWarningLimitDescription"),
                         icon: "\uE7BA",
                         getValueFunc: () => userSettings.ImageCacheWarnSizeGb,
                         setValueFunc: (value) => userSettings.ImageCacheWarnSizeGb = value,
@@ -243,10 +262,10 @@ namespace WinUiTemplate.MVVM.Pages
                         isVisibleFunc: () => userSettings.ImageCacheEnabled
                     ),
                     new ButtonSetting(
-                        name: $"Clear Image Cache ({imageCache.CacheSize})",
-                        description: "Deletes all cached images",
+                        name: string.Format(lang.Get("ClearImageCacheName"), imageCache.CacheSize),
+                        description: lang.Get("ClearImageCacheDescription"),
                         icon: "\uE74D",
-                        buttonText: "Clear",
+                        buttonText: lang.Get("ClearButtonText"),
                         onClick: ClearImageCache,
                         serviceProvider,
                         isVisibleFunc: () => userSettings.ImageCacheEnabled
@@ -255,17 +274,17 @@ namespace WinUiTemplate.MVVM.Pages
             };
 
             if (programData.EnableBackups) {
-                SettingsCategories.Add(new SettingsCategoryList("Backups", [
+                SettingsCategories.Add(new SettingsCategoryList(lang.Get("BackupsCategory"), [
                     new GenericSetting<bool>(
-                        name: "Automatic Backups",
-                        description: $"Whether to perform automatic backups when you close {programData.ProgramName}",
+                        name: lang.Get("AutomaticBackupsName"),
+                        description: string.Format(lang.Get("AutomaticBackupsDescription"), programData.ProgramName),
                         icon: "\uE74E",
                         getValueFunc: () => userSettings.AutomaticBackups,
                         setValueFunc: (value) => userSettings.AutomaticBackups = value
                     ),
                     new FilePathSetting(
-                        name: "Backups Folder",
-                        description: $"Where {programData.ProgramName} should store backups of its data",
+                        name: lang.Get("BackupsFolderName"),
+                        description: string.Format(lang.Get("BackupsFolderDescription"), programData.ProgramName),
                         icon: "\uE8B7",
                         getValueFunc: () => userSettings.BackupsFolder,
                         setValueFunc: async (value) => await PickBackupsFolder(value),
@@ -273,8 +292,8 @@ namespace WinUiTemplate.MVVM.Pages
                         type: FilePathSetting.PickerType.Folder
                     ),
                     new ComparableSetting<int>(
-                        name: "Max Backups",
-                        description: "The maximum number of backups to keep before deleting old ones",
+                        name: lang.Get("MaxBackupsName"),
+                        description: lang.Get("MaxBackupsDescription"),
                         icon: "\uEA37",
                         getValueFunc: () => userSettings.MaxBackups,
                         setValueFunc: (value) => userSettings.MaxBackups = value,
@@ -283,10 +302,10 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     ),
                     new ButtonSetting(
-                        name: "Perform Backup",
-                        description: "Backup your data now",
+                        name: lang.Get("PerformBackupName"),
+                        description: lang.Get("PerformBackupDescription"),
                         icon: "\uE78C",
-                        buttonText: "Perform Backup",
+                        buttonText: lang.Get("PerformBackupButtonText"),
                         onClick: PerformBackup,
                         serviceProvider
                     )
@@ -294,10 +313,10 @@ namespace WinUiTemplate.MVVM.Pages
             }
 
             if (programData.UsesApi) {
-                SettingsCategories.Add(new SettingsCategoryList("Internet", [
+                SettingsCategories.Add(new SettingsCategoryList(lang.Get("InternetCategory"), [
                     new ComparableSetting<int>(
-                        name: "Request Timeout",
-                        description: "If a request from the internet takes longer than this many seconds, it will be cancelled.",
+                        name: lang.Get("RequestTimeoutName"),
+                        description: lang.Get("RequestTimeoutDescription"),
                         icon: "\uE916",
                         getValueFunc: () => userSettings.ApiTimeout,
                         setValueFunc: (value) => userSettings.ApiTimeout = value,
@@ -306,8 +325,8 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     ),
                     new ComparableSetting<int>(
-                        name: "Max Retries",
-                        description: "A failed request from the internet will be retried this many times.",
+                        name: lang.Get("MaxRetriesName"),
+                        description: lang.Get("MaxRetriesDescription"),
                         icon: "\uE81C",
                         getValueFunc: () => userSettings.ApiMaxRetries,
                         setValueFunc: (value) => userSettings.ApiMaxRetries = value,
@@ -319,18 +338,18 @@ namespace WinUiTemplate.MVVM.Pages
             }
 
             if (programData.UsesRemoteDatabase) {
-                SettingsCategories.Add(new SettingsCategoryList("Database", [
+                SettingsCategories.Add(new SettingsCategoryList(lang.Get("DatabaseCategory"), [
                     new EncryptedSetting(
-                        name: "Database Host",
-                        description: "The hostname or IP address of your PostgreSQL database server (stored encrypted)",
+                        name: lang.Get("DatabaseHostName"),
+                        description: lang.Get("DatabaseHostDescription"),
                         icon: "\uE968",
                         getValueFunc: () => userSettings.DatabaseHost,
                         setValueFunc: (value) => userSettings.DatabaseHost = value,
                         serviceProvider
                     ),
                     new ComparableSetting<int>(
-                        name: "Database Port",
-                        description: "The port number your PostgreSQL database is listening on",
+                        name: lang.Get("DatabasePortName"),
+                        description: lang.Get("DatabasePortDescription"),
                         icon: "\uE8AB",
                         getValueFunc: () => userSettings.DatabasePort,
                         setValueFunc: (value) => userSettings.DatabasePort = value,
@@ -339,31 +358,31 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     ),
                     new GenericSetting<string>(
-                        name: "Database Name",
-                        description: "The name of the database to connect to",
+                        name: lang.Get("DatabaseNameName"),
+                        description: lang.Get("DatabaseNameDescription"),
                         icon: "\uE74E",
                         getValueFunc: () => userSettings.DatabaseName,
                         setValueFunc: (value) => userSettings.DatabaseName = value
                     ),
                     new EncryptedSetting(
-                        name: "Username",
-                        description: "The username to authenticate with the database (stored encrypted)",
+                        name: lang.Get("UsernameName"),
+                        description: lang.Get("UsernameDescription"),
                         icon: "\uE77B",
                         getValueFunc: () => userSettings.DatabaseUsername,
                         setValueFunc: (value) => userSettings.DatabaseUsername = value,
                         serviceProvider
                     ),
                     new EncryptedSetting(
-                        name: "Password",
-                        description: "The password to authenticate with the database (stored encrypted)",
+                        name: lang.Get("PasswordName"),
+                        description: lang.Get("PasswordDescription"),
                         icon: "\uE72E",
                         getValueFunc: () => userSettings.DatabasePassword,
                         setValueFunc: (value) => userSettings.DatabasePassword = value,
                         serviceProvider
                     ),
                     new ComparableSetting<int>(
-                        name: "Connection Timeout",
-                        description: "Maximum time in seconds to wait when establishing a database connection",
+                        name: lang.Get("ConnectionTimeoutName"),
+                        description: lang.Get("ConnectionTimeoutDescription"),
                         icon: "\uE916",
                         getValueFunc: () => userSettings.DatabaseConnectionTimeout,
                         setValueFunc: (value) => userSettings.DatabaseConnectionTimeout = value,
@@ -372,8 +391,8 @@ namespace WinUiTemplate.MVVM.Pages
                         serviceProvider
                     ),
                     new EnumSetting<SslMode>(
-                        name: "SSL Mode",
-                        description: "The SSL/TLS mode to use when connecting to the database",
+                        name: lang.Get("SslModeName"),
+                        description: lang.Get("SslModeDescription"),
                         icon: "\uE72E",
                         getValueFunc: () => userSettings.DatabaseSslMode,
                         setValueFunc: (value) => userSettings.DatabaseSslMode = value
@@ -398,8 +417,8 @@ namespace WinUiTemplate.MVVM.Pages
         [RelayCommand]
         private async Task RestoreDefaults() {
             if (await dialogService.Confirm(
-                "Restore Default Settings?", 
-                "Are you sure you want to restore the default settings?")
+                lang.Get("RestoreDefaultsDialogTitle"), 
+                lang.Get("RestoreDefaultsDialogMessage"))
             ) {
                 userSettings.RestoreDefaults();
 
@@ -412,6 +431,12 @@ namespace WinUiTemplate.MVVM.Pages
         }
 
         // Button Handlers
+
+        private async void LanguageChanged(LanguageOption value) {
+            if (userSettings.Language == value) return;
+
+            await userSettings.ChangeLanguageAsync(value);
+        }
 
         private void OpenExplorer(string folder) {
             Process.Start(new ProcessStartInfo() {
@@ -426,8 +451,8 @@ namespace WinUiTemplate.MVVM.Pages
 
             string appFolder = Path.GetDirectoryName(programData.FilePaths.RootFolder) ?? "";
             if (folder.StartsWith(appFolder)) {
-                notificationService.Notify(InfoBarSeverity.Error, "Invalid Backups Folder", 
-                    "You cannot select a folder inside the application's data folder. Please select a different folder."
+                notificationService.Notify(InfoBarSeverity.Error, lang.Get("InvalidBackupsFolderTitle"), 
+                    string.Format(lang.Get("InvalidBackupsFolderMessage"), programData.ProgramName)
                 );
             }
             else {
@@ -438,7 +463,7 @@ namespace WinUiTemplate.MVVM.Pages
         private async Task PerformBackup() {
             OperationResult result = await backupManager.CreateBackupAsync();
             if (!result.Success && result.Notify) {
-                notificationService.Notify(InfoBarSeverity.Warning, "Backup Failed", result.ErrorMessage ?? "");
+                notificationService.Notify(InfoBarSeverity.Warning, lang.Get("BackupFailedTitle"), result.ErrorMessage ?? "");
             }
 
             await Task.Delay(1000); // Show spinner
@@ -446,11 +471,8 @@ namespace WinUiTemplate.MVVM.Pages
 
         private async Task DecryptData() {
             if (!await dialogService.Confirm(
-                "Are You Sure?",
-                "The resulting archive may contain sensitive information.\n\n" +
-                "You need to carefully check it and remove any data you do not wish to share.\n\n" +
-                "Encrypted Settings such as API keys will not be decrypted.\n\n" +
-                "Do not share this file with anyone that you do not trust."
+                lang.Get("DecryptConfirmTitle"),
+                lang.Get("DecryptConfirmMessage")
             )) {
                 return;
             }
@@ -461,8 +483,8 @@ namespace WinUiTemplate.MVVM.Pages
             FolderResult tempResult = await fileUtils.TryGetOrCreateFolderAsync(Path.Combine(programData.FilePaths.RootFolder, "Temp"));
             if (!tempResult.Success || tempResult.Folder == null) {
                 notificationService.Notify(
-                    InfoBarSeverity.Error, "Failed To Decrypt",
-                    $"{programData.ProgramName} wasn't able to create a temporary folder"
+                    InfoBarSeverity.Error, lang.Get("FailedToDecryptTitle"),
+                    string.Format(lang.Get("FailedToCreateTempFolderMessage"), programData.ProgramName)
                 );
 
                 return;
@@ -472,8 +494,8 @@ namespace WinUiTemplate.MVVM.Pages
             FilesResult filesResult = await fileUtils.TryGetAllFilesAsync(rootPath);
             if (!filesResult.Success || filesResult.Files == null) {
                 notificationService.Notify(
-                    InfoBarSeverity.Error, "Failed To Decrypt",
-                    $"{programData.ProgramName} wasn't able to copy data files to a temporary folder"
+                    InfoBarSeverity.Error, lang.Get("FailedToDecryptTitle"),
+                    string.Format(lang.Get("FailedToCopyFilesMessage"), programData.ProgramName)
                 );
 
                 return;
@@ -485,8 +507,8 @@ namespace WinUiTemplate.MVVM.Pages
                 FileReadResult readResult = await fileUtils.TryReadFileAsync(file.Path);
                 if(!readResult.Success || string.IsNullOrEmpty(readResult.Content)) {
                     notificationService.Notify(
-                        InfoBarSeverity.Error, "Failed To Decrypt",
-                        $"{programData.ProgramName} wasn't able to read the file '{Path.GetFileName(file.Path)}'"
+                        InfoBarSeverity.Error, lang.Get("FailedToDecryptTitle"),
+                        string.Format(lang.Get("FailedToReadFileMessage"), programData.ProgramName, Path.GetFileName(file.Path))
                     );
 
                     return;
@@ -507,15 +529,15 @@ namespace WinUiTemplate.MVVM.Pages
             OperationResult zipResult = await archiveService.ZipFolderAsync(tempResult.Folder.Path, zipLocation.Path);
             if (!zipResult.Success) {
                 notificationService.Notify(
-                    InfoBarSeverity.Error, "Failed To Decrypt",
-                    $"{programData.ProgramName} wasn't able to zip your decrypted data"
+                    InfoBarSeverity.Error, lang.Get("FailedToDecryptTitle"),
+                    string.Format(lang.Get("FailedToZipDataMessage"), programData.ProgramName)
                 );
 
                 if(await dialogService.Confirm(new DialogOptions(
-                    MessageType.None, "Delete Decrypted Data?", 
-                    "Would you like to delete your decrypted data, or view it in Explorer?",
-                    PrimaryText: "Delete",
-                    SecondaryText: "View In Explorer",
+                    MessageType.None, lang.Get("DeleteDecryptedDataTitle"), 
+                    lang.Get("DeleteDecryptedDataMessage"),
+                    PrimaryText: lang.Get("DeleteButtonText"),
+                    SecondaryText: lang.Get("ViewInExplorerButtonText"),
                     CloseText: ""
                 ))) {
                     await tempResult.Folder.DeleteAsync();
@@ -527,8 +549,8 @@ namespace WinUiTemplate.MVVM.Pages
             else {
                 await tempResult.Folder.DeleteAsync();
                 notificationService.Notify(
-                    InfoBarSeverity.Success, "Decrypted Archive Created", 
-                    "Your decrypted data archive has been created successfully"
+                    InfoBarSeverity.Success, lang.Get("DecryptedArchiveCreatedTitle"), 
+                    lang.Get("DecryptedArchiveCreatedMessage")
                 );
             }
         }
@@ -538,10 +560,10 @@ namespace WinUiTemplate.MVVM.Pages
             if (!result.Notify) return;
 
             if (result) {
-                notificationService.Notify(InfoBarSeverity.Success, "Image Cache Cleared");
+                notificationService.Notify(InfoBarSeverity.Success, lang.Get("ImageCacheClearedTitle"));
             }
             else {
-                notificationService.Notify(InfoBarSeverity.Error, "Failed To Clear Image Cache", result.ErrorMessage ?? "An unknown error occurred");
+                notificationService.Notify(InfoBarSeverity.Error, lang.Get("FailedToClearImageCacheTitle"), result.ErrorMessage ?? lang.Get("UnknownErrorMessage"));
             }
         }
 

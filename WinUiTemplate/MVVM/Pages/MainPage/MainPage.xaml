@@ -15,14 +15,14 @@
                         IsPaneToggleButtonVisible="True"
                         ItemInvoked="OnNavigationViewItemInvoked">
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Home Page"
-                                    Tag="HomePage"
-                                    Icon="Home" />
+                <NavigationViewItem x:Uid="MainPage/HomePage"
+                                    Icon="Home"
+                                    Tag="HomePage" />
             </NavigationView.MenuItems>
             <NavigationView.FooterMenuItems>
-                <NavigationViewItem Content="Backups"
-                                    Tag="Backups"
+                <NavigationViewItem x:Uid="MainPage/Backups"
                                     Icon="Save"
+                                    Tag="Backups"
                                     Visibility="{Binding BackupsButtonVisibility}" />
             </NavigationView.FooterMenuItems>
             <Grid>

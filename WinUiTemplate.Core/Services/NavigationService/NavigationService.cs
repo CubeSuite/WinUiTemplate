@@ -20,6 +20,7 @@ namespace WinUiTemplate.Core.Services
         private bool _allowNavigation = true;
 
         private Type? currentPageType;
+        private ObservableObject? currentPageViewModel;
 
         // Properties
         
@@ -40,7 +41,13 @@ namespace WinUiTemplate.Core.Services
             if (NavigationRequested == null) return;
 
             currentPageType = type;
+            currentPageViewModel = pageViewModel;
             NavigationRequested.Invoke(pageViewModel);
+        }
+
+        public void ReloadPage() {
+            if (!AllowNavigation || currentPageViewModel == null) return;
+            NavigationRequested?.Invoke(currentPageViewModel);
         }
     }
 }

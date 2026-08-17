@@ -26,6 +26,7 @@ namespace WinUiTemplate.Core.Stores
         public IFilePaths FilePaths { get; }
         public bool EnableBackups { get; } = true; // ToDo: Set EnableBackups
         public bool EnableSingleInstance { get; } = true; // ToDo: Set EnableSingleInstance
+        public bool EasyLanguageSwitching { get; } = false; // ToDo: Set EasyLanguageSwitching
         public EncryptionLevel EncryptionLevel { get; } = EncryptionLevel.Settings; // ToDo: Set EncryptionLevel
         public bool UsesApi { get; } = false; // ToDo: Set UsesApi
         public bool UsesRemoteDatabase { get; } = false; // ToDo: Set UsesRemoteDatabase

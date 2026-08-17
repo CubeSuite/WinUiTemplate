@@ -91,9 +91,9 @@
                                             <community:Case Value="FilePath">
                                                 <StackPanel Orientation="Horizontal"
                                                             Spacing="8">
-                                                    <TextBox Text="{Binding Value, Mode=TwoWay}"
-                                                             PlaceholderText="Path..." />
-                                                    <Button Content="Browse"
+                                                    <TextBox x:Uid="SettingsPage/PathTextBox"
+                                                             Text="{Binding Value, Mode=TwoWay}" />
+                                                    <Button x:Uid="SettingsPage/BrowseButton"
                                                             Command="{Binding ExecuteButtonActionCommand}" />
                                                 </StackPanel>
                                             </community:Case>
@@ -112,7 +112,7 @@
                    Margin="16,8,16,0"
                    VerticalAlignment="Bottom"
                    Fill="Gray" />
-        <Button Content="Restore Defaults"
+        <Button x:Uid="SettingsPage/RestoreDefaultsButton"
                 Grid.Row="2"
                 Margin="16,8"
                 HorizontalAlignment="Right"

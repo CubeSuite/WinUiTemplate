@@ -84,11 +84,12 @@ namespace WinUiTemplate
         /// </summary>
         /// <param name="args">Details about the launch request and process.</param>
         protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args) {
+            await InitialiseServices();
+
             MainWindow mainWindow = new MainWindow(serviceProvider);
             _window = mainWindow;
             _window.Activate();
 
-            await InitialiseServices();
             InitialiseUiServices(mainWindow);
             logger?.LogInfo("Initialised UI services");
 

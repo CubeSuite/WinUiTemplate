@@ -21,6 +21,8 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         int MaxLogs { get; set; }
 
         // Appearance
+        LanguageOption Language { get; set; }
+        bool EasyLanguageSwitching { get; set; }
         ThemeOption Theme { get; set; }
         BackdropOption Backdrop { get; set; }
         AccentSourceOption AccentSource { get; set; }
@@ -70,6 +72,7 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         // Public Functions
         Task Load();
         void RestoreDefaults();
+        Task ChangeLanguageAsync(LanguageOption language);
         Task SaveNowAsync();
     }
 }
