@@ -116,9 +116,6 @@
         <PRIResource Update="Strings\en-US\Resources.resw">
           <Generator>PublicResXFileCodeGenerator</Generator>
         </PRIResource>
-        <PRIResource Update="Strings\fr-FR\Resources.resw">
-          <Generator>PublicResXFileCodeGenerator</Generator>
-        </PRIResource>
     </ItemGroup>
 
   <!--

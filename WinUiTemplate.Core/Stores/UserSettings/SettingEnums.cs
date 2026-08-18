@@ -12,7 +12,6 @@ namespace WinUiTemplate.Core.Stores.Interfaces
     {
         [Description("British English")] en_GB,
         [Description("American English")] en_US,
-        [Description("Français")] fr_FR,
     }
 
     public enum ThemeOption {
