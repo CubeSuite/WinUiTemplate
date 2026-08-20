@@ -93,6 +93,7 @@
     <Folder Include="MVVM\Pages\HomePage\" />
     <Folder Include="MVVM\Pages\BackupsPage\" />
     <Folder Include="MVVM\Pages\SettingsPage\" />
+    <Folder Include="Strings\en-GB\" />
     <Folder Include="Strings\en-US\" />
   </ItemGroup>
   <ItemGroup>
