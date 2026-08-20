@@ -3,12 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading.Tasks;
-using CommunityToolkit.Helpers;
-using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.WinUI.Controls;
-using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI;
 using Microsoft.UI.Composition;
@@ -16,21 +10,12 @@ using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Graphics;
-using Windows.UI;
 using Windows.UI.ViewManagement;
-using WinRT;
-using WinUiTemplate.Core.Stores;
 using WinUiTemplate.MVVM.Pages;
 using WinUiTemplate.MVVM.Views.CustomTitleBar;
-using WinUiTemplate.Services;
+using WinUiTemplate.Core.Services;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
 
@@ -48,6 +33,7 @@ namespace WinUiTemplate
         private readonly IServiceProvider serviceProvider;
         private readonly INotificationService notificationService;
         private readonly INavigationService navigationService;
+        private readonly ILanguageService lang;
         private readonly IBackupService backupService;
         private readonly IDialogService dialogService;
         private readonly IUserSettings userSettings;
@@ -71,10 +57,14 @@ namespace WinUiTemplate
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
             themeService = serviceProvider.GetRequiredService<IThemeService>();
 
+            lang = new LanguageService("MainWindow");
+
             userSettings.SettingsLoaded += OnSettingsLoaded;
             themeService.ThemeChangeRequested += OnThemeChangeRequested;
 
             AppWindow.Closing += OnMainWindowClosing;
+
+            OnSettingsLoaded();
         }
 
         // Listeners
@@ -106,7 +96,7 @@ namespace WinUiTemplate
 
             OperationResult result = await backupService.CreateBackupAsync();
             if (!result.Success && result.Notify) {
-                await dialogService.ShowMessage(MessageType.Warning, "Backup Failed", result.ErrorMessage ?? "");                
+                await dialogService.ShowMessage(MessageType.Warning, lang.Get("BackupFailed"), result.ErrorMessage ?? "");                
             }
 
             DisposeAcrylicBackdrop();
@@ -185,7 +175,7 @@ namespace WinUiTemplate
             DisposeAcrylicBackdrop();
             
             if (!DesktopAcrylicController.IsSupported()) {
-                notificationService.Notify(InfoBarSeverity.Warning, "Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.");
+                notificationService.Notify(InfoBarSeverity.Warning, lang.Get("AcrylicWarningTitle"), lang.Get("AcrylicWarningMessage"));
                 SystemBackdrop = new MicaBackdrop();
                 return;
             }
@@ -205,7 +195,7 @@ namespace WinUiTemplate
 
             object backdropHost = this;
             if (backdropHost is not ICompositionSupportsSystemBackdrop backdropTarget) {
-                notificationService.Notify(InfoBarSeverity.Warning, "Desktop Acrylic is not supported on this system", "Switching to Mica backdrop.");
+                notificationService.Notify(InfoBarSeverity.Warning, lang.Get("AcrylicWarningTitle"), lang.Get("AcrylicWarningMessage"));
                 SystemBackdrop = new MicaBackdrop();
                 return;
             }

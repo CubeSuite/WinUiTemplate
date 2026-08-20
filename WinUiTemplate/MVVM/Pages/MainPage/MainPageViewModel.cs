@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.MVVM.Models.ViewModels;
+using WinUiTemplate.Core.Stores.Interfaces;
 
 namespace WinUiTemplate.MVVM.Pages
 {

@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="MainWindow.AcrylicWarningMessage" xml:space="preserve">
+    <value>Switching to Mica backdrop.</value>
+  </data>
+  <data name="MainWindow.AcrylicWarningTitle" xml:space="preserve">
+    <value>Desktop Acrylic is not supported on this system</value>
+  </data>
+  <data name="MainWindow.BackupFailed" xml:space="preserve">
+    <value>Backup Failed</value>
+  </data>
+  <data name="CustomTitleBar.ToggleThemeButton.ToolTipService.ToolTip" xml:space="preserve">
+    <value>Toggle Dark Mode</value>
+  </data>
+  <data name="MainPage.Backups.Content" xml:space="preserve">
+    <value>Backups</value>
+  </data>
+  <data name="MainPage.HomePage.Content" xml:space="preserve">
+    <value>Home Page</value>
+  </data>
+  <data name="BackupsPage.DeleteButton.Content" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="BackupViewModel.CancelButtonText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="BackupViewModel.RestoreButtonText" xml:space="preserve">
+    <value>Restore</value>
+  </data>
+  <data name="SettingsPage.PathTextBox.PlaceholderText" xml:space="preserve">
+    <value>Path...</value>
+  </data>
+  <data name="SettingsPage.BrowseButton.Content" xml:space="preserve">
+    <value>Browse</value>
+  </data>
+  <data name="SettingsPage.RestoreDefaultsButton.Content" xml:space="preserve">
+    <value>Restore Defaults</value>
+  </data>
+  <data name="SettingsPageViewModel.LoggingCategory" xml:space="preserve">
+    <value>Logging</value>
+  </data>
+  <data name="SettingsPageViewModel.LogDebugMessagesName" xml:space="preserve">
+    <value>Log Debug Messages</value>
+  </data>
+  <data name="SettingsPageViewModel.LogDebugMessagesDescription" xml:space="preserve">
+    <value>Whether debug messages should be logged to file. Enable to gather info for a bug report</value>
+  </data>
+  <data name="SettingsPageViewModel.MaxLogsName" xml:space="preserve">
+    <value>Max Logs</value>
+  </data>
+  <data name="SettingsPageViewModel.MaxLogsDescription" xml:space="preserve">
+    <value>The maximum number of logs to keep</value>
+  </data>
+  <data name="SettingsPageViewModel.ShowLogsInExplorerName" xml:space="preserve">
+    <value>Show Logs In Explorer</value>
+  </data>
+  <data name="SettingsPageViewModel.ShowLogsInExplorerDescription" xml:space="preserve">
+    <value>Opens the folder that contains {0}'s log files</value>
+  </data>
+  <data name="SettingsPageViewModel.ShowCrashLogsInExplorerName" xml:space="preserve">
+    <value>Show Crash Logs In Explorer</value>
+  </data>
+  <data name="SettingsPageViewModel.ShowCrashLogsInExplorerDescription" xml:space="preserve">
+    <value>Opens the folder that contains {0}'s crashlog files</value>
+  </data>
+  <data name="SettingsPageViewModel.ShowInExplorerButtonText" xml:space="preserve">
+    <value>Show In Explorer</value>
+  </data>
+  <data name="SettingsPageViewModel.AppearanceCategory" xml:space="preserve">
+    <value>Appearance</value>
+  </data>
+  <data name="SettingsPageViewModel.ThemeName" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="SettingsPageViewModel.ThemeDescription" xml:space="preserve">
+    <value>Use to force light or dark mode, or match Windows.</value>
+  </data>
+  <data name="SettingsPageViewModel.BackdropName" xml:space="preserve">
+    <value>Backdrop</value>
+  </data>
+  <data name="SettingsPageViewModel.BackdropDescription" xml:space="preserve">
+    <value>Acrylic uses softer colors and is more transparent than Mica.</value>
+  </data>
+  <data name="SettingsPageViewModel.AccentColourSourceName" xml:space="preserve">
+    <value>Accent Color Source</value>
+  </data>
+  <data name="SettingsPageViewModel.AccentColourSourceDescription" xml:space="preserve">
+    <value>Choose whether to use the Windows accent color or a custom one</value>
+  </data>
+  <data name="SettingsPageViewModel.CustomAccentColourName" xml:space="preserve">
+    <value>Custom Accent Color</value>
+  </data>
+  <data name="SettingsPageViewModel.CustomAccentColourDescription" xml:space="preserve">
+    <value>The accent color to use for {0}</value>
+  </data>
+  <data name="SettingsPageViewModel.WindowTintSourceName" xml:space="preserve">
+    <value>Window Tint Source</value>
+  </data>
+  <data name="SettingsPageViewModel.WindowTintSourceDescription" xml:space="preserve">
+    <value>Choose whether to use no tint, a custom color, or match the Windows accent color</value>
+  </data>
+  <data name="SettingsPageViewModel.CustomWindowTintColourName" xml:space="preserve">
+    <value>Custom Window Tint Color</value>
+  </data>
+  <data name="SettingsPageViewModel.CustomWindowTintColourDescription" xml:space="preserve">
+    <value>The window tint color to use for {0}</value>
+  </data>
+  <data name="SettingsPageViewModel.WindowTintOpacityName" xml:space="preserve">
+    <value>Window Tint Opacity</value>
+  </data>
+  <data name="SettingsPageViewModel.WindowTintOpacityDescription" xml:space="preserve">
+    <value>The opacity of the window tint color</value>
+  </data>
+  <data name="SettingsPageViewModel.LayoutCategory" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="SettingsPageViewModel.RememberLayoutName" xml:space="preserve">
+    <value>Remember Layout</value>
+  </data>
+  <data name="SettingsPageViewModel.RememberLayoutDescription" xml:space="preserve">
+    <value>If enabled, when you open {0} it will restore your last size / maximized state</value>
+  </data>
+  <data name="SettingsPageViewModel.OpenMaximisedName" xml:space="preserve">
+    <value>Open Maximized</value>
+  </data>
+  <data name="SettingsPageViewModel.OpenMaximisedDescription" xml:space="preserve">
+    <value>Whether {0} should open in a maximized state</value>
+  </data>
+  <data name="SettingsPageViewModel.DefaultWidthName" xml:space="preserve">
+    <value>Default Width</value>
+  </data>
+  <data name="SettingsPageViewModel.DefaultWidthDescription" xml:space="preserve">
+    <value>The width to set {0} on launch</value>
+  </data>
+  <data name="SettingsPageViewModel.DefaultHeightName" xml:space="preserve">
+    <value>Default Height</value>
+  </data>
+  <data name="SettingsPageViewModel.DefaultHeightDescription" xml:space="preserve">
+    <value>The height to set {0} on launch</value>
+  </data>
+  <data name="SettingsPageViewModel.SearchCategory" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="SettingsPageViewModel.CaseSensitiveName" xml:space="preserve">
+    <value>Case Sensitive</value>
+  </data>
+  <data name="SettingsPageViewModel.CaseSensitiveDescription" xml:space="preserve">
+    <value>Whether search queries should be case sensitive</value>
+  </data>
+  <data name="SettingsPageViewModel.SplitSearchQueryName" xml:space="preserve">
+    <value>Split Search Query</value>
+  </data>
+  <data name="SettingsPageViewModel.SplitSearchQueryDescription" xml:space="preserve">
+    <value>When enabled, searches for each word in the query separately</value>
+  </data>
+  <data name="SettingsPageViewModel.EncryptionCategory" xml:space="preserve">
+    <value>Encryption</value>
+  </data>
+  <data name="SettingsPageViewModel.DecryptDataName" xml:space="preserve">
+    <value>Decrypt Data</value>
+  </data>
+  <data name="SettingsPageViewModel.DecryptDataDescription" xml:space="preserve">
+    <value>Creates a .zip with your decrypted data to send to the developer for debugging.</value>
+  </data>
+  <data name="SettingsPageViewModel.DecryptButtonText" xml:space="preserve">
+    <value>Decrypt</value>
+  </data>
+  <data name="SettingsPageViewModel.ImageCacheCategory" xml:space="preserve">
+    <value>Image Cache</value>
+  </data>
+  <data name="SettingsPageViewModel.CacheImagesName" xml:space="preserve">
+    <value>Cache Images</value>
+  </data>
+  <data name="SettingsPageViewModel.CacheImagesDescription" xml:space="preserve">
+    <value>Speed up image loading by caching them to disk</value>
+  </data>
+  <data name="SettingsPageViewModel.ImageCacheSizeWarningLimitName" xml:space="preserve">
+    <value>Image Cache Size Warning Limit</value>
+  </data>
+  <data name="SettingsPageViewModel.ImageCacheSizeWarningLimitDescription" xml:space="preserve">
+    <value>You will see a warning notification if the image cache exceeds this size in GB</value>
+  </data>
+  <data name="SettingsPageViewModel.ClearImageCacheName" xml:space="preserve">
+    <value>Clear Image Cache ({0})</value>
+  </data>
+  <data name="SettingsPageViewModel.ClearImageCacheDescription" xml:space="preserve">
+    <value>Deletes all cached images</value>
+  </data>
+  <data name="SettingsPageViewModel.ClearButtonText" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="SettingsPageViewModel.BackupsCategory" xml:space="preserve">
+    <value>Backups</value>
+  </data>
+  <data name="SettingsPageViewModel.AutomaticBackupsName" xml:space="preserve">
+    <value>Automatic Backups</value>
+  </data>
+  <data name="SettingsPageViewModel.AutomaticBackupsDescription" xml:space="preserve">
+    <value>Whether to perform automatic backups when you close {0}</value>
+  </data>
+  <data name="SettingsPageViewModel.BackupsFolderName" xml:space="preserve">
+    <value>Backups Folder</value>
+  </data>
+  <data name="SettingsPageViewModel.BackupsFolderDescription" xml:space="preserve">
+    <value>Where {0} should store backups of its data</value>
+  </data>
+  <data name="SettingsPageViewModel.MaxBackupsName" xml:space="preserve">
+    <value>Max Backups</value>
+  </data>
+  <data name="SettingsPageViewModel.MaxBackupsDescription" xml:space="preserve">
+    <value>The maximum number of backups to keep before deleting old ones</value>
+  </data>
+  <data name="SettingsPageViewModel.PerformBackupName" xml:space="preserve">
+    <value>Perform Backup</value>
+  </data>
+  <data name="SettingsPageViewModel.PerformBackupDescription" xml:space="preserve">
+    <value>Backup your data now</value>
+  </data>
+  <data name="SettingsPageViewModel.PerformBackupButtonText" xml:space="preserve">
+    <value>Perform Backup</value>
+  </data>
+  <data name="SettingsPageViewModel.InternetCategory" xml:space="preserve">
+    <value>Internet</value>
+  </data>
+  <data name="SettingsPageViewModel.RequestTimeoutName" xml:space="preserve">
+    <value>Request Timeout</value>
+  </data>
+  <data name="SettingsPageViewModel.RequestTimeoutDescription" xml:space="preserve">
+    <value>If a request from the internet takes longer than this many seconds, it will be canceled.</value>
+  </data>
+  <data name="SettingsPageViewModel.MaxRetriesName" xml:space="preserve">
+    <value>Max Retries</value>
+  </data>
+  <data name="SettingsPageViewModel.MaxRetriesDescription" xml:space="preserve">
+    <value>A failed request from the internet will be retried this many times.</value>
+  </data>
+  <data name="SettingsPageViewModel.DatabaseCategory" xml:space="preserve">
+    <value>Database</value>
+  </data>
+  <data name="SettingsPageViewModel.DatabaseHostName" xml:space="preserve">
+    <value>Database Host</value>
+  </data>
+  <data name="SettingsPageViewModel.DatabaseHostDescription" xml:space="preserve">
+    <value>The hostname or IP address of your PostgreSQL database server (stored encrypted)</value>
+  </data>
+  <data name="SettingsPageViewModel.DatabasePortName" xml:space="preserve">
+    <value>Database Port</value>
+  </data>
+  <data name="SettingsPageViewModel.DatabasePortDescription" xml:space="preserve">
+    <value>The port number your PostgreSQL database is listening on</value>
+  </data>
+  <data name="SettingsPageViewModel.DatabaseNameName" xml:space="preserve">
+    <value>Database Name</value>
+  </data>
+  <data name="SettingsPageViewModel.DatabaseNameDescription" xml:space="preserve">
+    <value>The name of the database to connect to</value>
+  </data>
+  <data name="SettingsPageViewModel.UsernameName" xml:space="preserve">
+    <value>Username</value>
+  </data>
+  <data name="SettingsPageViewModel.UsernameDescription" xml:space="preserve">
+    <value>The username to authenticate with the database (stored encrypted)</value>
+  </data>
+  <data name="SettingsPageViewModel.PasswordName" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="SettingsPageViewModel.PasswordDescription" xml:space="preserve">
+    <value>The password to authenticate with the database (stored encrypted)</value>
+  </data>
+  <data name="SettingsPageViewModel.ConnectionTimeoutName" xml:space="preserve">
+    <value>Connection Timeout</value>
+  </data>
+  <data name="SettingsPageViewModel.ConnectionTimeoutDescription" xml:space="preserve">
+    <value>Maximum time in seconds to wait when establishing a database connection</value>
+  </data>
+  <data name="SettingsPageViewModel.SslModeName" xml:space="preserve">
+    <value>SSL Mode</value>
+  </data>
+  <data name="SettingsPageViewModel.SslModeDescription" xml:space="preserve">
+    <value>The SSL/TLS mode to use when connecting to the database</value>
+  </data>
+  <data name="SettingsPageViewModel.RestoreDefaultsDialogTitle" xml:space="preserve">
+    <value>Restore Default Settings?</value>
+  </data>
+  <data name="SettingsPageViewModel.RestoreDefaultsDialogMessage" xml:space="preserve">
+    <value>Are you sure you want to restore the default settings?</value>
+  </data>
+  <data name="SettingsPageViewModel.InvalidBackupsFolderTitle" xml:space="preserve">
+    <value>Invalid Backups Folder</value>
+  </data>
+  <data name="SettingsPageViewModel.InvalidBackupsFolderMessage" xml:space="preserve">
+    <value>You cannot select a folder inside {0}'s data folder. Please select a different folder.</value>
+  </data>
+  <data name="SettingsPageViewModel.BackupFailedTitle" xml:space="preserve">
+    <value>Backup Failed</value>
+  </data>
+  <data name="SettingsPageViewModel.DecryptConfirmTitle" xml:space="preserve">
+    <value>Are You Sure?</value>
+  </data>
+  <data name="SettingsPageViewModel.DecryptConfirmMessage" xml:space="preserve">
+    <value>The resulting archive may contain sensitive information.
+
+You need to carefully check it and remove any data you do not wish to share.
+
+Encrypted Settings such as API keys will not be decrypted.
+
+Do not share this file with anyone that you do not trust.</value>
+  </data>
+  <data name="SettingsPageViewModel.FailedToDecryptTitle" xml:space="preserve">
+    <value>Failed To Decrypt</value>
+  </data>
+  <data name="SettingsPageViewModel.FailedToCreateTempFolderMessage" xml:space="preserve">
+    <value>{0} wasn't able to create a temporary folder</value>
+  </data>
+  <data name="SettingsPageViewModel.FailedToCopyFilesMessage" xml:space="preserve">
+    <value>{0} wasn't able to copy data files to a temporary folder</value>
+  </data>
+  <data name="SettingsPageViewModel.FailedToReadFileMessage" xml:space="preserve">
+    <value>{0} wasn't able to read the file '{1}'</value>
+  </data>
+  <data name="SettingsPageViewModel.FailedToZipDataMessage" xml:space="preserve">
+    <value>{0} wasn't able to zip your decrypted data</value>
+  </data>
+  <data name="SettingsPageViewModel.DeleteDecryptedDataTitle" xml:space="preserve">
+    <value>Delete Decrypted Data?</value>
+  </data>
+  <data name="SettingsPageViewModel.DeleteDecryptedDataMessage" xml:space="preserve">
+    <value>Would you like to delete your decrypted data, or view it in Explorer?</value>
+  </data>
+  <data name="SettingsPageViewModel.DeleteButtonText" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="SettingsPageViewModel.ViewInExplorerButtonText" xml:space="preserve">
+    <value>View In Explorer</value>
+  </data>
+  <data name="SettingsPageViewModel.DecryptedArchiveCreatedTitle" xml:space="preserve">
+    <value>Decrypted Archive Created</value>
+  </data>
+  <data name="SettingsPageViewModel.DecryptedArchiveCreatedMessage" xml:space="preserve">
+    <value>Your decrypted data archive has been created successfully</value>
+  </data>
+  <data name="SettingsPageViewModel.ImageCacheClearedTitle" xml:space="preserve">
+    <value>Image Cache Cleared</value>
+  </data>
+  <data name="SettingsPageViewModel.FailedToClearImageCacheTitle" xml:space="preserve">
+    <value>Failed To Clear Image Cache</value>
+  </data>
+  <data name="SettingsPageViewModel.UnknownErrorMessage" xml:space="preserve">
+    <value>An unknown error occurred</value>
+  </data>
+  <data name="DialogService.CloseButtonText" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="DialogService.YesButtonText" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="DialogService.NoButtonText" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="SettingsPageViewModel.LanguageName" xml:space="preserve">
+    <value>Language</value>
+  </data>
+    <data name="SettingsPageViewModel.LanguageDescription"
+          xml:space="preserve">
+    <value>The language to display in {0}</value>
+  </data>
+  <data name="SettingsPageViewModel.EasyLanguageSwitchingName" xml:space="preserve">
+    <value>Language Button</value>
+  </data>
+  <data name="SettingsPageViewModel.EasyLanguageSwitchingDescription" xml:space="preserve">
+    <value>Show the language button in {0}'s title bar</value>
+  </data>
+  <data name="SettingsPageViewModel.LanguageChangedTitle" xml:space="preserve">
+    <value>Language Changed</value>
+  </data>
+  <data name="SettingsPageViewModel.LanguageChangedMessage" xml:space="preserve">
+    <value>{0} will now restart to apply the new language.</value>
+  </data>
+  <data name="UserSettings.LanguageChangedTitle" xml:space="preserve">
+    <value>Language Changed</value>
+  </data>
+  <data name="UserSettings.LanguageChangedMessage" xml:space="preserve">
+    <value>{0} will now restart to apply the new language.</value>
+  </data>
+</root>

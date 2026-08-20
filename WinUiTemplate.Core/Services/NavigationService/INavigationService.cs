@@ -35,5 +35,10 @@ namespace WinUiTemplate.Core.Services.Interfaces
         /// </summary>
         /// <param name="pageViewModel">The view model of the page to navigate to.</param>
         void Navigate(ObservableObject pageViewModel);
+
+        /// <summary>
+        /// Reloads the currently loaded page.
+        /// </summary>
+        void ReloadPage();
     }
 }

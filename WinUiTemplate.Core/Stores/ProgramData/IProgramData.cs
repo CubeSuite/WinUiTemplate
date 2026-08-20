@@ -12,6 +12,7 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         Version ProgramVersion { get; }
         bool EnableBackups { get; }
         bool EnableSingleInstance { get; }
+        bool EasyLanguageSwitching { get; }
         EncryptionLevel EncryptionLevel { get; }
         bool UsesApi { get; }
         bool UsesRemoteDatabase { get; }

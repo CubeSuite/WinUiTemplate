@@ -13,8 +13,10 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Globalization;
 using Windows.UI;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.Services;
 using WinUiTemplate.Core.Services.Interfaces;   
 using WinUiTemplate.Core.Stores.Interfaces;
 
@@ -33,10 +35,12 @@ namespace WinUiTemplate.Core.Stores
         */
 
         // Services & Stores
-        private readonly IProgramData programData;
-        private readonly IFileUtils fileUtils;
-        private readonly ILoggerService logger;
         private readonly INotificationService notificationService;
+        private readonly IDialogService? dialogService;
+        private readonly IProgramData programData;
+        private readonly ILoggerService logger;
+        private readonly IFileUtils fileUtils;
+        private readonly ILanguageService lang;
 
         // Fields
         private readonly object saveLock = new object();
@@ -54,6 +58,8 @@ namespace WinUiTemplate.Core.Stores
             int? MaxLogs,
 
             // Appearance
+            LanguageOption? Language,
+            bool? EasyLanguageSwitching,
             ThemeOption? Theme,
             BackdropOption? Backdrop,
             AccentSourceOption? AccentSource,
@@ -106,6 +112,8 @@ namespace WinUiTemplate.Core.Stores
         private int _maxLogs = 5;
 
         // Appearance
+        private LanguageOption _language = LanguageOption.en_GB;
+        private bool _easyLanguageSwitching;
         private ThemeOption _theme = ThemeOption.MatchWindows;
         private BackdropOption _backdrop = BackdropOption.AcrylicBase;
         private AccentSourceOption _accentSource = AccentSourceOption.MatchWindows;
@@ -180,6 +188,21 @@ namespace WinUiTemplate.Core.Stores
 
         // Appearance
 
+        public LanguageOption Language {
+            get => _language;
+            set {
+                bool changed = _language != value;
+                SetSetting(ref _language, value);
+
+                if (!changed) return;
+                ApplicationLanguages.PrimaryLanguageOverride = _language.ToLanguageCode();
+                LanguageService.ReloadLanguage();
+            }
+        }
+        public bool EasyLanguageSwitching {
+            get => _easyLanguageSwitching;
+            set => SetSetting(ref _easyLanguageSwitching, value);
+        }
         public ThemeOption Theme {
             get => _theme;
             set => SetSetting(ref _theme, value);
@@ -332,10 +355,13 @@ namespace WinUiTemplate.Core.Stores
         // Constructors
 
         public UserSettings(IServiceProvider serviceProvider) {
-            programData = serviceProvider.GetRequiredService<IProgramData>();
-            fileUtils = serviceProvider.GetRequiredService<IFileUtils>();
-            logger = serviceProvider.GetRequiredService<ILoggerService>();
             notificationService = serviceProvider.GetRequiredService<INotificationService>();
+            dialogService = serviceProvider.GetService(typeof(IDialogService)) as IDialogService;
+            programData = serviceProvider.GetRequiredService<IProgramData>();
+            logger = serviceProvider.GetRequiredService<ILoggerService>();
+            fileUtils = serviceProvider.GetRequiredService<IFileUtils>();
+            lang = new LanguageService("UserSettings");
+            _easyLanguageSwitching = programData.EasyLanguageSwitching;
         }
 
         // Events
@@ -378,6 +404,8 @@ namespace WinUiTemplate.Core.Stores
                 }
 
                 LoadFromDTO(dto);
+                ApplicationLanguages.PrimaryLanguageOverride = Language.ToLanguageCode();
+                LanguageService.ReloadLanguage();
                 Loaded = true;
                 logger.LogInfo("Loaded UserSettings");
             }
@@ -393,6 +421,8 @@ namespace WinUiTemplate.Core.Stores
             MaxLogs = 5;
 
             // Appearance
+            Language = LanguageOption.en_GB;
+            EasyLanguageSwitching = programData.EasyLanguageSwitching;
             Theme = ThemeOption.MatchWindows;
             Backdrop = BackdropOption.AcrylicBase;
             AccentSource = AccentSourceOption.MatchWindows;
@@ -431,6 +461,28 @@ namespace WinUiTemplate.Core.Stores
             // Image Cache
             ImageCacheEnabled = true;
             ImageCacheWarnSizeGb = 1;
+        }
+
+        public async Task ChangeLanguageAsync(LanguageOption language) {
+            if (Language == language) return;
+
+            Language = language;
+
+            if (dialogService != null) {
+                await dialogService.ShowMessage(
+                    MessageType.Info,
+                    lang.Get("LanguageChangedTitle"),
+                    string.Format(lang.Get("LanguageChangedMessage"), programData.ProgramName)
+                );
+            }
+
+            await SaveNowAsync();
+
+            if (Environment.ProcessPath is string processPath) {
+                Process.Start(processPath);
+            }
+
+            Environment.Exit(0);
         }
 
         public async Task SaveNowAsync() {
@@ -544,6 +596,8 @@ namespace WinUiTemplate.Core.Stores
             _maxLogs,
 
             // Appearance
+            _language,
+            _easyLanguageSwitching,
             _theme,
             _backdrop,
             _accentSource,
@@ -594,6 +648,8 @@ namespace WinUiTemplate.Core.Stores
             _maxLogs = dto.MaxLogs ?? 5;
 
             // Appearance
+            _language = dto.Language ?? LanguageOption.en_GB;
+            _easyLanguageSwitching = dto.EasyLanguageSwitching ?? programData.EasyLanguageSwitching;
             _theme = dto.Theme ?? ThemeOption.MatchWindows;
             _backdrop = dto.Backdrop ?? BackdropOption.AcrylicBase;
             _accentSource = dto.AccentSource ?? AccentSourceOption.MatchWindows;

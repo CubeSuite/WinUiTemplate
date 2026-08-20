@@ -43,7 +43,7 @@
                                 <Button Content="{Binding RestoreButtonText}"
                                         Grid.Column="3"
                                         Command="{Binding RestoreCommand}" />
-                                <Button Content="Delete"
+                                <Button x:Uid="BackupsPage/DeleteButton"
                                         Grid.Column="4"
                                         Command="{Binding DeleteCommand}" />
 

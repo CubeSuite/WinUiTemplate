@@ -2,18 +2,25 @@
 <UserControl x:Class="WinUiTemplate.MVVM.Views.CustomTitleBar.CustomTitleBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="using:WinUiTemplate.MVVM.Converters"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="using:WinUiTemplate.MVVM.Views.CustomTitleBar"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d">
 
+    <UserControl.Resources>
+        <converters:TrueToVisibleConverter x:Key="TrueToVisibleConverter" />
+        <converters:FalseToVisibleConverter x:Key="FalseToVisibleConverter" />
+    </UserControl.Resources>
+
     <StackPanel Height="48"
-                Orientation="Horizontal">
-        <AppBarButton Width="48"
-                      Padding="0"
+                Orientation="Horizontal"
+                Spacing="0">
+        <AppBarButton x:Uid="CustomTitleBar/ToggleThemeButton"
                       Background="Transparent"
-                      Command="{Binding ToggleThemeCommand}"
-                      ToolTipService.ToolTip="Toggle Dark Mode">
+                      Width="48"
+                      Padding="0"
+                      Command="{Binding ToggleThemeCommand}">
             <AppBarButton.Icon>
                 <FontIcon Glyph="{Binding ThemeIcon}"
                           FontSize="16"
@@ -22,10 +29,30 @@
             </AppBarButton.Icon>
         </AppBarButton>
 
+        <AppBarButton x:Uid="CustomTitleBar/ChangeLanguageButton"
+                      Background="Transparent"
+                      Width="48"
+                      Padding="0"
+                      VerticalAlignment="Stretch"
+                      Command="{Binding OpenLanguageSelectorCommand}"
+                      Visibility="{Binding IsLanguageButtonVisible, Converter={StaticResource TrueToVisibleConverter}}">
+            <FontIcon Glyph="&#xF2B7;" />
+        </AppBarButton>
+
+        <ComboBox ItemsSource="{Binding LanguageOptions}"
+                  SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}"
+                  MinWidth="0"
+                  Margin="0,0,8,0"
+                  VerticalAlignment="Center"
+                  IsDropDownOpen="{Binding IsLanguageDropdownOpen, Mode=TwoWay}"
+                  Visibility="{Binding IsLanguageSelectorVisible, Converter={StaticResource TrueToVisibleConverter}}" />
+
+
+
         <TextBlock Text="{Binding ProgramName}"
                    VerticalAlignment="Center" />
         <TextBlock Text="{Binding ProgramVersion}"
-                   Margin="16,0,0,0"
+                   Margin="8,0,0,0"
                    VerticalAlignment="Center"
                    Opacity="0.5" />
 
