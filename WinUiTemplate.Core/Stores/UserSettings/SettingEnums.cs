@@ -34,9 +34,28 @@ namespace WinUiTemplate.Core.Stores.Interfaces
 
     public enum WindowTintSourceOption {
         None,
-        Custom,
+        Solid,
+        Gradient,
         [Description("Match Accent")] MatchAccent,
         [Description("Match Windows")] MatchWindows
+    }
+
+    public enum GradientOption {
+        Custom,
+        Acid,
+        Aqua,
+        Aurora,
+        [Description("Berry Glow")] BerryGlow,
+        Crimson,
+        [Description("Emerald Deep")] EmeraldDeep,
+        Glacier,
+        [Description("Lilac Dusk")] LilacDusk,
+        Pulse,
+        [Description("Sage Blush")] SageBlush,
+        Sangria,
+        Tide,
+        Twilight,
+        [Description("Violet Volt")] VioletVolt
     }
 
     public static class EnumExtensions 

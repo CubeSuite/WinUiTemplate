@@ -16,6 +16,7 @@ using System.Threading.Tasks;
 using Windows.Globalization;
 using Windows.UI;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.MVVM.Models;
 using WinUiTemplate.Core.Services;
 using WinUiTemplate.Core.Services.Interfaces;   
 using WinUiTemplate.Core.Stores.Interfaces;
@@ -65,7 +66,10 @@ namespace WinUiTemplate.Core.Stores
             AccentSourceOption? AccentSource,
             Color? CustomAccentColour,
             WindowTintSourceOption? WindowTintSource,
-            Color? CustomWindowTintColour,
+            Color? SolidWindowTintColour,
+            GradientOption? GradientPreset,
+            GradientStep? GradientStart,
+            GradientStep? GradientEnd,
             double? WindowTintOpacity,
 
             // Layout
@@ -119,7 +123,10 @@ namespace WinUiTemplate.Core.Stores
         private AccentSourceOption _accentSource = AccentSourceOption.MatchWindows;
         private Color _customAccentColour = GetWindowsAccentColour();
         private WindowTintSourceOption _windowTintSource = WindowTintSourceOption.None;
-        private Color _customWindowTintColour = GetWindowsAccentColour();
+        private Color _solidWindowTintColour = GetWindowsAccentColour();
+        private GradientOption _gradientPreset = GradientOption.Custom;
+        private GradientStep _gradientStart = new GradientStep();
+        private GradientStep _gradientEnd = new GradientStep();
         private double _windowTintOpacity = 0.5;
 
         // Layout

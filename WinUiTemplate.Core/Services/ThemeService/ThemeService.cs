@@ -34,9 +34,10 @@ namespace WinUiTemplate.Core.Services
             nameof(IUserSettings.AccentSource),
             nameof(IUserSettings.CustomAccentColour),
             nameof(IUserSettings.WindowTintSource),
-            nameof(IUserSettings.CustomWindowTintColour),
+            nameof(IUserSettings.SolidWindowTintColour),
+            nameof(IUserSettings.GradientPreset),
             nameof(IUserSettings.WindowTintOpacity),
-        };
+        }; // Don't add GradientStart/End here, or they will cause a stack overflow
 
         // Properties
 

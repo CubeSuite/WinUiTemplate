@@ -65,6 +65,20 @@ namespace WinUiTemplate.Core.Services
 
         // Public Functions
 
+        public void Initialise() {
+            if (!Directory.Exists(programData.FilePaths.LogsFolder)) {
+                throw new DirectoryNotFoundException($"Logs folder missing: {programData.FilePaths.LogsFolder}");
+            }
+
+            string timestamp = fileUtils.GetFileSafeTimestamp();
+            currentLog = Path.Combine(programData.FilePaths.LogsFolder, $"{timestamp}.log");
+
+            logWriter = new StreamWriter(currentLog, append: false, Encoding.UTF8) { AutoFlush = true };
+            _ = RotateLogsAsync();
+            StartLoggingWorker();
+            initialised = true;
+        }
+
         public void LogDebug(string message, string[]? tags = null, bool shortenPaths = true) 
                  => LogMessage(LogLevel.Debug, message, shortenPaths, tags);
 
@@ -132,20 +146,6 @@ namespace WinUiTemplate.Core.Services
             lock (initialiseLock) {
                 if (!initialised) Initialise();
             }
-        }
-
-        private void Initialise() {
-            if (!Directory.Exists(programData.FilePaths.LogsFolder)) {
-                throw new DirectoryNotFoundException($"Logs folder missing: {programData.FilePaths.LogsFolder}");
-            }
-
-            string timestamp = fileUtils.GetFileSafeTimestamp();
-            currentLog = Path.Combine(programData.FilePaths.LogsFolder, $"{timestamp}.log");
-
-            logWriter = new StreamWriter(currentLog, append: false, Encoding.UTF8) { AutoFlush = true };
-            _ = RotateLogsAsync();
-            StartLoggingWorker();
-            initialised = true;
         }
 
         private void StartLoggingWorker() {

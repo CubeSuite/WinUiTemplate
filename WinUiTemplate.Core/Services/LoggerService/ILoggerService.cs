@@ -25,6 +25,8 @@ namespace WinUiTemplate.Core.Services.Interfaces
         ObservableCollection<LogEntryViewModel> LogEntries { get; }
 
         // Public Functions
+        void Initialise(); // No docstring, should only be called by App.xaml.cs
+
         /// <summary> 
         /// Logs a debug-level message.
         /// </summary>

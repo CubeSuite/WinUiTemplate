@@ -157,6 +157,7 @@ namespace WinUiTemplate
         }
 
         private async Task InitialiseServices() {
+            serviceProvider.GetRequiredService<ILoggerService>().Initialise();
             await serviceProvider.GetRequiredService<IFileUtils>().CreateProgramFolderStructure();
             await serviceProvider.GetRequiredService<IUserSettings>().Load();
             await serviceProvider.GetRequiredService<IImageCache>().Load();
