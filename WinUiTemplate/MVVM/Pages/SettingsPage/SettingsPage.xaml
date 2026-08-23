@@ -12,6 +12,7 @@
     <Page.Resources>
         <converters:TrueToVisibleConverter x:Key="trueToVisibleConverter" />
         <converters:BoolToRevealConverter x:Key="boolToRevealConverter" />
+        <converters:ColourToHexConverter x:Key="colourToHexConverter" />
     </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -95,6 +96,25 @@
                                                              Text="{Binding Value, Mode=TwoWay}" />
                                                     <Button x:Uid="SettingsPage/BrowseButton"
                                                             Command="{Binding ExecuteButtonActionCommand}" />
+                                                </StackPanel>
+                                            </community:Case>
+
+                                            <community:Case Value="WinUiTemplate.Core.MVVM.Models.GradientStep">
+                                                <StackPanel Orientation="Horizontal" 
+                                                            Spacing="8">
+                                                    <community:ColorPickerButton SelectedColor="{Binding Value.Colour, Mode=TwoWay, Converter={StaticResource colourToHexConverter}}"/>
+                                                    <NumberBox Value="{Binding Value.PositionX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                               Minimum="0"
+                                                               Maximum="1"
+                                                               PlaceholderText="0.0 ≤ X ≤ 1.0"/>
+                                                    <NumberBox Value="{Binding Value.PositionY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                               Minimum="0"
+                                                               Maximum="1"
+                                                               PlaceholderText="0.0 ≤ Y ≤ 1.0"/>
+                                                    <NumberBox Value="{Binding Value.Offset, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                               Minimum="0"
+                                                               Maximum="1"
+                                                               PlaceholderText="0.0 ≤ Offset ≤ 1.0"/>
                                                 </StackPanel>
                                             </community:Case>
 

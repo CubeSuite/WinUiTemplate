@@ -26,6 +26,12 @@
                    Fill="Transparent"
                    Opacity="0.5" />
 
+        <Image x:Name="NoiseOverlay"
+               Grid.RowSpan="2"
+               Opacity="0.03"
+               Stretch="Fill"
+               IsHitTestVisible="False" />
+
         <titlebar:CustomTitleBar x:Name="titleBar" />
 
     </Grid>

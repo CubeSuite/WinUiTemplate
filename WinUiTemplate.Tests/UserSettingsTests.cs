@@ -138,7 +138,7 @@ namespace WinUiTemplate.Tests
             settings.AccentSource.Should().Be(AccentSourceOption.MatchWindows);
             settings.CustomAccentColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
             settings.WindowTintSource.Should().Be(WindowTintSourceOption.None);
-            settings.CustomWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+            settings.SolidWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
             settings.WindowTintOpacity.Should().Be(0.5);
             settings.RememberLayout.Should().BeTrue();
             settings.OpenMaximised.Should().BeFalse();
@@ -175,7 +175,7 @@ namespace WinUiTemplate.Tests
             settings.AccentSource.Should().Be(AccentSourceOption.MatchWindows);
             settings.CustomAccentColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
             settings.WindowTintSource.Should().Be(WindowTintSourceOption.None);
-            settings.CustomWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+            settings.SolidWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
             settings.WindowTintOpacity.Should().Be(0.5);
             settings.RememberLayout.Should().BeTrue();
             settings.OpenMaximised.Should().BeFalse();
@@ -212,8 +212,8 @@ namespace WinUiTemplate.Tests
             settings.Backdrop = BackdropOption.Mica;
             settings.AccentSource = AccentSourceOption.Custom;
             settings.CustomAccentColour = red;
-            settings.WindowTintSource = WindowTintSourceOption.Custom;
-            settings.CustomWindowTintColour = blue;
+            settings.WindowTintSource = WindowTintSourceOption.None;
+            settings.SolidWindowTintColour = blue;
             settings.WindowTintOpacity = 0.75;
             settings.RememberLayout = false;
             settings.OpenMaximised = true;
@@ -240,8 +240,8 @@ namespace WinUiTemplate.Tests
             settings.Backdrop.Should().Be(BackdropOption.Mica);
             settings.AccentSource.Should().Be(AccentSourceOption.Custom);
             settings.CustomAccentColour.Should().Be(red);
-            settings.WindowTintSource.Should().Be(WindowTintSourceOption.Custom);
-            settings.CustomWindowTintColour.Should().Be(blue);
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.None);
+            settings.SolidWindowTintColour.Should().Be(blue);
             settings.WindowTintOpacity.Should().Be(0.75);
             settings.RememberLayout.Should().BeFalse();
             settings.OpenMaximised.Should().BeTrue();
@@ -426,7 +426,7 @@ namespace WinUiTemplate.Tests
                 ""AccentSource"": 1,
                 ""CustomAccentColour"": {""A"":255,""R"":255,""G"":0,""B"":0},
                 ""WindowTintSource"": 1,
-                ""CustomWindowTintColour"": {""A"":255,""R"":0,""G"":0,""B"":255},
+                ""SolidWindowTintColour"": {""A"":255,""R"":0,""G"":0,""B"":255},
                 ""WindowTintOpacity"": 0.8,
                 ""RememberLayout"": false,
                 ""OpenMaximised"": true,
@@ -458,8 +458,8 @@ namespace WinUiTemplate.Tests
             settings.Backdrop.Should().Be(BackdropOption.MicaAlt);
             settings.AccentSource.Should().Be(AccentSourceOption.Custom);
             settings.CustomAccentColour.Should().Be(red);
-            settings.WindowTintSource.Should().Be(WindowTintSourceOption.Custom);
-            settings.CustomWindowTintColour.Should().Be(blue);
+            settings.WindowTintSource.Should().Be(WindowTintSourceOption.Solid);
+            settings.SolidWindowTintColour.Should().Be(blue);
             settings.WindowTintOpacity.Should().Be(0.8);
             settings.RememberLayout.Should().BeFalse();
             settings.OpenMaximised.Should().BeTrue();
@@ -669,7 +669,7 @@ namespace WinUiTemplate.Tests
         public void RestoreDefaults_ResetsWindowTintSourceToNone()
         {
             UserSettings settings = CreateUserSettings();
-            settings.WindowTintSource = WindowTintSourceOption.Custom;
+            settings.WindowTintSource = WindowTintSourceOption.Solid;
 
             settings.RestoreDefaults();
 
@@ -677,14 +677,14 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
-        public void RestoreDefaults_ResetsCustomWindowTintColourToWindowsAccentColour()
+        public void RestoreDefaults_ResetsSolidWindowTintColourToWindowsAccentColour()
         {
             UserSettings settings = CreateUserSettings();
-            settings.CustomWindowTintColour = blue;
+            settings.SolidWindowTintColour = blue;
 
             settings.RestoreDefaults();
 
-            settings.CustomWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
+            settings.SolidWindowTintColour.Should().Be(new UISettings().GetColorValue(UIColorType.AccentLight2));
         }
 
         [Fact]
