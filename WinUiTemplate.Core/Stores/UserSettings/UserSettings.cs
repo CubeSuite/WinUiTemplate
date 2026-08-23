@@ -10,12 +10,14 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Globalization;
 using Windows.UI;
 using Windows.UI.ViewManagement;
+using WinUiTemplate.Core.MVVM.Models;
 using WinUiTemplate.Core.Services;
 using WinUiTemplate.Core.Services.Interfaces;   
 using WinUiTemplate.Core.Stores.Interfaces;
@@ -65,7 +67,10 @@ namespace WinUiTemplate.Core.Stores
             AccentSourceOption? AccentSource,
             Color? CustomAccentColour,
             WindowTintSourceOption? WindowTintSource,
-            Color? CustomWindowTintColour,
+            Color? SolidWindowTintColour,
+            GradientOption? GradientPreset,
+            GradientStep? GradientStart,
+            GradientStep? GradientEnd,
             double? WindowTintOpacity,
 
             // Layout
@@ -119,7 +124,10 @@ namespace WinUiTemplate.Core.Stores
         private AccentSourceOption _accentSource = AccentSourceOption.MatchWindows;
         private Color _customAccentColour = GetWindowsAccentColour();
         private WindowTintSourceOption _windowTintSource = WindowTintSourceOption.None;
-        private Color _customWindowTintColour = GetWindowsAccentColour();
+        private Color _solidWindowTintColour = GetWindowsAccentColour();
+        private GradientOption _gradientPreset = GradientOption.Tide;
+        private GradientStep _gradientStart = new GradientStep(GetWindowsAccentColour().ToHex(), 0.8, 0.2, 0);
+        private GradientStep _gradientEnd = new GradientStep("#232323", 0, 1, 1);
         private double _windowTintOpacity = 0.5;
 
         // Layout
@@ -228,9 +236,24 @@ namespace WinUiTemplate.Core.Stores
             set => SetSetting(ref _windowTintSource, value);
         }
 
-        public Color CustomWindowTintColour {
-            get => _customWindowTintColour;
-            set => SetSetting(ref _customWindowTintColour, value);
+        public Color SolidWindowTintColour {
+            get => _solidWindowTintColour;
+            set => SetSetting(ref _solidWindowTintColour, value);
+        }
+
+        public GradientOption GradientPreset {
+            get => _gradientPreset;
+            set => SetSetting(ref _gradientPreset, value);
+        }
+
+        public GradientStep GradientStart {
+            get => _gradientStart;
+            set => SetSetting(ref _gradientStart, value);
+        }
+
+        public GradientStep GradientEnd {
+            get => _gradientEnd;
+            set => SetSetting(ref _gradientEnd, value);
         }
 
         public double WindowTintOpacity {
@@ -360,13 +383,29 @@ namespace WinUiTemplate.Core.Stores
             programData = serviceProvider.GetRequiredService<IProgramData>();
             logger = serviceProvider.GetRequiredService<ILoggerService>();
             fileUtils = serviceProvider.GetRequiredService<IFileUtils>();
+
             lang = new LanguageService("UserSettings");
             _easyLanguageSwitching = programData.EasyLanguageSwitching;
+
+            GradientStart.Updated += OnGradientStepUpdated;
+            GradientEnd.Updated += OnGradientStepUpdated;
         }
 
         // Events
         public event Action? SettingsLoaded;
         public event Action<string>? SettingChanged;
+
+        // Listeners
+
+        private void OnGradientStepUpdated(string propertyName) {
+            if (propertyName == nameof(GradientStep.Colour)) {
+                GradientPreset = GradientOption.Custom;
+            }
+
+            DebounceSave();
+            SettingChanged?.Invoke(nameof(GradientStart));
+            SettingChanged?.Invoke(nameof(GradientEnd));
+        }
 
         // Public Functions
 
@@ -404,8 +443,12 @@ namespace WinUiTemplate.Core.Stores
                 }
 
                 LoadFromDTO(dto);
-                ApplicationLanguages.PrimaryLanguageOverride = Language.ToLanguageCode();
-                LanguageService.ReloadLanguage();
+                try {
+                    ApplicationLanguages.PrimaryLanguageOverride = Language.ToLanguageCode();
+                    LanguageService.ReloadLanguage();
+                }
+                catch (COMException) { }
+                catch (InvalidOperationException) { }
                 Loaded = true;
                 logger.LogInfo("Loaded UserSettings");
             }
@@ -428,7 +471,10 @@ namespace WinUiTemplate.Core.Stores
             AccentSource = AccentSourceOption.MatchWindows;
             CustomAccentColour = GetWindowsAccentColour();
             WindowTintSource = WindowTintSourceOption.None;
-            CustomWindowTintColour = GetWindowsAccentColour();
+            SolidWindowTintColour = GetWindowsAccentColour();
+            GradientPreset = GradientOption.Tide;
+            GradientStart = new GradientStep();
+            GradientEnd = new GradientStep();
             WindowTintOpacity = 0.5;
 
             // Layout
@@ -603,7 +649,10 @@ namespace WinUiTemplate.Core.Stores
             _accentSource,
             _customAccentColour,
             _windowTintSource,
-            _customWindowTintColour,
+            _solidWindowTintColour,
+            _gradientPreset,
+            _gradientStart,
+            _gradientEnd,
             _windowTintOpacity,
 
             // Layout
@@ -655,7 +704,10 @@ namespace WinUiTemplate.Core.Stores
             _accentSource = dto.AccentSource ?? AccentSourceOption.MatchWindows;
             _customAccentColour = dto.CustomAccentColour ?? GetWindowsAccentColour();
             _windowTintSource = dto.WindowTintSource ?? WindowTintSourceOption.None;
-            _customWindowTintColour = dto.CustomWindowTintColour ?? GetWindowsAccentColour();
+            _solidWindowTintColour = dto.SolidWindowTintColour ?? GetWindowsAccentColour();
+            _gradientPreset = dto.GradientPreset ?? GradientOption.Tide;
+            _gradientStart = dto.GradientStart ?? new GradientStep(GetWindowsAccentColour().ToHex(), 0.8, 0.2, 0);
+            _gradientEnd = dto.GradientEnd ?? new GradientStep("#232323", 0, 1, 1);
             _windowTintOpacity = dto.WindowTintOpacity ?? 0.5;
 
             // Layout
@@ -689,6 +741,9 @@ namespace WinUiTemplate.Core.Stores
             // Image Cache
             _imageCacheEnabled = dto.ImageCacheEnabled ?? true;
             _imageCacheWarnSizeGb = dto.ImageCacheWarnSizeGb ?? 1;
+
+            GradientStart.Updated += OnGradientStepUpdated;
+            GradientEnd.Updated += OnGradientStepUpdated;
         }
 
         private static Color GetWindowsAccentColour() {

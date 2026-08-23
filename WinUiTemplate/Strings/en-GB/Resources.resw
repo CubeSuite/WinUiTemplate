@@ -216,10 +216,10 @@
   <data name="SettingsPageViewModel.WindowTintSourceDescription" xml:space="preserve">
     <value>Choose whether to use no tint, a custom colour, or match the Windows accent colour</value>
   </data>
-  <data name="SettingsPageViewModel.CustomWindowTintColourName" xml:space="preserve">
-    <value>Custom Window Tint Colour</value>
+  <data name="SettingsPageViewModel.SolidWindowTintColourName" xml:space="preserve">
+    <value>Solid Window Tint Colour</value>
   </data>
-  <data name="SettingsPageViewModel.CustomWindowTintColourDescription" xml:space="preserve">
+  <data name="SettingsPageViewModel.SolidWindowTintColourDescription" xml:space="preserve">
     <value>The window tint colour to use for {0}</value>
   </data>
   <data name="SettingsPageViewModel.WindowTintOpacityName" xml:space="preserve">
@@ -477,8 +477,7 @@ Do not share this file with anyone that you do not trust.</value>
   <data name="SettingsPageViewModel.LanguageName" xml:space="preserve">
     <value>Language</value>
   </data>
-    <data name="SettingsPageViewModel.LanguageDescription"
-          xml:space="preserve">
+  <data name="SettingsPageViewModel.LanguageDescription" xml:space="preserve">
     <value>The language to display in {0}</value>
   </data>
   <data name="SettingsPageViewModel.EasyLanguageSwitchingName" xml:space="preserve">
@@ -498,5 +497,23 @@ Do not share this file with anyone that you do not trust.</value>
   </data>
   <data name="UserSettings.LanguageChangedMessage" xml:space="preserve">
     <value>{0} will now restart to apply the new language.</value>
+  </data>
+  <data name="SettingsPageViewModel.GradientPresetName" xml:space="preserve">
+    <value>Gradient Preset</value>
+  </data>
+  <data name="SettingsPageViewModel.GradientPresetDescription" xml:space="preserve">
+    <value>The gradient preset to use for the window tint of {0}, or specify a custom one</value>
+  </data>
+  <data name="SettingsPageViewModel.GradientStartName" xml:space="preserve">
+    <value>Gradient Start</value>
+  </data>
+  <data name="SettingsPageViewModel.GradientStartDescription" xml:space="preserve">
+    <value>The starting colour and position of the window tint gradient</value>
+  </data>
+  <data name="SettingsPageViewModel.GradientEndName" xml:space="preserve">
+    <value>Gradient End</value>
+  </data>
+  <data name="SettingsPageViewModel.GradientEndDescription" xml:space="preserve">
+    <value>The ending colour and position of the window tint gradient.</value>
   </data>
 </root>

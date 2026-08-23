@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Npgsql;
 using Windows.UI;
+using WinUiTemplate.Core.MVVM.Models;
 
 namespace WinUiTemplate.Core.Stores.Interfaces
 {
@@ -28,7 +29,10 @@ namespace WinUiTemplate.Core.Stores.Interfaces
         AccentSourceOption AccentSource { get; set; }
         Color CustomAccentColour { get; set; }
         WindowTintSourceOption WindowTintSource { get; set; }
-        Color CustomWindowTintColour { get; set; }
+        Color SolidWindowTintColour { get; set; }
+        GradientOption GradientPreset { get; set; }
+        GradientStep GradientStart { get; set; }
+        GradientStep GradientEnd { get; set; }
         double WindowTintOpacity { get; set; }
 
         // Layout

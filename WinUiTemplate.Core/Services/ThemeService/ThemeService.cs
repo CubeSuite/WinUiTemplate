@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
@@ -26,7 +27,7 @@ namespace WinUiTemplate.Core.Services
         private readonly IUserSettings userSettings;
 
         // Fields
-        private DispatcherQueue uiThreadDispatcher;
+        private DispatcherQueue? uiThreadDispatcher;
         private UISettings uiSettings;
         private string[] appearanceSettings = {
             nameof(IUserSettings.Theme),
@@ -34,9 +35,10 @@ namespace WinUiTemplate.Core.Services
             nameof(IUserSettings.AccentSource),
             nameof(IUserSettings.CustomAccentColour),
             nameof(IUserSettings.WindowTintSource),
-            nameof(IUserSettings.CustomWindowTintColour),
+            nameof(IUserSettings.SolidWindowTintColour),
+            nameof(IUserSettings.GradientPreset),
             nameof(IUserSettings.WindowTintOpacity),
-        };
+        }; // Don't add GradientStart/End here, or they will cause a stack overflow
 
         // Properties
 
@@ -51,7 +53,13 @@ namespace WinUiTemplate.Core.Services
             uiSettings = new UISettings();
             uiSettings.ColorValuesChanged += OnColourValuesChanged;
 
-            uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
+            try {
+                uiThreadDispatcher = DispatcherQueue.GetForCurrentThread();
+            }
+            catch (COMException) {
+                // The dispatcher is unavailable when the service is created in the .Tests project.
+                uiThreadDispatcher = null;
+            }
         }
 
         // Events
@@ -67,7 +75,7 @@ namespace WinUiTemplate.Core.Services
             if (userSettings.Theme == ThemeOption.MatchWindows || 
                 userSettings.AccentSource == AccentSourceOption.MatchWindows ||
                 userSettings.WindowTintSource == WindowTintSourceOption.MatchWindows) {
-                uiThreadDispatcher.TryEnqueue(RaiseThemeChangeRequested);
+                uiThreadDispatcher?.TryEnqueue(RaiseThemeChangeRequested);
             }
         }
 

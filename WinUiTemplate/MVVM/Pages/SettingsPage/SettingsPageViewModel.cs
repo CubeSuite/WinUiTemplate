@@ -22,6 +22,7 @@ using WinUiTemplate.Core.Services.Interfaces;
 using WinUiTemplate.Core.Stores.Interfaces;
 using Npgsql;
 using WinUiTemplate.Core.Services;
+using WinUiTemplate.Core.MVVM.Models;
 
 namespace WinUiTemplate.MVVM.Pages
 {
@@ -34,6 +35,7 @@ namespace WinUiTemplate.MVVM.Pages
         private readonly IBackupService backupManager;
         private readonly IDialogService dialogService;
         private readonly IUserSettings userSettings;
+        private readonly IThemeService themeService;
         private readonly IProgramData programData;
         private readonly IImageCache imageCache;
         private readonly IFileUtils fileUtils;
@@ -52,6 +54,7 @@ namespace WinUiTemplate.MVVM.Pages
             backupManager = serviceProvider.GetRequiredService<IBackupService>();
             dialogService = serviceProvider.GetRequiredService<IDialogService>();
             userSettings = serviceProvider.GetRequiredService<IUserSettings>();
+            themeService = serviceProvider.GetRequiredService<IThemeService>();
             programData = serviceProvider.GetRequiredService<IProgramData>();
             imageCache = serviceProvider.GetRequiredService<IImageCache>();
             fileUtils = serviceProvider.GetRequiredService<IFileUtils>();
@@ -59,6 +62,8 @@ namespace WinUiTemplate.MVVM.Pages
             lang = new LanguageService("SettingsPageViewModel");
 
             userSettings.SettingChanged += OnSettingChanged;
+            userSettings.GradientStart.Updated += OnGradientUpdated;
+            userSettings.GradientEnd.Updated += OnGradientUpdated;
 
             SettingsCategories = new List<SettingsCategoryList>() {
                 new SettingsCategoryList(lang.Get("LoggingCategory"), [
@@ -156,13 +161,39 @@ namespace WinUiTemplate.MVVM.Pages
                         setValueFunc: (value) => userSettings.WindowTintSource = value
                     ),
                     new GenericSetting<Color>(
-                        name: lang.Get("CustomWindowTintColourName"),
-                        description: string.Format(lang.Get("CustomWindowTintColourDescription"), programData.ProgramName),
+                        name: lang.Get("SolidWindowTintColourName"),
+                        description: string.Format(lang.Get("SolidWindowTintColourDescription"), programData.ProgramName),
                         icon: "\uE73C",
-                        getValueFunc: () => userSettings.CustomWindowTintColour,
-                        setValueFunc: (value) => userSettings.CustomWindowTintColour = value,
+                        getValueFunc: () => userSettings.SolidWindowTintColour,
+                        setValueFunc: (value) => userSettings.SolidWindowTintColour = value,
                         type: "",
-                        isVisibleFunc: () => userSettings.WindowTintSource == WindowTintSourceOption.Custom
+                        isVisibleFunc: () => userSettings.WindowTintSource == WindowTintSourceOption.Solid
+                    ),
+                    new EnumSetting<GradientOption>(
+                        name: lang.Get("GradientPresetName"),
+                        description: string.Format(lang.Get("GradientPresetDescription"), programData.ProgramName),
+                        icon: "\uEDA8",
+                        getValueFunc: () => userSettings.GradientPreset,
+                        setValueFunc: (value) => userSettings.GradientPreset = value,
+                        isVisibleFunc: () => userSettings.WindowTintSource == WindowTintSourceOption.Gradient
+                    ),
+                    new GenericSetting<GradientStep>(
+                        name: lang.Get("GradientStartName"),
+                        description: string.Format(lang.Get("GradientStartDescription"), programData.ProgramName),
+                        icon: "\uE742",
+                        getValueFunc: () => userSettings.GradientStart,
+                        setValueFunc: (value) => userSettings.GradientStart = value,
+                        type: "",
+                        isVisibleFunc: () => userSettings.WindowTintSource == WindowTintSourceOption.Gradient
+                    ),
+                    new GenericSetting<GradientStep>(
+                        name: lang.Get("GradientEndName"),
+                        description: string.Format(lang.Get("GradientEndDescription"), programData.ProgramName),
+                        icon: "\uE741",
+                        getValueFunc: () => userSettings.GradientEnd,
+                        setValueFunc: (value) => userSettings.GradientEnd = value,
+                        type: "",
+                        isVisibleFunc: () => userSettings.WindowTintSource == WindowTintSourceOption.Gradient
                     ),
                     new ComparableSetting<double>(
                         name: lang.Get("WindowTintOpacityName"),
@@ -410,6 +441,10 @@ namespace WinUiTemplate.MVVM.Pages
                     setting.NotifyValueChanged();
                 }
             }
+        }
+
+        private void OnGradientUpdated(string propertyName) {
+            themeService.ApplyTheme();
         }
 
         // Commands
