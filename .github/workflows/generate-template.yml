@@ -298,9 +298,45 @@ jobs:
           Get-ChildItem -Path "./template-output/WinUiTemplate/SolutionItems" -Filter "*.sln*" -File -ErrorAction SilentlyContinue | ForEach-Object {
             (Get-Content $_.FullName -Raw) -replace 'WinUiTemplate', '$$safeprojectname$$' | Set-Content $_.FullName -NoNewline
           }
-          
-      - name: Upload template artifact
+
+          Rename-Item -Path "./template-output" -NewName "template-output-en-GB"
+          Copy-Item -Path "./template-output-en-GB" -Destination "./template-output-en-US" -Recurse -Force
+
+      - name: Convert en-US template spelling
+        shell: pwsh
+        run: |
+          $textExtensions = @(".cs", ".csproj", ".json", ".xaml", ".xml", ".resw", ".manifest", ".appxmanifest", ".sln", ".slnx", ".yml", ".yaml", ".md", ".txt")
+          $replacements = @(
+            @("Colour", "Color"),
+            @("colour", "color"),
+            @("Initialised", "Initialized"),
+            @("initialised", "initialized"),
+            @("Initialise", "Initialize"),
+            @("initialise", "initialize"),
+            @("Behaviour", "Behavior"),
+            @("behaviour", "behavior"),
+            @("Cancelled", "Canceled"),
+            @("cancelled", "canceled")
+          )
+
+          Get-ChildItem -Path "./template-output-en-US" -Recurse -File | Where-Object {
+            $_.Extension -in $textExtensions
+          } | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            foreach ($replacement in $replacements) {
+              $content = $content -replace [regex]::Escape($replacement[0]), $replacement[1]
+            }
+            Set-Content $_.FullName -Value $content -NoNewline
+          }
+
+      - name: Upload en-GB template artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WinUi3 MVVM Template
-          path: ./template-output/
+          name: WinUi3 MVVM Template en-GB
+          path: ./template-output-en-GB/
+
+      - name: Upload en-US template artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WinUi3 MVVM Template en-US
+          path: ./template-output-en-US/
