@@ -448,6 +448,7 @@ The first time you launch your application, Windows will create the folder that 
    1) `ProgramData.FilePaths.RootFolder` points to the 'LocalState' folder inside this one.
    2) `ProgramData.FilePaths.CacheFolder` points to the 'LocalCache' folder inside this one.
 6) You can now ask your users to find the log file there if a bug is preventing them from using the button for opening `IFilePaths.LogsFolder` in File Explorer.
+7) When `OnUnhandledException` is triggered, a crash report will be generated in `IFilePaths.CrashReportsFolder`.
 
 ### Testing
 
@@ -550,7 +551,7 @@ This is where the user can configure their settings. Settings are grouped into c
 
 #### CustomTitleBar
 
-Modify this view to adjust the content in the title bar. By default, it contains a button to toggle between light and dark mode, a label displaying `IProgramData.ProgramName` and a label displaying the application's version. The current version is extracted from the Assembly, so update it there to update the label. When `EasyLanguageSwitching` is enabled in `IProgramData` or `IUserSettings`, a button for switching language will appear next to the Toggle Theme button.
+Modify this view to adjust the content in the title bar. By default, it contains a button to toggle between light and dark mode, a label displaying `IProgramData.ProgramName` and a label displaying the application's version. The current version is extracted from the Assembly Version of the .Core project, so update it there to update the label. When `EasyLanguageSwitching` is enabled in `IProgramData` or `IUserSettings`, a button for switching language will appear next to the Toggle Theme button.
 
 #### MessageView
 
