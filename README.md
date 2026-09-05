@@ -1,6 +1,6 @@
 # WinUI3 MVVM Template
 
-This project provides a Visual Studio template that can be used to kickstart a WinUI3 application with MVVM and Dependency Injection architecture. It provides many useful built in services and stores, which will be useful in a large variety of applications.
+This project provides a Visual Studio template that can be used to kickstart a WinUI3 application with MVVM and Dependency Injection architecture. It supports localisation and provides many useful built-in services and stores, which will be useful in a large variety of applications.
 
 ## Status
 
@@ -45,6 +45,8 @@ Encrypt and decrypt data
   Read and write files and folders asynchronously
 - [HttpService](#http-service)  
 A base class to use with APIs, very untested
+- [LanguageService](#language-service)  
+  Fetches strings from the Resources.resw file for the user's selected language
 - [LoggerService](#logger-service)  
   Thread safe logger that logs messages to both console and file
 - [NavigationService](#navigation-service)  
@@ -74,11 +76,11 @@ Stores:
 
 ### Archive Service
 
-This service is used for generating .zip files asynchronously, with support for `CancellationToken`s. Its main purpose is to be used by other services like the `BackupService` but can also invoke it maanually if your application needs to generate archives.
+This service is used for generating .zip files asynchronously, with support for `CancellationToken`s. Its main purpose is to be used by other services like the `BackupService` but can also invoke it manually if your application needs to generate archives.
 
 ### Backup Service
 
-This service automates the process of backing up the user's data to a location of their choosing. Backups are performed by compressing all content from `IFIlePaths.RootFolder` into a zip file. Automatic backups can be disabled by you with `IProgramData.EnableBackups` or by the user with `IUserSettings.AutomaticBackups`. A backup is performed every time the user closes the application.
+This service automates the process of backing up the user's data to a location of their choosing. Backups are performed by compressing all content from `IFilePaths.RootFolder` into a zip file. Automatic backups can be disabled by you with `IProgramData.EnableBackups` or by the user with `IUserSettings.AutomaticBackups`. A backup is performed every time the user closes the application when enabled.
 
 The user can then restore their data from one of these zip files from the `BackupsPage`. A backup is performed before restoring, if it succeeds, then everything in `IFilePaths.RootFolder` is deleted, and the backup archive is extracted into the root folder, then the application restarts to load the data.
 
@@ -119,7 +121,7 @@ DoSomethingWithFileContent(result.Content);
 
 ### Http Service
 
-This service is meant to serve as a base class for a service that communicates with an API, but it has not yet been tested. This service will be updated once I use it in an actual application. If you use and update it in an application, please consider contributing your chages to this template. I envision it working something like this:
+This service is meant to serve as a base class for a service that communicates with an API, but it has not yet been tested. This service will be updated once I use it in an actual application. If you use and update it in an application, please consider contributing your changes to this template. I envision it working something like this:
 
 ```csharp
 
@@ -130,9 +132,21 @@ public class WeatherService : HttpService, IWeatherService
 
     public record WeatherInfo(int Temperature, int WindSpeed);
 
-    public WeatherInfo GetWeatherReport(CancellationToken token = default){
-        return GetAsync<WeatherInfo>("weather", token)
+    public async Task<WeatherInfo> GetWeatherReport(CancellationToken token = default){
+        return await GetAsync<WeatherInfo>("weather", token);
     }
+}
+```
+### Language Service
+
+This service is used to fetch strings from the Resources.resw file for the user's currently selected language. Entries in the resource files are prefixed with the page / view model that the string is for, e.g. `BackupViewModel.CancelButtonText`. This helps with keeping keys unique and organised. Rather than being a singleton that is access through an `IServiceProvider`, you should instead create a new instance where you need it, passing the prefix into the constructor:
+
+```csharp
+ILanguageService lang;
+
+public BackupViewModel() {
+  lang = new LanguageService("BackupViewModel");
+  CancelButtonText = lang.Get("CancelButtonText");
 }
 ```
 
@@ -150,14 +164,14 @@ Display notification banners above the current page. See [BackupService](#backup
 
 ### Search Service
 
-This service can help you filter an `IEnumerable<T>` using a search term and an array of properties to check against that search term. The user can control this service's behaviour using `IUserSettings.SearchCaseSensative` and `IUserSettings.SearchSplitQuery`, which splits a query like `"example query"` into the tokens `["example", "query"]`. Then, each object's selectors must contain each of those tokens to be included in the results.
+This service can help you filter an `IEnumerable<T>` using a search term and an array of properties to check against that search term. The user can control this service's behaviour using `IUserSettings.SearchCaseSensitive` and `IUserSettings.SearchSplitQuery`, which splits a query like `"example query"` into the tokens `["example", "query"]`. Then, each object's selectors must contain each of those tokens to be included in the results.
 
 Example use:
 
 This is loosely based on code in my [Factory Planner](https://github.com/CubeSuite/FactoryPlanner) application, see that repo for how I actually use this service.
 
 ```csharp
-public class Recipe(){
+public class Recipe {
     public string Name;
     public Dictionary<string, int> Ingredients;
     public Dictionary<string, int> Outputs;
@@ -172,15 +186,16 @@ public class Recipe(){
 List<Recipe> AllRecipes;
 List<Recipe> FilteredRecipes;
 
-private void OnSearchTermChanged() {
+private async void OnSearchTermChanged() {
     IEnumerable<Recipe> results = await searchService.Search(AllRecipes, SearchTerm, Recipe.GetSearchSelectors());
-    FilteredRecipes = results.ToList();
 
     // Instead of GetSearchSelectors(), you can do this:  
-    IEnumerable<Recipe> results = await searchService.Search(AllRecipes, SearchTerm, [
+    results = await searchService.Search(AllRecipes, SearchTerm, [
         recipe => recipe.Name,
         recipe => recipe.Outputs.Keys.Select(item => item.Name)
     ]);
+
+    FilteredRecipes = results.ToList();
 }
 
 private void OnRecipeAdded(Recipe recipe){
@@ -192,7 +207,7 @@ private void OnRecipeAdded(Recipe recipe){
 
 ### Theme Service
 
-This service is used to control the applications current theme. It handles some of the backend code of theme switching. It is used by `CustomTitleBarViewModel` to toggle the theme and is used as a bridge between `IUserSettings` and the code that actually does theme and colour switching in `MainWindow.xaml.cs`. You shouldnt' need to use this service manually.
+This service is used to control the applications current theme. It handles some of the backend code of theme switching. It is used by `CustomTitleBarViewModel` to toggle the theme and is used as a bridge between `IUserSettings` and the code that actually does theme and colour switching in `MainWindow.xaml.cs`. You shouldn't need to use this service manually.
 
 ### File Paths Store
 
@@ -225,20 +240,20 @@ Example use:
 ```csharp
 [ObservableProperty] public partial BitmapImage? UserChosenImage { get; set; }
 
-private async Task PickNewImage(){
-  StorageFile? image = dialogService.PickSingleFile("*.png");
-  if (image == null){
+private async Task PickNewImage() {
+  StorageFile? image = await dialogService.PickSingleFile(["*.png"]);
+  if (image == null) {
     UserChosenImage = null;
     return;
   }
 
-  UserChosenImage = await imageCache.GetImage(result.Path);
+  UserChosenImage = await imageCache.GetImage(image.Path);
 }
 ```
 
 ### Object Cache
 
-This store acts as a wrapper around a dictionary that handles key-checking and logging errors. Be wary of calls to this store slowing down as you add thousands of items to the cache. If you need to store thousands of objects, consider using one of the OjectRepository stores and using some logic to keep up to one thousand objects in the cache. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object.
+This store acts as a wrapper around a dictionary that handles key-checking and logging errors. Be wary of calls to this store slowing down as you add thousands of items to the cache. If you need to store thousands of objects, consider using one of the ObjectRepository stores and using some logic to keep up to one thousand objects in the cache. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object.
 
 I recommend using this class as a base class and overloading the functions it provides to make calls to it easier:
 
@@ -252,7 +267,7 @@ public interface IItemManager : IObjectCache<int, Item>{} // Or add IObjectCache
 public class ItemManager : ObjectCache<int, Item>, IItemManager 
 {
     public OperationResult TryAdd(Item item){
-        TryAdd(item.id, item);
+        return TryAdd(item.ID, item);
     }
 
     ...
@@ -271,7 +286,7 @@ This store is able to generate a table in a local SQLite database for any classe
 - `Enum`
 - `Collections` - See `IsCollectionType()` for supported collections.
 
-To use this store, for performance reasons I highly recomended using an ObjectCache for your base class and encapsulating the LocalObjectRepository object. This makes interacting with the store fast and means you don't have to think about managing the database manually. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object. A column in the table will be generated for each private field in the class, to avoid you needing to adjust the public interface of your models. If the key for a value is a field of that value, the first two columns will be duplicates, except values in the 'Key' column are converted to string. For example:
+To use this store, for performance reasons I highly recommend using an ObjectCache for your base class and encapsulating the LocalObjectRepository object. This makes interacting with the store fast and means you don't have to think about managing the database manually. When initialising this class, you need to provide `<T,V>` where `T` is the type of the key and `V` is the type of the object. A column in the table will be generated for each private field in the class, to avoid you needing to adjust the public interface of your models. If the key for a value is a field of that value, the first two columns will be duplicates, except values in the 'Key' column are converted to string. For example:
 
 ```csharp
 class Item {
@@ -328,7 +343,7 @@ public class ItemManager : ObjectCache<int, Item>, IItemManager
         }
     }
 
-    private void GetNewItemID(){
+    private int GetNewItemID(){
         return database.Count == 0 ? 0 : database.Keys.Max() + 1;
     }
 }
@@ -403,6 +418,10 @@ In `ProgramData.cs` there are several ToDo comments for settings for you to conf
 This is the display name of the program. It is used in several UserSettings descriptions.
 - `EnableBackups`  
 This can be used to disable the automatic backups feature of this template. If you disable them, the 'Backups' category of settings in `SettingsPageViewModel` will be hidden from the user.
+- `EnableSingleInstance`  
+  When enabled, if an instance of the application is already running and another instance is opened, the new instance will be shut down.
+- `EasyLanguageSwitching`  
+  When enabled, a button will be added to the `CustomTitleBar` next to the Toggle Theme button that allows the user to select a supported language. User can override this with `IUserSettings.EasyLanguageSwitching`. 
 - `EncryptionLevel`
   - Set to `Settings` to only encrypt the values of `EncryptedSetting` in `Settings.json`.
   - Set to `Data` to encrypt everything in `IFilePaths.DataFolder` and images cached by `ImageCache`
@@ -410,7 +429,7 @@ This can be used to disable the automatic backups feature of this template. If y
 - `UsesApi`
   - Sets whether your application communicates with any online HTTP APIs. If `false`, the 'Internet' category of settings in `SettingsPageViewModel` will be hidden from the user.
 - `UsesRemoteDatabase` 
-  - Sets whether your applicate uses `RemoteObjectRepository` to communicate with a remote SQL database. If `false`, the 'Database' category of settings in `SettingsPageViewModel` will be hidden from the user.
+  - Sets whether your application uses `RemoteObjectRepository` to communicate with a remote SQL database. If `false`, the 'Database' category of settings in `SettingsPageViewModel` will be hidden from the user.
   
   
 > [!WARNING]
@@ -418,7 +437,7 @@ This can be used to disable the automatic backups feature of this template. If y
 
 #### The Root Folder
 
-The first time you launch your application, Windows will create the folder that `IFilePaths.RootFolder` points to. Your application doesn't need to get permission from the user to read and write files in this folder. You need to give this folder a name though, or it will be assinged a UUID and be impossible to find. 
+The first time you launch your application, Windows will create the folder that `IFilePaths.RootFolder` points to. Your application doesn't need to get permission from the user to read and write files in this folder. You need to give this folder a name though, or it will be assigned a UUID and be impossible to find. 
 
 1) In the solution explorer, expand the main project.
 2) Find the file 'Package.appxmanifest' and double click it.
@@ -426,9 +445,10 @@ The first time you launch your application, Windows will create the folder that 
 4) Replace the UUID in 'Package name' with the name of your application.
 5) Now when your program is run, it will generate the folder:  
    `%LocalAppData%/Packages/{Package name}_{Some random characters}/`
-   1) `ProgramData.RootFolder` points to the 'LocalState' folder inside this one.
-   2) `ProgramData.CacheFolder` points to the 'LocalCache' folder inside this one.
+   1) `ProgramData.FilePaths.RootFolder` points to the 'LocalState' folder inside this one.
+   2) `ProgramData.FilePaths.CacheFolder` points to the 'LocalCache' folder inside this one.
 6) You can now ask your users to find the log file there if a bug is preventing them from using the button for opening `IFilePaths.LogsFolder` in File Explorer.
+7) When `OnUnhandledException` is triggered, a crash report will be generated in `IFilePaths.CrashReportsFolder`.
 
 ### Testing
 
@@ -516,7 +536,7 @@ The main page of your application, just a placeholder, replace it with your own 
 
 #### Backups Page
 
-This page is where the user can manage their automatic backups. For each backup in `IUserSettings.BackupsFolder`, they can either delete it or restore it. This page does not appear in the menu if there are no backups available, or if automatic backups have been disabled.
+This page is where the user can manage their automatic backups. For each backup in `IUserSettings.BackupsFolder`, they can either delete it or restore it. This page does not appear in the menu if there are no backups available.
 
 ![Backups Page](/Images/backups-page.png)
 
@@ -531,7 +551,7 @@ This is where the user can configure their settings. Settings are grouped into c
 
 #### CustomTitleBar
 
-Modify this view to adjust the content in the title bar. By default, it contains a button to toggle between light and dark mode, a label displaying `IProgramData.ProgramName` and a label displaying the application's version. The current version is extracted from the Assembly, so update it there to update the label.
+Modify this view to adjust the content in the title bar. By default, it contains a button to toggle between light and dark mode, a label displaying `IProgramData.ProgramName` and a label displaying the application's version. The current version is extracted from the Assembly Version of the .Core project, so update it there to update the label. When `EasyLanguageSwitching` is enabled in `IProgramData` or `IUserSettings`, a button for switching language will appear next to the Toggle Theme button.
 
 #### MessageView
 
@@ -619,7 +639,7 @@ AI generated code is acceptable, but please review the code before raising the P
 
 ## License
 
-TLDR, it's GPL-3.0, so any project you make distribute using any code from this template also needs to use the same license and you need to declare that it is a modified version of this project. **Read the introduction part of the license before distributing your application.**
+TLDR, it's GPL-3.0, so any project you distribute using any code from this template also needs to use the same license and you need to declare that it is a modified version of this project. **Read the introduction part of the license before distributing your application.**
 
 ## AI Usage
 
@@ -629,9 +649,10 @@ AI was used for the following purposes in this project:
 - To design the interfaces of the services and stores in this application.
 - To write docstrings in the interfaces.
 - To design the two GitHub Action workflows.
-- Some of the thead-safety code in 'LoggerService.cs'
+- Some of the thread-safety code in 'LoggerService.cs'
 - `EncryptionService.cs` was generated by AI, then hand-written by me, so it has all been thoroughly reviewed and tested. That said, encryption is not my expertise, so this could do with manual review by someone with more knowledge on the subject than me.
-- `LocalObjectRepository` and `RemoteObjectRepository` were AI generated and then reviewed and tested. By this point in development, I was eager to use the template to start working on another application, so I generated these Stores. Each has been review and tested.
+- `LocalObjectRepository` and `RemoteObjectRepository` were AI generated and then reviewed and tested. By this point in development, I was eager to use the template to start working on another application, so I generated these Stores. Each has been reviewed and tested.
+- A final review and patch of small issues before releasing the project.
 - All unit tests except those in `BackupServiceTests` have been AI generated and have been briefly reviewed. I wrote the `BackupServiceTests` as a learning exercise, then let AI generate the rest to save time.
 
 All other code in this template has been designed and written by me, with various snippets coming from online guides, examples and previous collaborative projects.
