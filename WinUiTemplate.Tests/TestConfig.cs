@@ -6,18 +6,18 @@ namespace WinUiTemplate.Tests
 {
     public class TestConfig
     {
-        public PostgreSQLConfig PostgreSQL { get; set; }
+        public PostgreSQLConfig PostgreSQL { get; set; } = new PostgreSQLConfig();
 
         public class PostgreSQLConfig
         {
-            public string Host { get; set; }
+            public string Host { get; set; } = string.Empty;
             public int Port { get; set; }
-            public string Database { get; set; }
-            public string Username { get; set; }
-            public string Password { get; set; }
+            public string Database { get; set; } = string.Empty;
+            public string Username { get; set; } = string.Empty;
+            public string Password { get; set; } = string.Empty;
         }
 
-        private static TestConfig _instance;
+        private static TestConfig? _instance;
         private static readonly object _lock = new object();
 
         public static TestConfig Instance {
@@ -29,7 +29,7 @@ namespace WinUiTemplate.Tests
                         }
                     }
                 }
-                return _instance;
+                return _instance!;
             }
         }
 
@@ -44,7 +44,8 @@ namespace WinUiTemplate.Tests
             }
 
             string json = File.ReadAllText(configPath);
-            return JsonConvert.DeserializeObject<TestConfig>(json);
+            return JsonConvert.DeserializeObject<TestConfig>(json)
+                ?? throw new InvalidDataException("Test configuration could not be deserialized.");
         }
     }
 }
