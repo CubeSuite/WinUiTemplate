@@ -71,6 +71,7 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        [Trait("Category", "LocalOnly")]
         public async Task GetAsync_RespectsTimeout() {
             mockUserSettings.Setup(x => x.ApiTimeout).Returns(1);
             mockUserSettings.Setup(x => x.ApiMaxRetries).Returns(0);
@@ -313,6 +314,7 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        [Trait("Category", "LocalOnly")]
         public async Task SendAsync_HandlesTimeout() {
             mockUserSettings.Setup(x => x.ApiTimeout).Returns(1);
             mockUserSettings.Setup(x => x.ApiMaxRetries).Returns(0);

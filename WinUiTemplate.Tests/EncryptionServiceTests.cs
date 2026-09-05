@@ -160,6 +160,7 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        [Trait("Category", "LocalOnly")]
         public async Task EncryptAsync_ReusesExistingKey() {
             byte[] plainBytes1 = Encoding.UTF8.GetBytes("First message");
             await encryptionService.EncryptAsync(plainBytes1);

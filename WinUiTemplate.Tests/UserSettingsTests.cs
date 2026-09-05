@@ -295,6 +295,7 @@ namespace WinUiTemplate.Tests
         #region Debounced Save Tests
 
         [Fact]
+        [Trait("Category", "LocalOnly")]
         public async Task SettingChange_TriggersDebouncedSave_AfterDelay()
         {
             UserSettings settings = CreateUserSettings();
@@ -314,6 +315,7 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        [Trait("Category", "LocalOnly")]
         public async Task RapidSettingChanges_OnlyTriggerOneDebouncedSave()
         {
             UserSettings settings = CreateUserSettings();
@@ -349,6 +351,7 @@ namespace WinUiTemplate.Tests
         }
 
         [Fact]
+        [Trait("Category", "LocalOnly")]
         public async Task SaveNowAsync_CancelsPendingDebouncedSave_AndSavesImmediately()
         {
             UserSettings settings = CreateUserSettings();
