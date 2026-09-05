@@ -1,6 +1,12 @@
 name: Generate Template
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Template version"
+        required: true
+        type: string
+        default: "1.0.0"
   
 
 jobs:
@@ -43,6 +49,8 @@ jobs:
       - name: Generate vstemplate files
         shell: pwsh
         run: |
+          $version = "${{ inputs.version }}"
+
           function Generate-ProjectItemsXml {
               param(
                   [string]$Path,
@@ -99,7 +107,8 @@ jobs:
                       xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
               <TemplateData>
                   <Name>WinUI3 MVVM Main Template</Name>
-                  <Description>The main UI project of WinUI3 MVVM Template</Description>
+                  <Description>The main UI project of WinUI3 MVVM Template (en-GB)</Description>
+                  <Version>$version</Version>
                   <ProjectType>CSharp</ProjectType>
                   <ProjectSubType></ProjectSubType>
                   <SortOrder>1000</SortOrder>
@@ -133,7 +142,8 @@ jobs:
                       xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
               <TemplateData>
                   <Name>WinUI3 MVVM Core Template</Name>
-                  <Description>The core services and business logic of WinUI3 MVVM Template</Description>
+                  <Description>The core services and business logic of WinUI3 MVVM Template (en-GB)</Description>
+                  <Version>$version</Version>
                   <ProjectType>CSharp</ProjectType>
                   <ProjectSubType></ProjectSubType>
                   <SortOrder>1000</SortOrder>
@@ -165,7 +175,8 @@ jobs:
           <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
             <TemplateData>
               <Name>WinUI 3 Tests</Name>
-              <Description>Unit tests project with xUnit</Description>
+              <Description>Unit tests project with xUnit (en-GB)</Description>
+              <Version>$version</Version>
               <ProjectType>CSharp</ProjectType>
               <Hidden>true</Hidden>
             </TemplateData>
@@ -185,7 +196,8 @@ jobs:
           <VSTemplate Version="3.0.0" Type="ProjectGroup" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005">
             <TemplateData>
               <Name>WinUI 3 MVVM Template</Name>
-              <Description>A WinUI 3 project template with MVVM &amp; DI architecture</Description>
+              <Description>A WinUI 3 project template with MVVM &amp; DI architecture (en-GB)</Description>
+              <Version>$version</Version>
               <ProjectType>CSharp</ProjectType>
             </TemplateData>
             <TemplateContent>
@@ -305,8 +317,9 @@ jobs:
       - name: Convert en-US template spelling
         shell: pwsh
         run: |
-          $textExtensions = @(".cs", ".csproj", ".json", ".xaml", ".xml", ".resw", ".manifest", ".appxmanifest", ".sln", ".slnx", ".yml", ".yaml", ".md", ".txt")
+          $textExtensions = @(".cs", ".csproj", ".json", ".xaml", ".xml", ".resw", ".manifest", ".appxmanifest", ".sln", ".slnx", ".vstemplate", ".yml", ".yaml", ".md", ".txt")
           $replacements = @(
+            @("(en-GB)", "(en-US)"),
             @("Colour", "Color"),
             @("colour", "color"),
             @("Initialised", "Initialized"),
