@@ -93,7 +93,7 @@ namespace WinUiTemplate.Core.Stores
                     using SqliteCommand command = connection.CreateCommand();
                     command.CommandText = $"SELECT COUNT(*) FROM {_tableName}";
 
-                    object result = command.ExecuteScalar();
+                    object? result = command.ExecuteScalar();
                     return Convert.ToInt32(result);
                 }
                 catch (Exception ex) {
@@ -202,7 +202,7 @@ namespace WinUiTemplate.Core.Stores
                 command.Parameters.AddWithValue("@key", keyString);
 
                 foreach (FieldInfo field in fields) {
-                    object value = field.GetValue(instance);
+                    object? value = field.GetValue(instance);
                     Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
                     string columnName = GetColumnName(field);
 
@@ -350,7 +350,7 @@ namespace WinUiTemplate.Core.Stores
                 command.CommandText = $"SELECT COUNT(*) FROM {_tableName} WHERE Key = @key";
                 command.Parameters.AddWithValue("@key", keyString);
 
-                object result = command.ExecuteScalar();
+                object? result = command.ExecuteScalar();
                 return Convert.ToInt32(result) > 0;
             }
             catch (Exception ex) {
@@ -436,7 +436,8 @@ namespace WinUiTemplate.Core.Stores
 
         private void EnsureDatabaseExists() {
             try {
-                string directory = Path.GetDirectoryName(databasePath);
+                string directory = Path.GetDirectoryName(databasePath)
+                    ?? throw new InvalidOperationException("The database path does not contain a directory.");
                 if (!Directory.Exists(directory)) {
                     Directory.CreateDirectory(directory);
                 }

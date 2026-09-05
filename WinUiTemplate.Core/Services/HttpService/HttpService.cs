@@ -72,7 +72,7 @@ namespace WinUiTemplate.Core.Services
                     HttpResponseMessage response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, linkedToken.Token);
                     return await HandleResponseAsync<T>(response);
                 }
-                catch (TaskCanceledException e) {
+                catch (TaskCanceledException) {
                     if (token.IsCancellationRequested) return default;
 
                     logger.LogWarning($"Request to '{url}' timed out:");

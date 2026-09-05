@@ -87,7 +87,7 @@ namespace WinUiTemplate.Core.Services
 
                 return zipResult;
             }
-            catch (OperationCanceledException e) {
+            catch (OperationCanceledException) {
                 return new OperationResult(false, "Backup cancelled", false);
             }
             catch (Exception e) {
@@ -137,7 +137,7 @@ namespace WinUiTemplate.Core.Services
             if (!result.Success) return new OperationResult(false, result.ErrorMessage, true);
 
             FileResult metadataFileResult = await fileUtils.TryGetFileAsync(programData.FilePaths.TempMetadataFile);
-            if (metadataFileResult.Success) {
+            if (metadataFileResult.Success && metadataFileResult.File != null) {
                 try {
                     await metadataFileResult.File.DeleteAsync();
                 }

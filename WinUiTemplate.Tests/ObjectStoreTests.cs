@@ -19,7 +19,7 @@ namespace WinUiTemplate.Tests
     public class TestItem
     {
         private int value;
-        private string name;
+        private string name = string.Empty;
         private DateTime createdAt;
         private Color backgroundColor;
 
@@ -34,7 +34,7 @@ namespace WinUiTemplate.Tests
     public class AutoPropertyTestItem
     {
         public int Value { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 
     // Test model for verifying decimal precision is preserved across storage round-trips
@@ -78,8 +78,9 @@ namespace WinUiTemplate.Tests
             Assert.True(result.Success);
             Assert.Null(result.ErrorMessage);
             Assert.Equal(1, store.Count);
-            OperationResult getResult = store.TryGet(GetTestKey("key1"), out TValue value);
+            OperationResult getResult = store.TryGet(GetTestKey("key1"), out TValue? value);
             Assert.True(getResult.Success);
+            Assert.NotNull(value);
             AssertValuesEqual(testValue, value);
         }
 
@@ -97,7 +98,8 @@ namespace WinUiTemplate.Tests
             Assert.NotNull(result.ErrorMessage);
             Assert.Contains("already exists", result.ErrorMessage);
             Assert.Equal(1, store.Count);
-            store.TryGet(GetTestKey("key1"), out TValue value);
+            store.TryGet(GetTestKey("key1"), out TValue? value);
+            Assert.NotNull(value);
             AssertValuesEqual(testValue1, value);
         }
 
@@ -114,7 +116,8 @@ namespace WinUiTemplate.Tests
             Assert.True(result.Success);
             Assert.Null(result.ErrorMessage);
             Assert.Equal(1, store.Count);
-            store.TryGet(GetTestKey("key1"), out TValue value);
+            store.TryGet(GetTestKey("key1"), out TValue? value);
+            Assert.NotNull(value);
             AssertValuesEqual(testValue2, value);
         }
 
@@ -164,10 +167,11 @@ namespace WinUiTemplate.Tests
 
             store.TryAdd(GetTestKey("key1"), testValue);
 
-            OperationResult result = store.TryGet(GetTestKey("key1"), out TValue value);
+            OperationResult result = store.TryGet(GetTestKey("key1"), out TValue? value);
 
             Assert.True(result.Success);
             Assert.Null(result.ErrorMessage);
+            Assert.NotNull(value);
             AssertValuesEqual(testValue, value);
         }
 
@@ -175,7 +179,7 @@ namespace WinUiTemplate.Tests
         public void TryGet_ReturnsFailureWhenKeyDoesNotExist() {
             IObjectCache<TKey, TValue> store = CreateStore();
 
-            OperationResult result = store.TryGet(GetTestKey("key1"), out TValue value);
+            OperationResult result = store.TryGet(GetTestKey("key1"), out TValue? value);
 
             Assert.False(result.Success);
             Assert.NotNull(result.ErrorMessage);
@@ -340,12 +344,14 @@ namespace WinUiTemplate.Tests
             IObjectCache<string, TestItem> store2 = CreateStore();
             Assert.Equal(2, store2.Count);
 
-            OperationResult result1 = store2.TryGet("key1", out TestItem value1);
+            OperationResult result1 = store2.TryGet("key1", out TestItem? value1);
             Assert.True(result1.Success);
+            Assert.NotNull(value1);
             Assert.Equal(100, value1.Value);
 
-            OperationResult result2 = store2.TryGet("key2", out TestItem value2);
+            OperationResult result2 = store2.TryGet("key2", out TestItem? value2);
             Assert.True(result2.Success);
+            Assert.NotNull(value2);
             Assert.Equal(200, value2.Value);
         }
 
@@ -389,9 +395,10 @@ namespace WinUiTemplate.Tests
             store1.TryAdd("key1", new TestItem { Value = 100 });
 
             // Store2 should see the data added by store1
-            OperationResult result = store2.TryGet("key1", out TestItem value);
+            OperationResult result = store2.TryGet("key1", out TestItem? value);
 
             Assert.True(result.Success);
+            Assert.NotNull(value);
             Assert.Equal(100, value.Value);
         }
 
@@ -407,8 +414,9 @@ namespace WinUiTemplate.Tests
 
             // Verify update persisted with third store
             IObjectCache<string, TestItem> store3 = CreateStore();
-            OperationResult result = store3.TryGet("key1", out TestItem value);
+            OperationResult result = store3.TryGet("key1", out TestItem? value);
             Assert.True(result.Success);
+            Assert.NotNull(value);
             Assert.Equal(999, value.Value);
         }
 
@@ -437,8 +445,9 @@ namespace WinUiTemplate.Tests
             OperationResult addResult = autoStore.TryAdd("key1", new AutoPropertyTestItem { Value = 42, Name = "Auto" });
 
             Assert.True(addResult.Success, addResult.ErrorMessage);
-            OperationResult getResult = autoStore.TryGet("key1", out AutoPropertyTestItem retrieved);
+            OperationResult getResult = autoStore.TryGet("key1", out AutoPropertyTestItem? retrieved);
             Assert.True(getResult.Success);
+            Assert.NotNull(retrieved);
             Assert.Equal(42, retrieved.Value);
             Assert.Equal("Auto", retrieved.Name);
         }
@@ -450,9 +459,10 @@ namespace WinUiTemplate.Tests
 
             decimalStore.TryAdd("key1", new DecimalTestItem { Amount = preciseAmount });
 
-            OperationResult result = decimalStore.TryGet("key1", out DecimalTestItem retrieved);
+            OperationResult result = decimalStore.TryGet("key1", out DecimalTestItem? retrieved);
 
             Assert.True(result.Success);
+            Assert.NotNull(retrieved);
             Assert.Equal(preciseAmount, retrieved.Amount);
         }
 
@@ -641,7 +651,7 @@ namespace WinUiTemplate.Tests
 
             using NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'TestItems')";
-            bool tableExists = (bool)command.ExecuteScalar();
+            bool tableExists = Convert.ToBoolean(command.ExecuteScalar());
 
             Assert.True(tableExists, "Table should be created in database");
         }
@@ -658,12 +668,14 @@ namespace WinUiTemplate.Tests
             IObjectCache<string, TestItem> store2 = CreateStore();
             Assert.Equal(2, store2.Count);
 
-            OperationResult result1 = store2.TryGet("key1", out TestItem value1);
+            OperationResult result1 = store2.TryGet("key1", out TestItem? value1);
             Assert.True(result1.Success);
+            Assert.NotNull(value1);
             AssertValuesEqual(item1, value1);
 
-            OperationResult result2 = store2.TryGet("key2", out TestItem value2);
+            OperationResult result2 = store2.TryGet("key2", out TestItem? value2);
             Assert.True(result2.Success);
+            Assert.NotNull(value2);
             AssertValuesEqual(item2, value2);
         }
 
@@ -675,9 +687,10 @@ namespace WinUiTemplate.Tests
 
             store.TryAdd("colorKey", item);
 
-            OperationResult result = store.TryGet("colorKey", out TestItem retrieved);
+            OperationResult result = store.TryGet("colorKey", out TestItem? retrieved);
 
             Assert.True(result.Success);
+            Assert.NotNull(retrieved);
             Assert.Equal(testColor.A, retrieved.BackgroundColor.A);
             Assert.Equal(testColor.R, retrieved.BackgroundColor.R);
             Assert.Equal(testColor.G, retrieved.BackgroundColor.G);
@@ -692,9 +705,10 @@ namespace WinUiTemplate.Tests
 
             store.TryAdd("dateKey", item);
 
-            OperationResult result = store.TryGet("dateKey", out TestItem retrieved);
+            OperationResult result = store.TryGet("dateKey", out TestItem? retrieved);
 
             Assert.True(result.Success);
+            Assert.NotNull(retrieved);
             Assert.Equal(testDate.ToString("yyyy-MM-dd HH:mm:ss"), retrieved.CreatedAt.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
@@ -733,7 +747,9 @@ namespace WinUiTemplate.Tests
             Assert.True(result.Success);
             Assert.Contains("1 row(s) affected", result.ErrorMessage);
 
-            store.TryGet("key1", out TestItem updated);
+            OperationResult getResult = store.TryGet("key1", out TestItem? updated);
+            Assert.True(getResult.Success);
+            Assert.NotNull(updated);
             Assert.Equal(999, updated.Value);
         }
 
@@ -752,7 +768,7 @@ namespace WinUiTemplate.Tests
             connection.Open();
             using NpgsqlCommand command = connection.CreateCommand();
             command.CommandText = "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'TestItems')";
-            bool tableExists = (bool)command.ExecuteScalar();
+            bool tableExists = Convert.ToBoolean(command.ExecuteScalar());
 
             Assert.True(tableExists, "Table should still exist after Clear");
         }
@@ -765,9 +781,10 @@ namespace WinUiTemplate.Tests
             TestItem item = new TestItem { Value = 100, Name = "Concurrent Test", CreatedAt = DateTime.UtcNow, BackgroundColor = Color.FromArgb(255, 128, 128, 128) };
             store1.TryAdd("key1", item);
 
-            OperationResult result = store2.TryGet("key1", out TestItem value);
+            OperationResult result = store2.TryGet("key1", out TestItem? value);
 
             Assert.True(result.Success);
+            Assert.NotNull(value);
             AssertValuesEqual(item, value);
         }
 
@@ -782,9 +799,10 @@ namespace WinUiTemplate.Tests
             store2.TryUpdate("key1", updated);
 
             IObjectCache<string, TestItem> store3 = CreateStore();
-            OperationResult result = store3.TryGet("key1", out TestItem value);
+            OperationResult result = store3.TryGet("key1", out TestItem? value);
 
             Assert.True(result.Success);
+            Assert.NotNull(value);
             AssertValuesEqual(updated, value);
         }
 
@@ -832,8 +850,9 @@ namespace WinUiTemplate.Tests
             OperationResult addResult = autoStore.TryAdd("key1", new AutoPropertyTestItem { Value = 42, Name = "Auto" });
 
             Assert.True(addResult.Success, addResult.ErrorMessage);
-            OperationResult getResult = autoStore.TryGet("key1", out AutoPropertyTestItem retrieved);
+            OperationResult getResult = autoStore.TryGet("key1", out AutoPropertyTestItem? retrieved);
             Assert.True(getResult.Success);
+            Assert.NotNull(retrieved);
             Assert.Equal(42, retrieved.Value);
             Assert.Equal("Auto", retrieved.Name);
         }
@@ -845,9 +864,10 @@ namespace WinUiTemplate.Tests
 
             decimalStore.TryAdd("key1", new DecimalTestItem { Amount = preciseAmount });
 
-            OperationResult result = decimalStore.TryGet("key1", out DecimalTestItem retrieved);
+            OperationResult result = decimalStore.TryGet("key1", out DecimalTestItem? retrieved);
 
             Assert.True(result.Success);
+            Assert.NotNull(retrieved);
             Assert.Equal(preciseAmount, retrieved.Amount);
         }
 

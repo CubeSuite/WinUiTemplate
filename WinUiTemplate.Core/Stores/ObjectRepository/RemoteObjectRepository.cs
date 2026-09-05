@@ -91,7 +91,7 @@ namespace WinUiTemplate.Core.Stores
                     using NpgsqlCommand command = connection.CreateCommand();
                     command.CommandText = $"SELECT COUNT(*) FROM {_tableName}";
 
-                    object result = command.ExecuteScalar();
+                    object? result = command.ExecuteScalar();
                     return Convert.ToInt32(result);
                 } catch (Exception ex) {
                     string errorMessage = $"Error retrieving count from table '{_tableName}': {ex.Message}";
@@ -151,7 +151,7 @@ namespace WinUiTemplate.Core.Stores
                         command.Parameters.AddWithValue(colorValue.ToHex());
                     }
                     else if (targetType.IsEnum && value != null) {
-                        command.Parameters.AddWithValue(value.ToString());
+                        command.Parameters.AddWithValue(value.ToString()!);
                     }
                     else if (targetType == typeof(DateTime) && value is DateTime dateTimeValue) {
                         command.Parameters.AddWithValue(DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc));
@@ -199,14 +199,14 @@ namespace WinUiTemplate.Core.Stores
                 command.CommandText = $"UPDATE {_tableName} SET {setClause} WHERE \"Key\" = ${parameterIndex}";
 
                 foreach (FieldInfo field in fields) {
-                    object value = field.GetValue(instance);
+                    object? value = field.GetValue(instance);
                     Type targetType = Nullable.GetUnderlyingType(field.FieldType) ?? field.FieldType;
 
                     if (targetType == typeof(Color) && value is Color colorValue) {
                         command.Parameters.AddWithValue(colorValue.ToHex());
                     }
                     else if (targetType.IsEnum && value != null) {
-                        command.Parameters.AddWithValue(value.ToString());
+                        command.Parameters.AddWithValue(value.ToString()!);
                     }
                     else if (targetType == typeof(DateTime) && value is DateTime dateTimeValue) {
                         command.Parameters.AddWithValue(DateTime.SpecifyKind(dateTimeValue, DateTimeKind.Utc));
@@ -307,7 +307,7 @@ namespace WinUiTemplate.Core.Stores
                 command.CommandText = $"SELECT COUNT(*) FROM {_tableName} WHERE \"Key\" = $1";
                 command.Parameters.AddWithValue(keyString);
 
-                object result = command.ExecuteScalar();
+                object? result = command.ExecuteScalar();
                 return Convert.ToInt32(result) > 0;
             } catch (Exception ex) {
                 logger.LogError($"Error checking if key exists: {ex.Message}");
