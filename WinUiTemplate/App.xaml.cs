@@ -32,8 +32,6 @@ using WinUiTemplate.Services.Testing;
 
 namespace WinUiTemplate
 {
-    // ToDo: Unit Tests
-
     /// <summary>
     /// Provides application-specific behaviour to supplement the default Application class.
     /// </summary>
@@ -157,8 +155,8 @@ namespace WinUiTemplate
         }
 
         private async Task InitialiseServices() {
-            serviceProvider.GetRequiredService<ILoggerService>().Initialise();
             await serviceProvider.GetRequiredService<IFileUtils>().CreateProgramFolderStructure();
+            serviceProvider.GetRequiredService<ILoggerService>().Initialise();
             await serviceProvider.GetRequiredService<IUserSettings>().Load();
             await serviceProvider.GetRequiredService<IImageCache>().Load();
         }
